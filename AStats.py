@@ -158,35 +158,36 @@ def draw_callback_px(self, context):
             object = bpy.context.selected_objects[n]
             if len(objectName)>0:objectName += "," + object.name
             else: objectName += object.name
-    selected = []
-    for o in bpy.context.selected_objects:
-        if o.type == "MESH":
-            allMaterials = o.data.materials
-            o.update_from_editmode()
-            data = o.data
-            totalComponents[0]+=len(data.polygons)
-            totalComponents[1]+=len(data.edges)
-            totalComponents[2]+=len(data.vertices)
-            #cheking applied materials
-            for material in data.materials:
-                if material != None :
-                    for poly in data.polygons:
-                        if data.materials[poly.material_index] != 'NoneType':
-                            if material.name == data.materials[poly.material_index].name:
-                                matNum+=1
-                                break
-            if bpy.context.mode == "EDIT_MESH":
+
+    if bpy.context.mode == "OBJECT":
+        for o in bpy.context.selected_objects:
+            if o.type == "MESH":
+                allMaterials = o.data.materials
+                data = o.data
+                totalComponents[0]+=len(data.polygons)
+                totalComponents[1]+=len(data.edges)
+                totalComponents[2]+=len(data.vertices)
+                #cheking applied materials
+                for material in data.materials:
+                    if material != None :
+                            matNum+=1
+    if bpy.context.mode == "EDIT_MESH":
+        for o in bpy.context.selected_objects:
+            if o.type == "MESH":
+                selected = []
+                data = o.data
+                allMaterials = o.data.materials
                 totalSelected[0]+=data.total_face_sel
                 totalSelected[1]+=data.total_edge_sel
                 totalSelected[2]+=data.total_vert_sel
                 for poly in data.polygons:
+                    o.update_from_editmode()
                     if poly.select :
                         selected.append(poly)
-            for poly in selected:
-                if len(allMaterials)!=0:
-                    if material != None :
-                        if materials.count(allMaterials[poly.material_index].name) == 0 :
-                            materials.append(allMaterials[poly.material_index].name)
+                for sel in selected:
+                    if len(selected)>0:
+                        if allMaterials[sel.material_index].name not in materials :
+                            materials.append(allMaterials[sel.material_index].name)
     #Draw global stats for visible objects
     if getValue('bDispGlobal') == True:
         if len(bpy.context.visible_objects) == 0:
