@@ -31,7 +31,6 @@ bl_info = {
 
 import bpy
 import blf
-import bgl
 StatsText = {
     "font_id": 0,
     "handler": None,
@@ -186,7 +185,7 @@ def draw_callback_px(self, context):
                         selected.append(poly)
                 if len(selected)>0:
                     for sel in selected:
-                        if len(selected)>0:
+                        if len(allMaterials)>0:
                             if allMaterials[sel.material_index].name not in materials :
                                 materials.append(allMaterials[sel.material_index].name)
     #Draw global stats for visible objects
