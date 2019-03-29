@@ -180,14 +180,15 @@ def draw_callback_px(self, context):
                 totalSelected[0]+=data.total_face_sel
                 totalSelected[1]+=data.total_edge_sel
                 totalSelected[2]+=data.total_vert_sel
+                o.update_from_editmode()
                 for poly in data.polygons:
-                    o.update_from_editmode()
                     if poly.select :
                         selected.append(poly)
-                for sel in selected:
-                    if len(selected)>0:
-                        if allMaterials[sel.material_index].name not in materials :
-                            materials.append(allMaterials[sel.material_index].name)
+                if len(selected)>0:
+                    for sel in selected:
+                        if len(selected)>0:
+                            if allMaterials[sel.material_index].name not in materials :
+                                materials.append(allMaterials[sel.material_index].name)
     #Draw global stats for visible objects
     if getValue('bDispGlobal') == True:
         if len(bpy.context.visible_objects) == 0:
