@@ -312,7 +312,7 @@ def draw_callback_px(self, context):
                             else:text+=" "+m
                     size = relativeScale(getValue('mFontSize'))
                     posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth)
-                    posY =  remap(getValue('sLocY')-(size*4),0,1000,0,height)
+                    posY =  remap(getValue('sLocY')-(size*5),0,1000,0,height)
                     add_draw(posX,posY,size,getValue('matColor'),text)
             else:
                 for i in range(3):
@@ -328,7 +328,7 @@ def draw_callback_px(self, context):
                     if getValue('bShowMats') == True and matNum > 0:
                         size = relativeScale(getValue('mFontSize'))
                         posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth)
-                        posY = remap(getValue('sLocY')-(size*4),0,1000,0,height)
+                        posY = remap(getValue('sLocY')-(size*5),0,1000,0,height)
                         text = ""
                         if matNum == 1:text="Material"
                         else:text="Materials"
