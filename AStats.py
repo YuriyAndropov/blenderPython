@@ -1,6 +1,6 @@
 '''
 Copyright (C) 2019
-yurii.andropov@live.com
+yuriy.andropov@live.com
 
 Created by Yurii Andropov
 
