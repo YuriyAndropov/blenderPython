@@ -21,6 +21,9 @@
   <ItemGroup>
     <Compile Include="AMaAs.py" />
     <Compile Include="AStats.py" />
+    <Compile Include="AQPipe.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>
