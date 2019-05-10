@@ -32,10 +32,14 @@ bl_info = {
 import bpy
 import bmesh
 
-newMesh = bpy.data.meshes.new("PipeMesh")
-newObj = bpy.data.objects.new("QPipe", newMesh)
-newObj.location = (0,0,0)
-bpy.context.collection.objects.link(newObj)
+
+#get collection 
+def getCollection(name):
+    for collection in bpy.data.collections:
+        if collection.name == name:
+            return collection
+            break
+    return None  
 
 #check if there is already a collection with specified name
 def checkCollections(name):
@@ -43,15 +47,10 @@ def checkCollections(name):
         if collection.name == name:
             return True
             break
+    return False
 
-#add new collection if check is false
-def addCollection(name):
-    if checkCollections(name)==False:
-        newCol = bpy.data.collections.new(name)
-        bpy.context.scene.collection.children.link(newCol)
-
-#get curve profile from edge selection
-def getProfile():
+#get new object from edge selection
+def objectFromPath():
     objects = bpy.context.selected_objects
     for object in objects:
         data = object.data
@@ -62,16 +61,30 @@ def getProfile():
             if edge.select == False:
                 nonSelected.append(edge)
         bmesh.ops.delete(dupe,geom=nonSelected,context='EDGES')
-        newMesh = bpy.data.meshes.new("PipeMesh")
+        newMesh = bpy.data.meshes.new("QPipeMesh")
         dupe.to_mesh(newMesh)
-        newObj = bpy.data.objects.new("object_name", newMesh)
+        newObj = bpy.data.objects.new("Profile", newMesh)
         bpy.context.collection.objects.link(newObj)
+        newObj.location = object.location
         bmesh.types.BMesh.free
-            
-        bpy.ops.object.mode_set(mode='OBJECT')
-        for object in objects:
-            object.select_set(False)
-        bpy.context.view_layer.objects.active = newObj
-        newObj.select_set(True)
-        bpy.ops.object.convert('EXEC_DEFAULT',target='CURVE')
-       
+        name = "QProfile"
+        if checkCollections(name) == True:
+            getCollection(name).objects.link(newObj)
+        else:
+             newCol = bpy.data.collections.new(name)
+             newCol.objects.link(newObj)
+   
+
+class AQPipe_MakeProfile(bpy.types.Operator):
+    bl_idname = "object.aqpipe_makeprofile"
+    bl_label = "AQPipe Make Profile"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self,context):
+        objectFromPath()
+        return {'FINISHED'}
+
+def register():
+    bpy.utils.register_class(AQPipe_MakeProfile)
+def unregister():
+    bpy.utils.unregister_class(AQPipe_MakeProfile)
