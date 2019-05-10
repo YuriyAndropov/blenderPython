@@ -32,19 +32,46 @@ bl_info = {
 import bpy
 import bmesh
 
-def getPath():
-    #check the meshes and remove selection from main mesh
-    for object in bpy.context.selected_objects:
-        if object == bpy.context.active_object:
-            data = object.data
-            bm = bmesh.from_edit_mesh(data)
-            for edge in bm.edges:
-                edge.select_set(False)
-            bmesh.update_edit_mesh(data,False)
-        #if bpy.context.scene.tool_settings.mesh_select_mode[1]==True:
-                    #create a new mesh
-                    #newMesh = bpy.data.meshes.new('emptyMesh')
-                    #newobjObj = bpy.data.objects.new("object_name", emptyMesh)
-                    #link to collection
-                    #bm to mesh
-                    #mesh->bpy.ops.object.convert(target='MESH', keep_original=False)
+newMesh = bpy.data.meshes.new("PipeMesh")
+newObj = bpy.data.objects.new("QPipe", newMesh)
+newObj.location = (0,0,0)
+bpy.context.collection.objects.link(newObj)
+
+#check if there is already a collection with specified name
+def checkCollections(name):
+    for collection in bpy.data.collections:
+        if collection.name == name:
+            return True
+            break
+
+#add new collection if check is false
+def addCollection(name):
+    if checkCollections(name)==False:
+        newCol = bpy.data.collections.new(name)
+        bpy.context.scene.collection.children.link(newCol)
+
+#get curve profile from edge selection
+def getProfile():
+    objects = bpy.context.selected_objects
+    for object in objects:
+        data = object.data
+        bm = bmesh.from_edit_mesh(data)
+        nonSelected = []
+        dupe = bm.copy()
+        for edge in dupe.edges:
+            if edge.select == False:
+                nonSelected.append(edge)
+        bmesh.ops.delete(dupe,geom=nonSelected,context='EDGES')
+        newMesh = bpy.data.meshes.new("PipeMesh")
+        dupe.to_mesh(newMesh)
+        newObj = bpy.data.objects.new("object_name", newMesh)
+        bpy.context.collection.objects.link(newObj)
+        bmesh.types.BMesh.free
+            
+        bpy.ops.object.mode_set(mode='OBJECT')
+        for object in objects:
+            object.select_set(False)
+        bpy.context.view_layer.objects.active = newObj
+        newObj.select_set(True)
+        bpy.ops.object.convert('EXEC_DEFAULT',target='CURVE')
+       

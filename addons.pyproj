@@ -24,6 +24,9 @@
     <Compile Include="AQPipe.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="bAPISnippets.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>
