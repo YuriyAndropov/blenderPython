@@ -39,19 +39,28 @@ def getCollection(name):
         if collection.name == name:
             return collection
             break
-    return None  
+   
 
 #check if there is already a collection with specified name
-def checkCollections(name):
+def checkCollections(value):
     for collection in bpy.data.collections:
-        if collection.name == name:
+        if collection.name == value:
             return True
             break
     return False
 
-#get new object from edge selection
+#get new object from edge selection and add it to collection
+#TODO move collection name to propperies
+#TODO add object and mode check
 def objectFromPath():
     objects = bpy.context.selected_objects
+    cName = "QProfile"
+    col = None
+    if checkCollections(cName) == True:
+        col = getCollection(cName)
+    else:
+        col = bpy.data.collections.new(cName)
+        bpy.context.scene.collection.children.link(col)
     for object in objects:
         data = object.data
         bm = bmesh.from_edit_mesh(data)
@@ -64,16 +73,19 @@ def objectFromPath():
         newMesh = bpy.data.meshes.new("QPipeMesh")
         dupe.to_mesh(newMesh)
         newObj = bpy.data.objects.new("Profile", newMesh)
-        bpy.context.collection.objects.link(newObj)
+        col.objects.link(newObj)
         newObj.location = object.location
         bmesh.types.BMesh.free
-        name = "QProfile"
-        if checkCollections(name) == True:
-            getCollection(name).objects.link(newObj)
-        else:
-             newCol = bpy.data.collections.new(name)
-             newCol.objects.link(newObj)
-   
+        
+        
+#TODO add object check
+def convertToCurve():
+    for object in getCollection("QProfile").objects:
+        print(object.name)
+        #bpy.context.scene.objects.active = object
+        #object.select = True
+        #bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        #bpy.ops.object.convert('EXECUTE_DEFAULT', target='Curve')
 
 class AQPipe_MakeProfile(bpy.types.Operator):
     bl_idname = "object.aqpipe_makeprofile"
@@ -82,6 +94,7 @@ class AQPipe_MakeProfile(bpy.types.Operator):
 
     def execute(self,context):
         objectFromPath()
+        convertToCurve()
         return {'FINISHED'}
 
 def register():
