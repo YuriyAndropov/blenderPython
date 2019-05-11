@@ -32,6 +32,7 @@ bl_info = {
 import bpy
 import bmesh
 
+#profile selection enum list
 listItems = []
 
 
@@ -66,6 +67,7 @@ def checkForObject(value):
             break
     return False
 
+#update profile selection enum
 def updateList(self,context):
     del listItems[:]
     id = 0
@@ -137,6 +139,7 @@ def convertToCurve():
         bpy.context.view_layer.objects.active = path
         bpy.ops.object.convert('INVOKE_DEFAULT', target='CURVE')
 
+#make profile from selection operator
 class AQPipe_MakeProfile(bpy.types.Operator):
     bl_idname = "object.aqpipe_makeprofile"
     bl_label = "AQPipe Make Profile"
@@ -161,6 +164,7 @@ class AQPipe_MakeProfile(bpy.types.Operator):
     def invoke(self,context,event):
         return context.window_manager.invoke_props_dialog(self, width=300, height=20)
 
+#make path from selection operator
 class AQPipe_MakePath(bpy.types.Operator):
     bl_idname = "object.aqpipe_makepath"
     bl_label = "AQPipe Make Path"
@@ -186,7 +190,8 @@ class AQPipe_MakePath(bpy.types.Operator):
     def invoke(self,context,event):
         return context.window_manager.invoke_props_dialog(self, width=300, height=20)
 
-
+#TODO add check for 0 profiles
+#profile selection operator
 class AQPipe_SelectProfile(bpy.types.Operator):
     bl_idname = "object.aqpipe_selectprofile"
     bl_label = "AQPipe Select Bevel Profile"
@@ -211,6 +216,7 @@ class AQPipe_SelectProfile(bpy.types.Operator):
     def invoke(self,context,event):
         return context.window_manager.invoke_props_dialog(self, width=300, height=40)
 
+#sweep profile operator
 class AQPipe_SweepProfile(bpy.types.Operator):
     bl_idname = "object.aqpipe_sweepprofile"
     bl_label = "AQPipe SweepProfileAlongPath"
@@ -239,6 +245,7 @@ class AQPipe_SweepProfile(bpy.types.Operator):
     
 
 def register():
+    #pointer for selected profile
     bpy.types.Scene.AQPipe_selProfile = bpy.props.PointerProperty(type=bpy.types.Object)
     bpy.utils.register_class(AQPipe_MakeProfile)
     bpy.utils.register_class(AQPipe_MakePath)

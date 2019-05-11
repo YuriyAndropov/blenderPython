@@ -20,4 +20,8 @@ def Object():
     object.select_set(True) 
     #make object active
     bpy.context.view_layer.objects.active = object
+    #parent one object1 to object2
+    object1.parent = object2
+    #access to children
+    object.children
     
