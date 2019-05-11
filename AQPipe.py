@@ -32,6 +32,8 @@ bl_info = {
 import bpy
 import bmesh
 
+listItems = []
+
 
 #get collection by name
 def getCollection(name):
@@ -61,6 +63,20 @@ def checkForObject(value):
             return True
             break
     return False
+
+def updateList(self,context):
+    del listItems[:]
+    id = 0
+    for profile in getObjectInCollection("Profiles").children:
+        pId = str(id)
+        name = profile.name
+        des = profile.name
+        icon = 'OBJECT_DATA'
+        if (str(id),name,des,icon,id) not in listItems:
+            listItems.append((name,name,des,icon,id))
+        id+=1
+    return listItems
+
 
 #checking and creating proper structure for new objects
 def createCollectionAndParents():
@@ -121,7 +137,7 @@ def convertToCurve():
 class AQPipe_MakeProfile(bpy.types.Operator):
     bl_idname = "object.aqpipe_makeprofile"
     bl_label = "AQPipe Make Profile"
-    bl_options = {'REGISTER', 'UNDO'}
+    bl_options = {'REGISTER'}
 
     pName: bpy.props.StringProperty(name="Name :",default = "Profile")
 
@@ -137,7 +153,6 @@ class AQPipe_MakeProfile(bpy.types.Operator):
 
     def execute(self,context):
         objectFromPath(self.pName)
-        convertToCurve()
         self.dropSelection()
         return {'FINISHED'}
     def invoke(self,context,event):
@@ -149,15 +164,20 @@ class AQPipe_SelectProfile(bpy.types.Operator):
     bl_label = "Select Bevel Profile"
     bl_options = {'REGISTER', 'UNDO'}
 
-    #def updateList(self,context):
-
-    sceneProfiles:bpy.props.EnumProperty(name="Scene Profiles")
+    sceneProfiles: bpy.props.EnumProperty(name="Scene Profiles",items=updateList)
 
     def draw(self,context):
         layout = self.layout
-        eRow = layout.row(align=True)
+        enumRow = layout.row(align=True)
 
-        eRow.prop(self,"sceneProfiles")
+        enumRow.prop(self,"sceneProfiles")
+        sceneProfiles = "0"
+
+    def execute(self,context):
+        return {'FINISHED'}
+
+    def invoke(self,context,event):
+        return context.window_manager.invoke_props_dialog(self, width=300, height=40)
 
 def register():
     bpy.utils.register_class(AQPipe_MakeProfile)
