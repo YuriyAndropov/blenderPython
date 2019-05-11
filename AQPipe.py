@@ -33,13 +33,19 @@ import bpy
 import bmesh
 
 
-#get collection 
+#get collection by name
 def getCollection(name):
     for collection in bpy.data.collections:
         if collection.name == name:
             return collection
             break
-   
+
+#get object in collection by name
+def getObjectInCollection(name):
+    for object in getCollection("QPipe").objects:
+        if object.name == name:
+            return object
+            break
 
 #check if there is already a collection with specified name
 def checkCollections(value):
@@ -48,19 +54,44 @@ def checkCollections(value):
             return True
             break
     return False
+#check if there is already an object in collection with specified name
+def checkForObject(value):
+    for object in getCollection("QPipe").objects:
+        if object.name == value:
+            return True
+            break
+    return False
+
+#checking and creating proper structure for new objects
+def createCollectionAndParents():
+    newCol = None
+    if checkCollections("QPipe") == False:
+        newCol = bpy.data.collections.new("QPipe")
+        bpy.context.scene.collection.children.link(newCol)
+        profObject = bpy.data.objects.new("Profiles",None)
+        newCol.objects.link(profObject)
+        pathObject = bpy.data.objects.new("Paths",None)
+        newCol.objects.link(pathObject)
+    else:
+        if checkForObject("Profiles") == False:
+            profObject = bpy.data.objects.new("Profiles",None)
+            newCol.objects.link(profObject)
+        if checkForObject("Paths") == False:
+            profObject = bpy.data.objects.new("Profiles",None)
+            newCol.objects.link(profObject)
 
 #get new object from edge selection and add it to collection
 #TODO move collection name to propperies
 #TODO add object and mode check
-def objectFromPath():
+def objectFromPath(profileName):
     objects = bpy.context.selected_objects
-    cName = "QProfile"
+    
     col = None
-    if checkCollections(cName) == True:
-        col = getCollection(cName)
-    else:
-        col = bpy.data.collections.new(cName)
-        bpy.context.scene.collection.children.link(col)
+    profObj = None
+    createCollectionAndParents()
+    col = getCollection('QPipe')
+    profObj = getObjectInCollection("Profiles")
+
     for object in objects:
         data = object.data
         bm = bmesh.from_edit_mesh(data)
@@ -72,15 +103,16 @@ def objectFromPath():
         bmesh.ops.delete(dupe,geom=nonSelected,context='EDGES')
         newMesh = bpy.data.meshes.new("QPipeMesh")
         dupe.to_mesh(newMesh)
-        newObj = bpy.data.objects.new("Profile", newMesh)
+        newObj = bpy.data.objects.new(profileName, newMesh)
         col.objects.link(newObj)
         newObj.location = object.location
+        newObj.parent = profObj
         bmesh.types.BMesh.free
         
-        
+#TODO remove from selection.        
 #TODO add object check
 def convertToCurve():
-    for object in getCollection("QProfile").objects:
+    for object in getCollection("QPipe").objects:
         print(object.name)
         object.select_set(True) 
         bpy.context.view_layer.objects.active = object
@@ -91,12 +123,46 @@ class AQPipe_MakeProfile(bpy.types.Operator):
     bl_label = "AQPipe Make Profile"
     bl_options = {'REGISTER', 'UNDO'}
 
+    pName: bpy.props.StringProperty(name="Name :",default = "Profile")
+
+    def dropSelection(self):
+        for object in bpy.context.selected_objects:
+            object.select_set(False)
+
+    def draw(self,context):
+        layout = self.layout
+        nRow = layout.row(align=True)
+
+        nRow.prop(self,"pName")
+
     def execute(self,context):
-        objectFromPath()
+        objectFromPath(self.pName)
         convertToCurve()
+        self.dropSelection()
         return {'FINISHED'}
+    def invoke(self,context,event):
+        return context.window_manager.invoke_props_dialog(self, width=300, height=20)
+
+
+class AQPipe_SelectProfile(bpy.types.Operator):
+    bl_idname = "object.aqpipe_selectprofile"
+    bl_label = "Select Bevel Profile"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    #def updateList(self,context):
+
+    sceneProfiles:bpy.props.EnumProperty(name="Scene Profiles")
+
+    def draw(self,context):
+        layout = self.layout
+        eRow = layout.row(align=True)
+
+        eRow.prop(self,"sceneProfiles")
 
 def register():
     bpy.utils.register_class(AQPipe_MakeProfile)
+    bpy.utils.register_class(AQPipe_SelectProfile)
+    
 def unregister():
     bpy.utils.unregister_class(AQPipe_MakeProfile)
+    bpy.utils.unregister_class(AQPipe_SelectProfile)
