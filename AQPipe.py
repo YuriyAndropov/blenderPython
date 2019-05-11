@@ -82,10 +82,9 @@ def objectFromPath():
 def convertToCurve():
     for object in getCollection("QProfile").objects:
         print(object.name)
-        #bpy.context.scene.objects.active = object
-        #object.select = True
-        #bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-        #bpy.ops.object.convert('EXECUTE_DEFAULT', target='Curve')
+        object.select_set(True) 
+        bpy.context.view_layer.objects.active = object
+        bpy.ops.object.convert('INVOKE_DEFAULT', target='CURVE')
 
 class AQPipe_MakeProfile(bpy.types.Operator):
     bl_idname = "object.aqpipe_makeprofile"

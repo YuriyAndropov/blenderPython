@@ -16,4 +16,8 @@ def Object():
     newObj = bpy.data.objects.new("Name", meshData)
     #link object to the scene(to Master Collection)
     bpy.context.collection.objects.link(newObj)
+    #select an object
+    object.select_set(True) 
+    #make object active
+    bpy.context.view_layer.objects.active = object
     
