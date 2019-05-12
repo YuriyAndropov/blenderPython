@@ -35,7 +35,6 @@ import bmesh
 #profile selection enum list
 listItems = []
 
-
 #get collection by name
 def getCollection(name):
     for collection in bpy.data.collections:
@@ -185,23 +184,24 @@ class AQPipe_MakePath(bpy.types.Operator):
     def execute(self,context):
         objectFromPath(self.pName,"Paths")
         self.dropSelection()
-        bpy.ops.object.aqpipe_selectprofile('INVOKE_DEFAULT')
         return {'FINISHED'}
     def invoke(self,context,event):
         return context.window_manager.invoke_props_dialog(self, width=300, height=20)
 
 #TODO add check for 0 profiles
 #profile selection operator
-class AQPipe_SelectProfile(bpy.types.Operator):
-    bl_idname = "object.aqpipe_selectprofile"
-    bl_label = "AQPipe Select Bevel Profile"
+class AQPipe_SweepProfile(bpy.types.Operator):
+    bl_idname = "object.aqpipe_sweepprofile"
+    bl_label = "AQPipe Sweep Profile"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def updateProfile():
-        bpy.types.Scene.AQPipe_selProfile = self.sceneProfiles
-        return None
 
     sceneProfiles: bpy.props.EnumProperty(name="Scene Profiles",items=updateList)
+  
+    def setBevel(self,bevelObject):
+        for path in getObjectInCollection("Paths").children:
+            curve = path.data
+            curve.bevel_object = bevelObject
 
     def draw(self,context):
         layout = self.layout
@@ -211,50 +211,39 @@ class AQPipe_SelectProfile(bpy.types.Operator):
         sceneProfiles = "0"
 
     def execute(self,context):
+        createCollectionAndParents()
+        bObj = None
+        for profile in getObjectInCollection('Profiles').children:
+            if profile.name == self.sceneProfiles:
+                bObj = profile
+        self.setBevel(bObj)
         return {'FINISHED'}
 
     def invoke(self,context,event):
         return context.window_manager.invoke_props_dialog(self, width=300, height=40)
 
 #sweep profile operator
-class AQPipe_SweepProfile(bpy.types.Operator):
-    bl_idname = "object.aqpipe_sweepprofile"
-    bl_label = "AQPipe SweepProfileAlongPath"
+class AQPipe_AdditionalOptions(bpy.types.Operator):
+    bl_idname = "object.aqpipe_addoptions"
+    bl_label = "AQPipe Additional Options"
     bl_options = {'REGISTER', 'UNDO'}
-
-    def checkPath(self):
-        path = getObjectInCollection("Paths")
-        if len(path.children)==0: 
-            bpy.ops.object.aqpipe_makepath('INVOKE_DEFAULT')
-    #TODO profile conversion to a spline,set bevel object
-    def setBevel(self):
-        for path in getObjectInCollection("Paths").children:
-            data = path.data
-            data.bevel_object = bpy.types.Scene.AQPipe_selProfile
-     
 
 
     def execute(self,context):
-        createCollectionAndParents()
-        self.checkPath()
-        bpy.ops.object.aqpipe_selectprofile('INVOKE_DEFAULT')
-        convertToCurve()
-        self.setBevel()
         return {'FINISHED'}
+    def invoke(self,context,event):
+        return context.window_manager.invoke_props_dialog(self, width=300, height=20)
 
     
 
 def register():
-    #pointer for selected profile
-    bpy.types.Scene.AQPipe_selProfile = bpy.props.PointerProperty(type=bpy.types.Object)
     bpy.utils.register_class(AQPipe_MakeProfile)
     bpy.utils.register_class(AQPipe_MakePath)
-    bpy.utils.register_class(AQPipe_SelectProfile)
     bpy.utils.register_class(AQPipe_SweepProfile)
+    bpy.utils.register_class(AQPipe_AdditionalOptions)
     
 def unregister():
     bpy.utils.unregister_class(AQPipe_MakeProfile)
     bpy.utils.unregister_class(AQPipe_MakePath)
-    bpy.utils.unregister_class(AQPipe_SelectProfile)
     bpy.utils.unregister_class(AQPipe_SweepProfile)
-    del bpy.types.Scene.AQPipe_selProfile
+    bpy.utils.unregister_class(AQPipe_AdditionalOptions)
