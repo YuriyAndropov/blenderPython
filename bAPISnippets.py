@@ -24,4 +24,9 @@ def Object():
     object1.parent = object2
     #access to children
     object.children
+
+def Context():
+    #set context mode
+    #'OBJECT', 'EDIT', 'SCULPT', 'VERTEX_PAINT', 'WEIGHT_PAINT', 'TEXTURE_PAINT', 'PARTICLE_EDIT', 'POSE'
+    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
     

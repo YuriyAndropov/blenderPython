@@ -149,17 +149,21 @@ class AQPipe_MakeProfile(bpy.types.Operator):
     pName: bpy.props.StringProperty(name="Name :",default = "Profile")
 
     def dropSelection(self):
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         for object in bpy.context.selected_objects:
             object.select_set(False)
     
     def checkState(self):
+        for object in bpy.context.selected_objects:
+            if object.type != "MESH":
+                self.report({'INFO'}, 'Object should be a MESH type')
+                return False
+                break
         if bpy.context.mode == 'OBJECT':
             self.report({'INFO'}, 'Should be in Edit Mode to select path')
             return False
         return True
-    #TODO Add object check
-    #def checkObjectType(self):
-        #for object in bpy.context.selected_objects:
+    
 
     def draw(self,context):
         layout = self.layout
@@ -235,7 +239,8 @@ class AQPipe_SweepProfile(bpy.types.Operator):
     def invoke(self,context,event):
         return context.window_manager.invoke_props_dialog(self, width=300, height=40)
 
-#sweep profile operator
+#TODO add flush paths and profiles, remove QPipe data
+#additional options 
 class AQPipe_AdditionalOptions(bpy.types.Operator):
     bl_idname = "object.aqpipe_addoptions"
     bl_label = "AQPipe Additional Options"
