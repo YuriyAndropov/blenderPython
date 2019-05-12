@@ -100,11 +100,11 @@ def createCollectionAndParents():
             newCol.objects.link(pathObject)
 
 #get new object from edge selection and add it to collection
-#TODO move collection name to propperies
+#TODO move collection name to properies
 #TODO add object and mode check
 def objectFromPath(profileName,typeName):
+   
     objects = bpy.context.selected_objects
-    
     col = None
     profObj = None
     createCollectionAndParents()
@@ -127,6 +127,8 @@ def objectFromPath(profileName,typeName):
         newObj.location = object.location
         newObj.parent = profObj
         bmesh.types.BMesh.free
+   
+        
         
 #TODO remove from selection.        
 #TODO add object check
@@ -149,6 +151,15 @@ class AQPipe_MakeProfile(bpy.types.Operator):
     def dropSelection(self):
         for object in bpy.context.selected_objects:
             object.select_set(False)
+    
+    def checkState(self):
+        if bpy.context.mode == 'OBJECT':
+            self.report({'INFO'}, 'Should be in Edit Mode to select path')
+            return False
+        return True
+    #TODO Add object check
+    #def checkObjectType(self):
+        #for object in bpy.context.selected_objects:
 
     def draw(self,context):
         layout = self.layout
@@ -157,8 +168,9 @@ class AQPipe_MakeProfile(bpy.types.Operator):
         nRow.prop(self,"pName")
 
     def execute(self,context):
-        objectFromPath(self.pName,"Profiles")
-        self.dropSelection()
+        if self.checkState()==True:
+            objectFromPath(self.pName,"Profiles")
+            self.dropSelection()
         return {'FINISHED'}
     def invoke(self,context,event):
         return context.window_manager.invoke_props_dialog(self, width=300, height=20)
@@ -185,6 +197,7 @@ class AQPipe_MakePath(bpy.types.Operator):
         objectFromPath(self.pName,"Paths")
         self.dropSelection()
         return {'FINISHED'}
+
     def invoke(self,context,event):
         return context.window_manager.invoke_props_dialog(self, width=300, height=20)
 
