@@ -34,6 +34,71 @@ import bmesh
 
 #profile selection enum list
 listItems = []
+addon_keymaps = []
+
+class AQPipePreferences(bpy.types.AddonPreferences):
+    bl_idname = __name__
+    keyList = (("A", "A", "A"),("B", "B", "B"),("C", "C", "C"),
+    ("D", "D", "D"),("E", "E", "E"),("F", "F", "F"),("G", "G", "G"),
+    ("H", "H", "H"),("I", "I", "I"),("J", "J", "J"),("K", "K", "K"),
+    ("L", "L", "L"),("M", "M", "M"),("N", "N", "N"),("O", "O", "O"),
+    ("P", "P", "P"),("Q", "Q", "Q"),("R", "R", "R"),("S", "S", "S"),
+    ("T", "T", "T"),("U", "U", "U"),("V", "V", "V"),("W", "W", "W"),
+    ("X", "X", "X"),("Y", "Y", "Y"),("Z", "Z", "Z"))
+
+    
+
+    profKey:bpy.props.EnumProperty(items=keyList,default="M")
+    profAlt:bpy.props.BoolProperty(name="Alt",description="Alt modifier",default=False)
+    profCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=True)
+    profShift:bpy.props.BoolProperty(name="Shift",description="Shift modifier",default=False)
+
+    pathKey:bpy.props.EnumProperty(items=keyList,default="M")
+    pathAlt:bpy.props.BoolProperty(name="Alt",description="Alt modifier",default=False)
+    pathCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=True)
+    pathShift:bpy.props.BoolProperty(name="Shift",description="Shift modifier",default=False)
+
+    sweepKey:bpy.props.EnumProperty(items=keyList,default="M")
+    sweepAlt:bpy.props.BoolProperty(name="Alt",description="Alt modifier",default=False)
+    sweepCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=True)
+    sweepShift:bpy.props.BoolProperty(name="Shift",description="Shift modifier",default=False)
+
+    aOptKey:bpy.props.EnumProperty(items=keyList,default="M")
+    aOptAlt:bpy.props.BoolProperty(name="Alt",description="Alt modifier",default=False)
+    aOptCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=True)
+    aOptShift:bpy.props.BoolProperty(name="Shift",description="Shift modifier",default=False)
+
+    def draw(self,context):
+        layout = self.layout
+        propBox = layout.box()
+        profRow = propBox.row(align=True)
+        pathRow = propBox.row(align=True)
+        sweepRow = propBox.row(align=True)
+        aOptRow = propBox.row(align=True)
+
+        profRow.prop(self,"profKey")
+        profRow.prop(self,"profAlt")
+        profRow.prop(self,"profCtrl")
+        profRow.prop(self,"profShift")
+
+        pathRow.prop(self,"pathKey")
+        pathRow.prop(self,"pathAlt")
+        pathRow.prop(self,"pathCtrl")
+        pathRow.prop(self,"pathShift")
+
+        sweepRow.prop(self,"sweepKey")
+        sweepRow.prop(self,"sweepAlt")
+        sweepRow.prop(self,"sweepCtrl")
+        sweepRow.prop(self,"sweepShift")
+
+        aOptRow.prop(self,"aOptKey")
+        aOptRow.prop(self,"aOptAlt")
+        aOptRow.prop(self,"aOptCtrl")
+        aOptRow.prop(self,"aOptShift")
+
+#get addon preferences option by name
+def getProp(name):
+    return getattr(bpy.context.preferences.addons[__name__].preferences,name)
 
 #get collection by name
 def getCollection(name):
@@ -106,35 +171,38 @@ def objectFromPath(profileName,typeName):
     createCollectionAndParents()
     col = getCollection('QPipe')
     profObj = getObjectInCollection(typeName)
+    
 
     for object in objects:
-        data = object.data
-        bm = bmesh.from_edit_mesh(data)
-        nonSelected = []
-        dupe = bm.copy()
-        for edge in dupe.edges:
-            if edge.select == False:
-                nonSelected.append(edge)
-        bmesh.ops.delete(dupe,geom=nonSelected,context='EDGES')
-        newMesh = bpy.data.meshes.new("QPipeMesh")
-        dupe.to_mesh(newMesh)
-        newObj = bpy.data.objects.new(profileName, newMesh)
-        col.objects.link(newObj)
-        newObj.location = object.location
-        newObj.parent = profObj
-        bmesh.types.BMesh.free
+        if object.type == "MESH" and bpy.context.mode == 'EDIT':
+            data = object.data
+            bm = bmesh.from_edit_mesh(data)
+            nonSelected = []
+            dupe = bm.copy()
+            for edge in dupe.edges:
+                if edge.select == False:
+                    nonSelected.append(edge)
+            bmesh.ops.delete(dupe,geom=nonSelected,context='EDGES')
+            newMesh = bpy.data.meshes.new("QPipeMesh")
+            dupe.to_mesh(newMesh)
+            newObj = bpy.data.objects.new(profileName, newMesh)
+            col.objects.link(newObj)
+            newObj.location = object.location
+            newObj.parent = profObj
+            bmesh.types.BMesh.free
    
         
-        
-#TODO remove from selection.        
-#TODO add object check
 def convertToCurve():
     paths = getObjectInCollection("Paths")
     for path in paths.children:
-        
-        path.select_set(True) 
-        bpy.context.view_layer.objects.active = path
-        bpy.ops.object.convert('INVOKE_DEFAULT', target='CURVE')
+        if path.type == "MESH":
+            path.select_set(True) 
+            bpy.context.view_layer.objects.active = path
+            bpy.ops.object.convert('INVOKE_DEFAULT', target='CURVE')
+        if path.type == "CURVE":
+            object.parent = getObjectInCollection("Profiles")
+            
+
 
 #make profile from selection operator
 class AQPipe_MakeProfile(bpy.types.Operator):
@@ -143,6 +211,7 @@ class AQPipe_MakeProfile(bpy.types.Operator):
     bl_options = {'REGISTER'}
 
     pName: bpy.props.StringProperty(name="Name :",default = "Profile")
+    actionType: bpy.props.StringProperty(name="ActionType",default = "")
 
     def dropSelection(self):
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -151,14 +220,13 @@ class AQPipe_MakeProfile(bpy.types.Operator):
     
     def checkState(self):
         for object in bpy.context.selected_objects:
-            if object.type != "MESH":
-                self.report({'INFO'}, 'Object should be a MESH type')
+            if object.type != "MESH" and object.type != "CURVE":
+                self.report({'INFO'}, 'Object should be a MESH or CURVE type')
                 return False
-        if bpy.context.mode == 'OBJECT':
-            self.report({'INFO'}, 'Should be in Edit Mode to select path')
-            return False
+            if bpy.context.mode == 'OBJECT' and object.type == "MESH":
+                self.report({'INFO'}, 'MESH should be in Edit Mode to select path')
+                return False
         return True
-    
 
     def draw(self,context):
         layout = self.layout
@@ -167,6 +235,7 @@ class AQPipe_MakeProfile(bpy.types.Operator):
         nRow.prop(self,"pName")
 
     def execute(self,context):
+        print (self.actionType)
         if self.checkState()==True:
             objectFromPath(self.pName,"Profiles")
             self.dropSelection()
@@ -185,6 +254,16 @@ class AQPipe_MakePath(bpy.types.Operator):
     def dropSelection(self):
         for object in bpy.context.selected_objects:
             object.select_set(False)
+
+    def checkState(self):
+        for object in bpy.context.selected_objects:
+            if object.type != "MESH" and object.type != "CURVE":
+                self.report({'INFO'}, 'Object should be a MESH or CURVE type')
+                return False
+            if bpy.context.mode == 'OBJECT' and object.type == "MESH":
+                self.report({'INFO'}, 'MESH should be in Edit Mode to select path')
+                return False
+        return True
 
     def draw(self,context):
         layout = self.layout
@@ -250,12 +329,16 @@ class AQPipe_AdditionalOptions(bpy.types.Operator):
     
 
 def register():
+    bpy.utils.register_class(AQPipePreferences)
     bpy.utils.register_class(AQPipe_MakeProfile)
     bpy.utils.register_class(AQPipe_MakePath)
     bpy.utils.register_class(AQPipe_SweepProfile)
     bpy.utils.register_class(AQPipe_AdditionalOptions)
     
+    
 def unregister():
+    
+    bpy.utils.unregister_class(AQPipePreferences)
     bpy.utils.unregister_class(AQPipe_MakeProfile)
     bpy.utils.unregister_class(AQPipe_MakePath)
     bpy.utils.unregister_class(AQPipe_SweepProfile)
