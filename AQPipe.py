@@ -40,7 +40,6 @@ def getCollection(name):
     for collection in bpy.data.collections:
         if collection.name == name:
             return collection
-            break
     return None
 
 #get object in collection by name
@@ -48,7 +47,6 @@ def getObjectInCollection(name):
     for object in getCollection("QPipe").objects:
         if object.name == name:
             return object
-            break
     return None
 
 #check if there is already a collection with specified name
@@ -56,14 +54,12 @@ def checkCollections(value):
     for collection in bpy.data.collections:
         if collection.name == value:
             return True
-            break
     return False
 #check if there is already an object in collection with specified name
 def checkForObject(value):
     for object in getCollection("QPipe").objects:
         if object.name == value:
             return True
-            break
     return False
 
 #update profile selection enum
@@ -158,7 +154,6 @@ class AQPipe_MakeProfile(bpy.types.Operator):
             if object.type != "MESH":
                 self.report({'INFO'}, 'Object should be a MESH type')
                 return False
-                break
         if bpy.context.mode == 'OBJECT':
             self.report({'INFO'}, 'Should be in Edit Mode to select path')
             return False
