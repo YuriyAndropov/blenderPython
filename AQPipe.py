@@ -192,15 +192,15 @@ def objectFromPath(profileName,typeName):
             bmesh.types.BMesh.free
    
         
-def convertToCurve():
-    paths = getObjectInCollection("Paths")
-    for path in paths.children:
+def convertToCurve(typeName):
+    profiles = getObjectInCollection(typeName)
+    for path in profiles.children:
         if path.type == "MESH":
             path.select_set(True) 
             bpy.context.view_layer.objects.active = path
             bpy.ops.object.convert('INVOKE_DEFAULT', target='CURVE')
         if path.type == "CURVE":
-            object.parent = getObjectInCollection("Profiles")
+            object.parent = getObjectInCollection(typeName)
             
 
 
@@ -307,6 +307,8 @@ class AQPipe_SweepProfile(bpy.types.Operator):
         for profile in getObjectInCollection('Profiles').children:
             if profile.name == self.sceneProfiles:
                 bObj = profile
+        for paths in getObjectInCollection('Paths').children:
+            convertToCurve("Paths")
         self.setBevel(bObj)
         return {'FINISHED'}
 
