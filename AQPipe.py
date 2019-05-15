@@ -190,7 +190,22 @@ def objectFromPath(profileName,typeName):
             newObj.location = object.location
             newObj.parent = profObj
             bmesh.types.BMesh.free
-   
+        if object.type == "CURVE":
+           
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+            bpy.context.view_layer.objects.active = object
+            object.parent = getObjectInCollection(typeName)
+
+#don't want to use built-in operator for creating a curve
+def createCurve():
+    objects = bpy.context.selected_objects
+    for object in objects:
+        data = object.data
+        curveData = bpy.data.curves.new('QpipeCurve', type='CURVE')
+        spline = curveData.splines.new('POLY')
+        for vert in data.verts:
+            spline.points.add(1)
+       
         
 def convertToCurve(typeName):
     profiles = getObjectInCollection(typeName)
@@ -211,7 +226,7 @@ class AQPipe_MakeProfile(bpy.types.Operator):
     bl_options = {'REGISTER'}
 
     pName: bpy.props.StringProperty(name="Name :",default = "Profile")
-    actionType: bpy.props.StringProperty(name="ActionType",default = "")
+    
 
     def dropSelection(self):
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -235,7 +250,6 @@ class AQPipe_MakeProfile(bpy.types.Operator):
         nRow.prop(self,"pName")
 
     def execute(self,context):
-        print (self.actionType)
         if self.checkState()==True:
             objectFromPath(self.pName,"Profiles")
             self.dropSelection()
@@ -328,6 +342,20 @@ class AQPipe_AdditionalOptions(bpy.types.Operator):
     def invoke(self,context,event):
         return context.window_manager.invoke_props_dialog(self, width=300, height=20)
 
+class AQPipe_PostEdit(bpy.types.Operator):
+    bl_idname = "object.aqpipe_postedit"
+    bl_label = "AQPipe post edit menu"
+    bl_options = {'REGISTER', 'UNDO'}
+
+
+    def execute(self,context):
+        createCurve()
+        
+        return {'FINISHED'}
+    #def invoke(self,context,event):
+        #return context.window_manager.invoke_props_dialog(self, width=300, height=20)
+
+
     
 
 def register():
@@ -336,6 +364,7 @@ def register():
     bpy.utils.register_class(AQPipe_MakePath)
     bpy.utils.register_class(AQPipe_SweepProfile)
     bpy.utils.register_class(AQPipe_AdditionalOptions)
+    bpy.utils.register_class(AQPipe_PostEdit)
     
     
 def unregister():
@@ -345,3 +374,4 @@ def unregister():
     bpy.utils.unregister_class(AQPipe_MakePath)
     bpy.utils.unregister_class(AQPipe_SweepProfile)
     bpy.utils.unregister_class(AQPipe_AdditionalOptions)
+    bpy.utils.unregister_class(AQPipe_PostEdit)

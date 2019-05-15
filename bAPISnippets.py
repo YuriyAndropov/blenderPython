@@ -24,6 +24,8 @@ def Object():
     object1.parent = object2
     #access to children
     object.children
+    #object custom properties
+    bpy.ops.wm.properties_add(data_path="object.data")
 
 def Context():
     #set context mode
