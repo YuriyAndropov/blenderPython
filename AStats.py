@@ -36,6 +36,8 @@ StatsText = {
     "handler": None,
 }
 font_id = 0
+totalComponents = [0,0,0]
+matNum = 0
 
 class AddonPreferences(bpy.types.AddonPreferences):
     bl_idname = __name__
@@ -110,6 +112,8 @@ class AddonPreferences(bpy.types.AddonPreferences):
         MatRow.prop(self,"mFontSize")
         MatRow.prop(self,"matColor")
 
+
+
 def getValue(name):
     return getattr(bpy.context.preferences.addons[__name__].preferences,name)
 
@@ -124,10 +128,50 @@ def relativeScale(size):
     else:return size
 
 def add_draw(posX,posY,size,color,text):
+    
     blf.position(font_id, posX,posY, 0)
     blf.size(font_id, size, 72)
     blf.color(font_id, color[0], color[1], color[2], 1)
     blf.draw(font_id, text)
+
+
+def getDataFromSelectedObjects():
+    sum = [0,0,0]
+    for object in bpy.context.selected_objects:
+        if object.type == "MESH":
+            data = object.data
+            sum[0]+=len(data.polygons)
+            sum[1]+=len(data.edges)
+            sum[2]+=len(data.vertices)
+    return sum
+
+def getGlobalStats():
+    stats = [0,0,0,0]
+    if len(bpy.context.visible_objects) == 0:
+            stats = [0,0,0,0]
+    else:
+        for object in bpy.context.visible_objects:
+            stats[0]+=1
+            if object.type == "MESH":
+                stats[1]+=len(object.data.polygons)
+                stats[2]+=len(object.data.edges)
+                stats[3]+=len(object.data.vertices)
+    return stats
+def displayShadow():
+    blf.enable(font_id , blf.SHADOW )
+    blf.shadow(font_id, 3, getValue('shadowColor')[0], getValue('shadowColor')[1], getValue('shadowColor')[2], 0.8)
+    blf.shadow_offset(font_id, getValue('shOffsetX'), getValue('shOffsetY'))
+
+
+def getObjectNames():
+    text = ""
+    if len(bpy.context.selected_objects) > getValue("groupNames") and getValue('bNameGrouping')==True:
+        text = str(len(bpy.context.selected_objects)) + " Objects"
+    else :
+        for object in range(len(bpy.context.selected_objects)):
+            if len(bpy.context.selected_objects[object].name)>0:text += "," + bpy.context.selected_objects[object].name
+            else: text += bpy.context.selected_objects[object].name
+    return text
 
 def draw_callback_px(self, context):
     nWidth = 0
@@ -139,75 +183,34 @@ def draw_callback_px(self, context):
     height = bpy.context.area.height
     view_layer = bpy.context.view_layer
     objectName = ""
-    totalComponents = [0,0,0]
+    
     totalSelected = [0,0,0]
     names = ["Faces : ", "Edges : ", "Verts : "]
     globalnames = ["Objects :","Faces :","Edges :","Verts :"]
     globalValues = [0,0,0,0]
     materials = []
     allMaterials = []
-    matNum = 0
+    
 
+    
     if getValue('bDispShadow') == True:
-        blf.enable(font_id , blf.SHADOW )
-        blf.shadow(font_id, 3, getValue('shadowColor')[0], getValue('shadowColor')[1], getValue('shadowColor')[2], 0.8)
-        blf.shadow_offset(font_id, getValue('shOffsetX'), getValue('shOffsetY'))
-    #Get object names and selected objects stats
-    if len(bpy.context.selected_objects) > getValue("groupNames") and getValue('bNameGrouping')==True:
-        objectName = str(len(bpy.context.selected_objects)) + " Objects"
-    else :
-        for n in range(len(bpy.context.selected_objects)):
-            object = bpy.context.selected_objects[n]
-            if len(objectName)>0:objectName += "," + object.name
-            else: objectName += object.name
-
-    if bpy.context.mode == "OBJECT":
-        for o in bpy.context.selected_objects:
-            if o.type == "MESH":
-                allMaterials = o.data.materials
-                data = o.data
-                totalComponents[0]+=len(data.polygons)
-                totalComponents[1]+=len(data.edges)
-                totalComponents[2]+=len(data.vertices)
-                #cheking applied materials
-                for material in data.materials:
-                    if material != None :
-                            matNum+=1
-    if bpy.context.mode == "EDIT_MESH":
-        for o in bpy.context.selected_objects:
-            if o.type == "MESH":
-                selected = []
-                data = o.data
-                allMaterials = o.data.materials
-                totalSelected[0]+=data.total_face_sel
-                totalSelected[1]+=data.total_edge_sel
-                totalSelected[2]+=data.total_vert_sel
-                o.update_from_editmode()
-                for poly in data.polygons:
-                    if poly.select :
-                        selected.append(poly)
-                if len(selected)>0:
-                    for sel in selected:
-                        if len(allMaterials)>0:
-                            if allMaterials[sel.material_index].name not in materials :
-                                materials.append(allMaterials[sel.material_index].name)
+        displayShadow()
+        
+    
+    objectName = getObjectNames()
+    #I actually don't need to check state. I still get all objects from selection and computing components if ther are meshes
+    totalComponents = getDataFromSelectedObjects()
+      
     #Draw global stats for visible objects
     if getValue('bDispGlobal') == True:
-        if len(bpy.context.visible_objects) == 0:
-            globalValues = [0,0,0,0]
-        else:
-            for g in bpy.context.visible_objects:
-                globalValues[0]+=1
-                if g.type == "MESH":
-                    globalValues[1]+=len(g.data.polygons)
-                    globalValues[2]+=len(g.data.edges)
-                    globalValues[3]+=len(g.data.vertices)
+        globalValues = getGlobalStats()
         for v in range(4):
             size = relativeScale(getValue('gFontSize'))
             posX = remap(getValue('gLocX'),0,1000,tWidth,width-nWidth)
             posY = remap(getValue('gLocY'),0,1000,0,height)-size*v
             add_draw(posX,posY,size,getValue('gStatColor'),globalnames[v] + str(globalValues[v]))
-    #Draw stats for selected objects
+    
+            #Draw stats for selected objects
     if getValue('bDispSelected') == True:
         posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth)
         posY = remap(getValue('sLocY'),0,1000,0,height)
@@ -329,14 +332,14 @@ def draw_callback_px(self, context):
                     posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth) + shift
                     posY = remap(getValue('sLocY')-(size*(i+1)),0,1000,0,height)
                     add_draw(posX,posY,size,getValue('sStatColor'),str(totalComponents[i]))
-                    if getValue('bShowMats') == True and matNum > 0:
-                        size = relativeScale(getValue('mFontSize'))
-                        posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth)
-                        posY = remap(getValue('sLocY')-(size*5),0,1000,0,height)
-                        text = ""
-                        if matNum == 1:text="Material"
-                        else:text="Materials"
-                        add_draw(posX,posY,size,getValue('matColor'),str(matNum) + " " + text)
+                    #if getValue('bShowMats') == True and matNum > 0:
+                    #    size = relativeScale(getValue('mFontSize'))
+                    #    posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth)
+                    #    posY = remap(getValue('sLocY')-(size*5),0,1000,0,height)
+                    #    text = ""
+                    #    if matNum == 1:text="Material"
+                    #    else:text="Materials"
+                    #    add_draw(posX,posY,size,getValue('matColor'),str(matNum) + " " + text)
 
 def register():
     bpy.utils.register_class(AddonPreferences)
