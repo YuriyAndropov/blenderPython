@@ -39,17 +39,14 @@ font_id = 0
 objectName = ""
 totalComponents = [0,0,0]
 totalSelected = [0,0,0]
-matNum = 0
 names = ["Verts : ", "Edges : ", "Faces : "]
 globalnames = ["Objects :","Faces :","Edges :","Verts :"]
 globalValues = [0,0,0,0]
-materials = []
-allMaterials = []
 
 class AddonPreferences(bpy.types.AddonPreferences):
     bl_idname = __name__
     #Location properties
-    sLocX:bpy.props.IntProperty(name="X",description="Relative X position", default=10,min=0,max=1000)
+    sLocX:bpy.props.IntProperty(name="X",description="Relative X position", default=90,min=0,max=1000)
     sLocY:bpy.props.IntProperty(name="Y",description="Relative Y position", default=900,min=0,max=1000)
     gLocX:bpy.props.IntProperty(name="X",description="Relative X position", default=910,min=0,max=1000)
     gLocY:bpy.props.IntProperty(name="Y",description="Relative Y position", default=70,min=0,max=1000)
@@ -190,36 +187,34 @@ def getGlobalStats():
                 stats[3]+=len(object.data.vertices)
     return stats
 
-def getAllMaterials():
-    mats = []
-    for object in bpy.context.visible_objects:
-        if object.type == "MESH":
-            data = object.data 
-            for material in data.materials:
-                if material != None:
-                    mats.append(material.name)
-    return mats
-
 def getMaterialsFromSelection():
     mats = []
     text = ''
     for object in bpy.context.selected_objects:
         if object.type == "MESH":
+            object.update_from_editmode()
             data = object.data
-            for polygon in data.polygons:
-                material = data.materials[polygon.material_index]
-                if material!=None and material.name not in mats:
-                    mats.append(material.name)
+            if bpy.context.mode == "EDIT_MESH":
+                for polygon in data.polygons:
+                    material = data.materials[polygon.material_index]
+                    if polygon.select:
+                        if material!=None:
+                            if material.name not in mats:
+                                mats.append(material.name)
+            else:
+                for material in data.materials:
+                    if material!=None:
+                        mats.append(material.name)
     if len(mats) > getValue("groupNames") and getValue('bNameGrouping')==True:
         text = str(len(mats)) + " Materials"
     else:
-        for index in range(len(mats)-1):
+        for index in range(0,len(mats)):
             if index == 0 :
                 text += str(mats[index])
-            elif index == (len(mats)-1):
-                text+=", " + str(mats[index])
+            elif index == (len(mats)):
+                text+=',' + str(mats[index])
             else:
-                text += str(mats[index])+", "
+                text += ',' + str(mats[index])
     return text
 
 def displayShadow():
@@ -253,11 +248,10 @@ def draw_callback_px(self, context):
     #Draw global stats for visible objects
     if getValue('bDispGlobal') == True:
         globalValues = getGlobalStats()
-        allMaterials = getAllMaterials()
-        for v in range(4):
+        for value in range(4):
             size = relativeScale(getValue('gFontSize'))
-            text = globalnames[v]+str(globalValues[v])
-            setDrawParams('gFontSize','gLocX','gLocY',0,-size*v,'gStatColor',text,width,height)
+            text = globalnames[value]+str(globalValues[value])
+            setDrawParams('gFontSize','gLocX','gLocY',0,-size*value,'gStatColor',text,width,height)
     #Draw stats for selected objects
     if getValue('bDispSelected') == True:
         setDrawParams('sFontSize','sLocX','sLocY',0,0,'sStatColor',str(objectName),width,height)
@@ -311,7 +305,7 @@ def draw_callback_px(self, context):
             setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor',str(totalComponents[2]),width,height)
         #mats
         if (getValue('bShowMats')):
-            print(getMaterialsFromSelection())
+            
             shiftY += relativeScale(getValue('sFontSize'))*1.2
             setDrawParams('mFontSize','sLocX','sLocY',0,-shiftY,'matColor',getMaterialsFromSelection(),width,height)
 
