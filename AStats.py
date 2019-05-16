@@ -36,8 +36,15 @@ StatsText = {
     "handler": None,
 }
 font_id = 0
+objectName = ""
 totalComponents = [0,0,0]
+totalSelected = [0,0,0]
 matNum = 0
+names = ["Verts : ", "Edges : ", "Faces : "]
+globalnames = ["Objects :","Faces :","Edges :","Verts :"]
+globalValues = [0,0,0,0]
+materials = []
+allMaterials = []
 
 class AddonPreferences(bpy.types.AddonPreferences):
     bl_idname = __name__
@@ -66,6 +73,9 @@ class AddonPreferences(bpy.types.AddonPreferences):
     bShowMats: bpy.props.BoolProperty(name="On/Off",description="Switch for showing names of selected materials", default=True)
     bNameGrouping: bpy.props.BoolProperty(name="Name Grouping",description="Switch for name grouping", default=True)
     bFontScaling: bpy.props.BoolProperty(name="Font Sclaing",description="Switch for font scaling", default=True)
+    bDrawFaces: bpy.props.BoolProperty(name="Draw Faces",description="Switch for drawing faces", default=True)
+    bDrawEdges: bpy.props.BoolProperty(name="Draw Edges",description="Switch for drawing edges", default=True)
+    bDrawVerts: bpy.props.BoolProperty(name="Draw Verts",description="Switch for drawing verts", default=True)
     #Additional Properties
     groupNames: bpy.props.IntProperty(name="Group names after",description="When the number of of selected object is bigger than the value it will be replaced by Number of Objects", default=2)
 
@@ -85,12 +95,16 @@ class AddonPreferences(bpy.types.AddonPreferences):
         SelectedStatBox = layout.box()
         SelectedStatBox.label(text="Selected Objects Stats Options")
         SRow = SelectedStatBox.row(align=True)
+        BRow = SelectedStatBox.row(align=True)
         SRow.prop(self, "bDispSelected")
         SRow.prop(self, "sFontSize")
         SRow.prop(self, "sLocX")
         SRow.prop(self, "sLocY")
         SRow.prop(self, "sStatColor")
         SRow.prop(self,"highlightColor" )
+        BRow.prop(self,'bDrawFaces')
+        BRow.prop(self,'bDrawEdges')
+        BRow.prop(self,'bDrawVerts')
         SelectedStatBox.label(text="Statistics for all selected objects")
         #Box for additional properties
         AddProp = layout.box()
@@ -112,8 +126,6 @@ class AddonPreferences(bpy.types.AddonPreferences):
         MatRow.prop(self,"mFontSize")
         MatRow.prop(self,"matColor")
 
-
-
 def getValue(name):
     return getattr(bpy.context.preferences.addons[__name__].preferences,name)
 
@@ -128,12 +140,16 @@ def relativeScale(size):
     else:return size
 
 def add_draw(posX,posY,size,color,text):
-    
     blf.position(font_id, posX,posY, 0)
     blf.size(font_id, size, 72)
     blf.color(font_id, color[0], color[1], color[2], 1)
     blf.draw(font_id, text)
 
+def setDrawParams(fontName,xName,yName,shiftX,shiftY,colorName,text,width,height):
+     size = relativeScale(getValue(fontName))
+     posX = remap(getValue(xName),0,1000,0,width)+shiftX
+     posY = remap(getValue(yName),0,1000,0,height)+shiftY
+     add_draw(posX,posY,size,getValue(colorName),text)
 
 def getDataFromSelectedObjects():
     sum = [0,0,0]
@@ -144,6 +160,22 @@ def getDataFromSelectedObjects():
             sum[1]+=len(data.edges)
             sum[2]+=len(data.vertices)
     return sum
+
+def getSelectionStats():
+    faces = 0
+    edges = 0
+    verts = 0
+    for object in bpy.context.selected_objects:
+        if object.type == "MESH" and bpy.context.mode == "EDIT_MESH":
+            data = object.data
+            object.update_from_editmode()
+            if bpy.context.scene.tool_settings.mesh_select_mode[0] == True:
+                faces += data.total_vert_sel
+            if bpy.context.scene.tool_settings.mesh_select_mode[1] == True:
+                edges += data.total_edge_sel
+            if bpy.context.scene.tool_settings.mesh_select_mode[2] == True:
+                verts += data.total_face_sel
+    return [faces,edges,verts]
 
 def getGlobalStats():
     stats = [0,0,0,0]
@@ -157,11 +189,43 @@ def getGlobalStats():
                 stats[2]+=len(object.data.edges)
                 stats[3]+=len(object.data.vertices)
     return stats
+
+def getAllMaterials():
+    mats = []
+    for object in bpy.context.visible_objects:
+        if object.type == "MESH":
+            data = object.data 
+            for material in data.materials:
+                if material != None:
+                    mats.append(material.name)
+    return mats
+
+def getMaterialsFromSelection():
+    mats = []
+    text = ''
+    for object in bpy.context.selected_objects:
+        if object.type == "MESH":
+            data = object.data
+            for polygon in data.polygons:
+                material = data.materials[polygon.material_index]
+                if material!=None and material.name not in mats:
+                    mats.append(material.name)
+    if len(mats) > getValue("groupNames") and getValue('bNameGrouping')==True:
+        text = str(len(mats)) + " Materials"
+    else:
+        for index in range(len(mats)-1):
+            if index == 0 :
+                text += str(mats[index])
+            elif index == (len(mats)-1):
+                text+=", " + str(mats[index])
+            else:
+                text += str(mats[index])+", "
+    return text
+
 def displayShadow():
     blf.enable(font_id , blf.SHADOW )
     blf.shadow(font_id, 3, getValue('shadowColor')[0], getValue('shadowColor')[1], getValue('shadowColor')[2], 0.8)
     blf.shadow_offset(font_id, getValue('shOffsetX'), getValue('shOffsetY'))
-
 
 def getObjectNames():
     text = ""
@@ -169,7 +233,7 @@ def getObjectNames():
         text = str(len(bpy.context.selected_objects)) + " Objects"
     else :
         for object in range(len(bpy.context.selected_objects)):
-            if len(bpy.context.selected_objects[object].name)>0:text += "," + bpy.context.selected_objects[object].name
+            if object > 0:text += "," + bpy.context.selected_objects[object].name
             else: text += bpy.context.selected_objects[object].name
     return text
 
@@ -182,164 +246,77 @@ def draw_callback_px(self, context):
     width = bpy.context.area.width
     height = bpy.context.area.height
     view_layer = bpy.context.view_layer
-    objectName = ""
-    
-    totalSelected = [0,0,0]
-    names = ["Faces : ", "Edges : ", "Verts : "]
-    globalnames = ["Objects :","Faces :","Edges :","Verts :"]
-    globalValues = [0,0,0,0]
-    materials = []
-    allMaterials = []
-    
-
-    
     if getValue('bDispShadow') == True:
         displayShadow()
-        
-    
     objectName = getObjectNames()
-    #I actually don't need to check state. I still get all objects from selection and computing components if ther are meshes
     totalComponents = getDataFromSelectedObjects()
-      
     #Draw global stats for visible objects
     if getValue('bDispGlobal') == True:
         globalValues = getGlobalStats()
+        allMaterials = getAllMaterials()
         for v in range(4):
             size = relativeScale(getValue('gFontSize'))
-            posX = remap(getValue('gLocX'),0,1000,tWidth,width-nWidth)
-            posY = remap(getValue('gLocY'),0,1000,0,height)-size*v
-            add_draw(posX,posY,size,getValue('gStatColor'),globalnames[v] + str(globalValues[v]))
-    
-            #Draw stats for selected objects
+            text = globalnames[v]+str(globalValues[v])
+            setDrawParams('gFontSize','gLocX','gLocY',0,-size*v,'gStatColor',text,width,height)
+    #Draw stats for selected objects
     if getValue('bDispSelected') == True:
-        posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth)
-        posY = remap(getValue('sLocY'),0,1000,0,height)
-        size = relativeScale(getValue('sFontSize'))
-        add_draw(posX,posY , size ,getValue('sStatColor'), str(objectName))
-    #Draw only active type of selection
-        if getValue('bDispActive') == True:
+        setDrawParams('sFontSize','sLocX','sLocY',0,0,'sStatColor',str(objectName),width,height)
+        totalSelected = getSelectionStats()
+        shiftX=0
+        shiftY=0
+        #verts
+        if (getValue('bDispActive') and bpy.context.scene.tool_settings.mesh_select_mode[0]) or (not getValue('bDispActive') and getValue('bDrawVerts')):
+            shiftY = relativeScale(getValue('sFontSize'))*1.5 
+            setDrawParams('sFontSize','sLocX','sLocY',0,-shiftY,'sStatColor',names[0],width,height)
+            shiftX = len(names[0])*(relativeScale(getValue('sFontSize'))/2)
             if bpy.context.mode == "EDIT_MESH":
-                if tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (True, False, False):
-                    size = relativeScale(getValue('sFontSize'))
-                    posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth)
-                    posY = remap(getValue('sLocY')-size,0,1000,0,height)
-                    add_draw(posX,posY,size,getValue('sStatColor'),names[2] )
+                if bpy.context.scene.tool_settings.mesh_select_mode[0]:
+                    setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'highlightColor',str(totalSelected[0]),width,height)
+                    shiftX += len(str(totalSelected[0]))*(relativeScale(getValue('sFontSize'))/1.5)
+                    setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor','/',width,height)
+                else :
+                    setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor',str(totalSelected[0])+'/',width,height)
+                    shiftX += len(str(totalSelected[0]))*(relativeScale(getValue('sFontSize'))/1.5)
+            shiftX += relativeScale(getValue('sFontSize'))/1.5
+            setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor',str(totalComponents[0]),width,height)
+            #edges
+            if (getValue('bDispActive') and bpy.context.scene.tool_settings.mesh_select_mode[1]) or (not getValue('bDispActive') and getValue('bDrawEdges')):
+                shiftY += relativeScale(getValue('sFontSize'))*1.2
+                setDrawParams('sFontSize','sLocX','sLocY',0,-shiftY,'sStatColor',names[1],width,height)
 
-                    shift = len(names[2])*(size/1.5)
-                    posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth) + shift
-                    posY = remap(getValue('sLocY')-getValue('sFontSize'),0,1000,0,height)
-                    #size = relativeScale(getValue('sFontSize'))
-                    add_draw(posX,posY,size,getValue('highlightColor'),str(totalSelected[2]) )
-
-                    shift += len(str(totalSelected[2]))*(size/1.5)
-                    posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth) + shift
-                    posY = remap(getValue('sLocY')-getValue('sFontSize'),0,1000,0,height)
-                    #size = relativeScale(getValue('sFontSize'))
-                    add_draw(posX,posY,size,getValue('sStatColor'),"/" + str(totalComponents[2]) )
-
-                if tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (False, True, False):
-                    size = relativeScale(getValue('sFontSize'))
-                    posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth)
-                    posY = remap(getValue('sLocY')-size,0,1000,0,height)
-                    add_draw(posX,posY,size,getValue('sStatColor'),names[1])
-
-                    shift = len(names[1])*(size/1.5)
-                    posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth) + shift
-                    posY = remap(getValue('sLocY')-getValue('sFontSize'),0,1000,0,height)
-                    add_draw( posX,posY,size,getValue('highlightColor'),str(totalSelected[1]))
-
-                    shift += len(str(totalSelected[1]))*(size/1.5)
-                    posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth) + shift
-                    posY = remap(getValue('sLocY')-getValue('sFontSize'),0,1000,0,height)
-                    add_draw(posX,posY,size,getValue('sStatColor'),"/" + str(totalComponents[1]))
-
-                if tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (False, False, True):
-                    size = relativeScale(getValue('sFontSize'))
-                    posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth)
-                    posY = remap(getValue('sLocY')-size,0,1000,0,height)
-                    add_draw(posX,posY,size,getValue('sStatColor'),names[0])
-
-                    shift = len(names[0])*(size/1.5)
-                    posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth) + shift
-                    posY = remap(getValue('sLocY')-size,0,1000,0,height)
-                    add_draw(posX,posY,size,getValue('highlightColor'),str(totalSelected[0]))
-
-                    shift += len(str(totalSelected[0]))*(size/1.5)
-                    posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth) + shift
-                    posY = remap(getValue('sLocY')-size,0,1000,0,height)
-                    add_draw(posX,posY,size,getValue('sStatColor'),"/" + str(totalComponents[0]))
-
-                    if len(materials)>0:
-                        text = ""
-                        if getValue('bNameGrouping')==True and len(materials)>getValue('groupNames'):
-                            if len(materials) == 1:text="1 Material"
-                            else:text=str(len(materials))+" Materials"
-                        else:
-                            for n in materials :
-                                if len(text)==0:text+=n
-                                else:text+=" "+n
-                        size = relativeScale(getValue('mFontSize'))
-                        posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth)
-                        posY = remap(getValue('sLocY')-size*2,0,1000,0,height)
-                        add_draw(posX,posY,size,getValue('matColor'),text)
-        #Draw toute les chooses
-        else:
-            if bpy.context.mode == "EDIT_MESH":
-                for i in range(3):
-                    size = relativeScale(getValue('sFontSize'))
-                    posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth)
-                    posY = remap(getValue('sLocY')-(size*(i+1)),0,1000,0,height)
-                    add_draw(posX,posY,size,getValue('sStatColor'),names[i])
-
-                    shift = len(names[i])*(size/1.5)
-                    posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth) + shift
-                    posY = remap(getValue('sLocY')-(size*(i+1)),0,1000,0,height)
-                    if tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (False, False, True) and i==0:
-                        color = getValue('highlightColor')
-                    elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (False, True, False) and i==1:
-                        color = getValue('highlightColor')
-                    elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (True, False, False) and i==2:
-                        color = getValue('highlightColor')
+                shiftX = len(names[1])*(relativeScale(getValue('sFontSize'))/2)
+                if bpy.context.mode == "EDIT_MESH":
+                    if bpy.context.scene.tool_settings.mesh_select_mode[1]:
+                        setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'highlightColor',str(totalSelected[1]),width,height)
+                        shiftX += len(str(totalSelected[1]))*(relativeScale(getValue('sFontSize'))/1.5)
+                        setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor','/',width,height)
                     else:
-                        color = getValue('sStatColor')
-                    add_draw(posX,posY,size,color,str(totalSelected[i]))
-                    shift += len(str(totalSelected[i]))*(size/1.5)
-                    posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth) + shift
-                    posY = remap(getValue('sLocY')-(size*(i+1)),0,1000,0,height)
-                    add_draw(posX,posY,size,getValue('sStatColor'),"/" + str(totalComponents[i]))
-
-                if len(materials)>0 and getValue('bShowMats') == True:
-                    text = ""
-                    if getValue('bNameGrouping')==True and len(materials)>getValue('groupNames'):
-                        if len(materials)==1:text = str(len(materials))+" Material"
-                        else:text+= str(len(materials))+" Materials"
+                        setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor',str(totalSelected[1]),width,height)
+                        shiftX += len(str(totalSelected[1]))*(relativeScale(getValue('sFontSize'))/1.5)
+                shiftX += relativeScale(getValue('sFontSize'))/1.5
+                setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor',str(totalComponents[1]),width,height)
+            #faces
+            if (getValue('bDispActive') and bpy.context.scene.tool_settings.mesh_select_mode[2]) or (not getValue('bDispActive') and getValue('bDrawFaces')):
+                shiftY += relativeScale(getValue('sFontSize'))*1.2
+                setDrawParams('sFontSize','sLocX','sLocY',0,-shiftY,'sStatColor',names[2],width,height)
+                shiftX = len(names[0])*(relativeScale(getValue('sFontSize'))/2)
+                if bpy.context.mode == "EDIT_MESH":
+                    if bpy.context.scene.tool_settings.mesh_select_mode[2]:
+                        setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'highlightColor',str(totalSelected[2]),width,height)
+                        shiftX += len(str(totalSelected[2]))*(relativeScale(getValue('sFontSize'))/1.5)
+                        setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor','/',width,height)
                     else:
-                        for m in materials:
-                            if len(text)==0:text+=m
-                            else:text+=" "+m
-                    size = relativeScale(getValue('mFontSize'))
-                    posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth)
-                    posY =  remap(getValue('sLocY')-(size*5),0,1000,0,height)
-                    add_draw(posX,posY,size,getValue('matColor'),text)
-            else:
-                for i in range(3):
-                    size = relativeScale(getValue('sFontSize'))
-                    posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth)
-                    posY =  remap(getValue('sLocY')-(size*(i+1)),0,1000,0,height)
-                    add_draw(posX,posY,size,getValue('sStatColor'),names[i])
-
-                    shift = len(names[i])*(size/1.5)
-                    posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth) + shift
-                    posY = remap(getValue('sLocY')-(size*(i+1)),0,1000,0,height)
-                    add_draw(posX,posY,size,getValue('sStatColor'),str(totalComponents[i]))
-                    #if getValue('bShowMats') == True and matNum > 0:
-                    #    size = relativeScale(getValue('mFontSize'))
-                    #    posX = remap(getValue('sLocX'),0,1000,tWidth,width-nWidth)
-                    #    posY = remap(getValue('sLocY')-(size*5),0,1000,0,height)
-                    #    text = ""
-                    #    if matNum == 1:text="Material"
-                    #    else:text="Materials"
-                    #    add_draw(posX,posY,size,getValue('matColor'),str(matNum) + " " + text)
+                        setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor',str(totalSelected[2]),width,height)
+                        shiftX += len(str(totalSelected[2]))*(relativeScale(getValue('sFontSize'))/1.5)
+                shiftX += relativeScale(getValue('sFontSize'))/1.5
+                setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor',str(totalComponents[2]),width,height)
+            #mats
+            if (getValue('bShowMats')):
+                print("mats")
+                #text = getMaterialsFromSelection()
+                print(getMaterialsFromSelection())
+                shiftY += relativeScale(getValue('sFontSize'))*1.2
+                setDrawParams('mFontSize','sLocX','sLocY',0,-shiftY,'matColor',getMaterialsFromSelection(),width,height)
 
 def register():
     bpy.utils.register_class(AddonPreferences)
