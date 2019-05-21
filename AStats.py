@@ -22,7 +22,7 @@ bl_info = {
     "name": "A* Statistics",
     "description": "Show Stats in Viewport",
     "author": "A*",
-    "version": (0, 0, 1),
+    "version": (0, 0, 2),
     "blender": (2, 80, 0),
     "location": "View3D",
     "wiki_url": "https://youtu.be/06zMRZzpbZc",
@@ -66,7 +66,7 @@ class AddonPreferences(bpy.types.AddonPreferences):
     bDispGlobal: bpy.props.BoolProperty(name="On/Off",description="On/Off switch", default=True)
     bDispShadow: bpy.props.BoolProperty(name="On/Off",description="On/Off switch", default=True)
     bDispSelected: bpy.props.BoolProperty(name="On/Off",description="On/Off switch", default=True)
-    bDispActive: bpy.props.BoolProperty(name="Selection Based Stats",description="Switch for showing stats based on selection type(ie only verts)", default=False)
+    bDispActive: bpy.props.BoolProperty(name="Selection Mode Only Display",description="Switch for showing stats based on selection type(ie only verts)", default=False)
     bShowMats: bpy.props.BoolProperty(name="On/Off",description="Switch for showing names of selected materials", default=True)
     bNameGrouping: bpy.props.BoolProperty(name="Name Grouping",description="Switch for name grouping", default=True)
     bFontScaling: bpy.props.BoolProperty(name="Font Sclaing",description="Switch for font scaling", default=True)
@@ -93,6 +93,7 @@ class AddonPreferences(bpy.types.AddonPreferences):
         SelectedStatBox.label(text="Selected Objects Stats Options")
         SRow = SelectedStatBox.row(align=True)
         BRow = SelectedStatBox.row(align=True)
+        ORow = SelectedStatBox.row(align=True)
         SRow.prop(self, "bDispSelected")
         SRow.prop(self, "sFontSize")
         SRow.prop(self, "sLocX")
@@ -102,6 +103,7 @@ class AddonPreferences(bpy.types.AddonPreferences):
         BRow.prop(self,'bDrawFaces')
         BRow.prop(self,'bDrawEdges')
         BRow.prop(self,'bDrawVerts')
+        ORow.prop(self,'bDispActive')
         SelectedStatBox.label(text="Statistics for all selected objects")
         #Box for additional properties
         AddProp = layout.box()
@@ -110,7 +112,6 @@ class AddonPreferences(bpy.types.AddonPreferences):
         ShadowRow = AddProp.row(align=True)
         MatRow = AddProp.row(align=True)
         MatRow.label(text="Material Options")
-        ARow.prop(self,"bDispActive" )
         ARow.prop(self,"bFontScaling" )
         ARow.prop(self, "bNameGrouping")
         ARow.prop(self, "groupNames")
@@ -131,8 +132,8 @@ def remap(value, low1, high1, low2, high2):
 
 def relativeScale(size):
     if (getValue("bFontScaling")) == True:
-        x = remap(size, 0, 1586, 0 , bpy.context.area.width)
-        y = remap(size, 0, 657, 0, bpy.context.area.height )
+        x = remap(size, 0, 1000, 0 , bpy.context.area.width)
+        y = remap(size, 0, 1000, 0, bpy.context.area.height )
         return int((x+y)/2)
     else:return size
 
