@@ -144,7 +144,6 @@ def updateList(self,context):
 #TODO add check for None type collection
 #checking and creating proper structure for new objects
 def createCollectionAndParents():
-    newCol = None
     if checkCollections("QPipe") == False:
         newCol = bpy.data.collections.new("QPipe")
         bpy.context.scene.collection.children.link(newCol)
@@ -152,29 +151,31 @@ def createCollectionAndParents():
         newCol.objects.link(profObject)
         pathObject = bpy.data.objects.new("Paths",None)
         newCol.objects.link(pathObject)
+        tempObject = bpy.data.objects.new("Temp",None)
+        newCol.objects.link(tempObject)
     else:
+        collection = getCollection("QPipe")
         if checkForObject("Profiles") == False:
             profObject = bpy.data.objects.new("Profiles",None)
-            newCol.objects.link(profObject)
+            collection.objects.link(profObject)
         if checkForObject("Paths") == False:
             pathObject = bpy.data.objects.new("Paths",None)
-            newCol.objects.link(pathObject)
+            collection.objects.link(pathObject)
+        if checkForObject("Temp") == False:
+            tempObject = bpy.data.objects.new("Temp",None)
+            collection.objects.link(tempObject)
 
 #get new object from edge selection and add it to collection
 #TODO move collection name to properies
 #TODO add object and mode check
 def objectFromPath(profileName,typeName):
-   
     objects = bpy.context.selected_objects
-    col = None
-    profObj = None
     createCollectionAndParents()
     col = getCollection('QPipe')
     profObj = getObjectInCollection(typeName)
-    
 
     for object in objects:
-        if object.type == "MESH" and bpy.context.mode == 'EDIT':
+        if object.type == "MESH":
             data = object.data
             bm = bmesh.from_edit_mesh(data)
             nonSelected = []
@@ -190,11 +191,6 @@ def objectFromPath(profileName,typeName):
             newObj.location = object.location
             newObj.parent = profObj
             bmesh.types.BMesh.free
-        if object.type == "CURVE":
-           
-            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-            bpy.context.view_layer.objects.active = object
-            object.parent = getObjectInCollection(typeName)
 
 #don't want to use built-in operator for creating a curve
 def createCurve():
@@ -215,7 +211,7 @@ def convertToCurve(typeName):
             bpy.context.view_layer.objects.active = path
             bpy.ops.object.convert('INVOKE_DEFAULT', target='CURVE')
         if path.type == "CURVE":
-            object.parent = getObjectInCollection(typeName)
+            path.parent = getObjectInCollection(typeName)
             
 
 
@@ -226,7 +222,6 @@ class AQPipe_MakeProfile(bpy.types.Operator):
     bl_options = {'REGISTER'}
 
     pName: bpy.props.StringProperty(name="Name :",default = "Profile")
-    
 
     def dropSelection(self):
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -250,6 +245,8 @@ class AQPipe_MakeProfile(bpy.types.Operator):
         nRow.prop(self,"pName")
 
     def execute(self,context):
+        #type = "Profiles"
+        #objectFromPath(self.pName,"Profiles")
         if self.checkState()==True:
             objectFromPath(self.pName,"Profiles")
             self.dropSelection()
@@ -286,8 +283,9 @@ class AQPipe_MakePath(bpy.types.Operator):
         nRow.prop(self,"pName")
 
     def execute(self,context):
-        objectFromPath(self.pName,"Paths")
-        self.dropSelection()
+        if self.checkState():
+            objectFromPath(self.pName,"Paths")
+            self.dropSelection()
         return {'FINISHED'}
 
     def invoke(self,context,event):
@@ -300,7 +298,6 @@ class AQPipe_SweepProfile(bpy.types.Operator):
     bl_label = "AQPipe Sweep Profile"
     bl_options = {'REGISTER', 'UNDO'}
 
-
     sceneProfiles: bpy.props.EnumProperty(name="Scene Profiles",items=updateList)
   
     def setBevel(self,bevelObject):
@@ -308,12 +305,38 @@ class AQPipe_SweepProfile(bpy.types.Operator):
             curve = path.data
             curve.bevel_object = bevelObject
 
+    def dupProfile(self,meshProfile):
+        if meshProfile.type == "MESH":
+            meshProfile.select_set(True) 
+            bpy.context.view_layer.objects.active = meshProfile
+            bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+            data = meshProfile.data
+            bm = bmesh.from_edit_mesh(data)
+            dupe = bm.copy()
+            newMesh = bpy.data.meshes.new("ProfileMesh")
+            dupe.to_mesh(newMesh)
+            newObj = bpy.data.objects.new("SweeProfile", newMesh)
+            col = getCollection('QPipe')
+            col.objects.link(newObj)
+            newObj.location = meshProfile.location
+            newObj.parent = getObjectInCollection('Temp')
+            bmesh.types.BMesh.free
+            return newObj
+        else:
+            return None
+
     def draw(self,context):
         layout = self.layout
         enumRow = layout.row(align=True)
 
         enumRow.prop(self,"sceneProfiles")
         sceneProfiles = "0"
+    
+    def convertProfToCurve(self,object):
+        if object.type == "MESH":
+            object.select_set(True) 
+            bpy.context.view_layer.objects.active = object
+            bpy.ops.object.convert('INVOKE_DEFAULT', target='CURVE')
 
     def execute(self,context):
         createCollectionAndParents()
@@ -321,6 +344,8 @@ class AQPipe_SweepProfile(bpy.types.Operator):
         for profile in getObjectInCollection('Profiles').children:
             if profile.name == self.sceneProfiles:
                 bObj = profile
+                bObj = self.dupProfile(bObj)
+                self.convertProfToCurve(bObj)
         for paths in getObjectInCollection('Paths').children:
             convertToCurve("Paths")
         self.setBevel(bObj)
@@ -329,16 +354,56 @@ class AQPipe_SweepProfile(bpy.types.Operator):
     def invoke(self,context,event):
         return context.window_manager.invoke_props_dialog(self, width=300, height=40)
 
-#TODO add flush paths and profiles, remove QPipe data
 #additional options 
+class AQPipe_CleanUp(bpy.types.Operator):
+    bl_idname = "object.aqpipe_cleanup"
+    bl_label = "AQPipe Clean Stuff"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self,context):
+        for object in getCollection("QPipe").objects:
+            bpy.data.objects.remove(object,do_unlink=True,do_id_user=True,do_ui_user=True)
+        bpy.data.collections.remove(getCollection('QPipe'))
+        return {'FINISHED'}
+
+class AQPipe_FlushPaths(bpy.types.Operator):
+    bl_idname = "object.aqpipe_flushpaths"
+    bl_label = "AQPipe Flush Paths"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self,context):
+        for path in getObjectInCollection('Paths').children:
+            bpy.data.objects.remove(path,do_unlink=True,do_id_user=True,do_ui_user=True)
+        return {'FINISHED'}
+
+class AQPipe_FlushProfiles(bpy.types.Operator):
+    bl_idname = "object.aqpipe_flushprofiles"
+    bl_label = "AQPipe Flush Profiles"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self,context):
+        for profile in getObjectInCollection('Profiles').children:
+           bpy.data.objects.remove(profile,do_unlink=True,do_id_user=True,do_ui_user=True)
+        return {'FINISHED'}
+
+
 class AQPipe_AdditionalOptions(bpy.types.Operator):
     bl_idname = "object.aqpipe_addoptions"
     bl_label = "AQPipe Additional Options"
     bl_options = {'REGISTER', 'UNDO'}
 
-
+    def draw(self,context):
+        layout = self.layout
+        optionBox = layout.box()
+        fPath = optionBox.row()
+        fProf = optionBox.row()
+        cleanUp = optionBox.row()
+        fPath.operator("object.aqpipe_flushpaths")
+        fProf.operator("object.aqpipe_flushprofiles")
+        cleanUp.operator("object.aqpipe_cleanup")
     def execute(self,context):
         return {'FINISHED'}
+
     def invoke(self,context,event):
         return context.window_manager.invoke_props_dialog(self, width=300, height=20)
 
@@ -352,11 +417,6 @@ class AQPipe_PostEdit(bpy.types.Operator):
         createCurve()
         
         return {'FINISHED'}
-    #def invoke(self,context,event):
-        #return context.window_manager.invoke_props_dialog(self, width=300, height=20)
-
-
-    
 
 def register():
     bpy.utils.register_class(AQPipePreferences)
@@ -364,6 +424,9 @@ def register():
     bpy.utils.register_class(AQPipe_MakePath)
     bpy.utils.register_class(AQPipe_SweepProfile)
     bpy.utils.register_class(AQPipe_AdditionalOptions)
+    bpy.utils.register_class(AQPipe_FlushProfiles)
+    bpy.utils.register_class(AQPipe_FlushPaths)
+    bpy.utils.register_class(AQPipe_CleanUp)
     bpy.utils.register_class(AQPipe_PostEdit)
     
     
@@ -374,4 +437,7 @@ def unregister():
     bpy.utils.unregister_class(AQPipe_MakePath)
     bpy.utils.unregister_class(AQPipe_SweepProfile)
     bpy.utils.unregister_class(AQPipe_AdditionalOptions)
+    bpy.utils.unregister_class(AQPipe_FlushProfiles)
+    bpy.utils.unregister_class(AQPipe_FlushPaths)
+    bpy.utils.unregister_class(AQPipe_CleanUp)
     bpy.utils.unregister_class(AQPipe_PostEdit)

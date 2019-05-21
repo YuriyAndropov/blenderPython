@@ -14,6 +14,8 @@ def Collections():
 def Object():
     #create new object
     newObj = bpy.data.objects.new("Name", meshData)
+    #delete object
+    bpy.data.objects.remove(object,do_unlink=True,do_id_user=True,do_ui_user=True)
     #link object to the scene(to Master Collection)
     bpy.context.collection.objects.link(newObj)
     #select an object
