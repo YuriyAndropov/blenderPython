@@ -124,8 +124,46 @@ class AddonPreferences(bpy.types.AddonPreferences):
         MatRow.prop(self,"mFontSize")
         MatRow.prop(self,"matColor")
 
+class AStats_GizmoMenu(bpy.types.Operator):
+    bl_idname = "view3d.astats_gizmomenu"
+    bl_label = "AStats 3DView Menu"
+    bl_options = {'REGISTER'}
+
+
+class AStatsButton(bpy.types.GizmoGroup):
+    bl_idname = "view3d.astats_button"
+    bl_label = "AStats 3D View Button"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'WINDOW'
+    bl_options = {'PERSISTENT', 'SCALE'}
+    
+    
+    
+    def draw_prepare(self, context):
+        #x
+        self.info_gizmo.matrix_basis[0][3] = 100
+        #y
+        self.info_gizmo.matrix_basis[1][3] = 200
+
+    def setup(self, context):
+        gizmoGroup = self.gizmos.new("GIZMO_GT_button_2d")
+       
+        gizmoGroup.icon = 'INFO'
+        gizmoGroup.draw_options = {'BACKDROP', 'OUTLINE'}
+        gizmoGroup.alpha = 0.0
+        gizmoGroup.color = 0,0,0
+        gizmoGroup.color_highlight = 1, 0, 0
+        gizmoGroup.alpha_highlight = 0.2
+        gizmoGroup.scale_basis = (80 * 0.35) / 2 
+        gizmoGroup.target_set_operator("object.amaas_menu")
+        gizmoGroup.use_grab_cursor = True
+        self.info_gizmo = gizmoGroup
+
 def getValue(name):
     return getattr(bpy.context.preferences.addons[__name__].preferences,name)
+
+def setValue(name):
+    return setattr(bpy.context.preferences.addons[__name__].preferences,name)
 
 def remap(value, low1, high1, low2, high2):
     return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
@@ -312,10 +350,12 @@ def draw_callback_px(self, context):
 
 def register():
     bpy.utils.register_class(AddonPreferences)
+    bpy.utils.register_class(AStatsButton)
     StatsText["handler"] = bpy.types.SpaceView3D.draw_handler_add(draw_callback_px, (None, None), 'WINDOW', 'POST_PIXEL')
 
 def unregister():
     bpy.utils.unregister_class(AddonPreferences)
+    bpy.utils.unregister_class(AStatsButton)
     bpy.types.SpaceView3D.draw_handler_remove(StatsText["handler"],'WINDOW')
 
 if __name__ == "__main__":
