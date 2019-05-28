@@ -45,7 +45,7 @@ globalValues = [0,0,0,0]
 
 class AddonPreferences(bpy.types.AddonPreferences):
     bl_idname = __name__
-
+    #TODO Add UV Channel Name check,snapping state
     #Location properties
     sLocX:bpy.props.IntProperty(name="X",description="Relative X position", default=90,min=0,max=1000)
     sLocY:bpy.props.IntProperty(name="Y",description="Relative Y position", default=900,min=0,max=1000)
@@ -319,6 +319,7 @@ def getObjectNames():
 def draw_callback_px(self, context):
     nWidth = 0
     tWidth = 0
+    #TODO T and N now 2 and 3. Need to do more inteligent way to track toolbars
     #disabled until I find a way to get the width of T and N toolbars
     #nWidth = bpy.context.area.regions[2].width
     #tWidth = bpy.context.area.regions[1].width
