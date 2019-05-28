@@ -45,6 +45,7 @@ globalValues = [0,0,0,0]
 
 class AddonPreferences(bpy.types.AddonPreferences):
     bl_idname = __name__
+
     #Location properties
     sLocX:bpy.props.IntProperty(name="X",description="Relative X position", default=90,min=0,max=1000)
     sLocY:bpy.props.IntProperty(name="Y",description="Relative Y position", default=900,min=0,max=1000)
@@ -123,11 +124,56 @@ class AddonPreferences(bpy.types.AddonPreferences):
         MatRow.prop(self,"bShowMats")
         MatRow.prop(self,"mFontSize")
         MatRow.prop(self,"matColor")
-
+#TODO Finish popup menu
 class AStats_GizmoMenu(bpy.types.Operator):
     bl_idname = "view3d.astats_gizmomenu"
     bl_label = "AStats 3DView Menu"
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def updateDispGlobal(self,context):
+        setValue('bDispGlobal',self.bDispGlobalMenu)
+        return None
+    
+    def updateDispSelected(self,context):
+        setValue('bDispSelected',self.bDispSelectedMenu)
+        return None
+
+    def updateGLocX(self,context):
+        setValue('gLocX',self.gLocXMenu)
+        return None
+
+    def updateGLocY(self,context):
+        setValue('gLocY',self.gLocYMenu)
+        return None
+
+    bDispGlobalMenu: bpy.props.BoolProperty(name="Display Global Stats",default = True,update=updateDispGlobal)
+    gLocXMenu: bpy.props.IntProperty(name="X",description="Global X position", default=910,min=0,max=1000,update=updateGLocX)
+    gLocYMenu: bpy.props.IntProperty(name="Y",description="Global Y position", default=910,min=0,max=1000,update=updateGLocY)
+    bDispSelectedMenu: bpy.props.BoolProperty(name="Display Selected Stats",default = True,update=updateDispSelected)
+    
+    def draw(self,context):
+        layout = self.layout
+        gSwitches = layout.box()
+        gRow = gSwitches.column(align=True)
+        sRow = gSwitches.column(align=True)
+        
+        gRow.prop(self,"bDispGlobalMenu")
+        if self.bDispGlobalMenu:
+            gRow.prop(self,"gLocXMenu")
+            grow.prop(self,"gLocYMenu")
+        sRow.prop(self,"bDispSelectedMenu")
+        
+
+    def execute(self,context):
+        #print(getValue("gFontSize"))
+        #setValue("gFontSize",1)
+        #print(getValue("gFontSize"))
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        self.bDispGlobalMenu = getValue('bDispGlobal')
+        self.bDispSelectedMenu = getValue('bDispSelected')
+        return context.window_manager.invoke_props_dialog(self)
 
 
 class AStatsButton(bpy.types.GizmoGroup):
@@ -136,14 +182,11 @@ class AStatsButton(bpy.types.GizmoGroup):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'WINDOW'
     bl_options = {'PERSISTENT', 'SCALE'}
-    
-    
-    
-    def draw_prepare(self, context):
+    #def draw_prepare(self, context):
         #x
-        self.info_gizmo.matrix_basis[0][3] = 100
+        #self.gizmoGroup.matrix_world[0][3] = 500
         #y
-        self.info_gizmo.matrix_basis[1][3] = 200
+        #self.matrix_basis[2][3] = 500
 
     def setup(self, context):
         gizmoGroup = self.gizmos.new("GIZMO_GT_button_2d")
@@ -151,22 +194,24 @@ class AStatsButton(bpy.types.GizmoGroup):
         gizmoGroup.icon = 'INFO'
         gizmoGroup.draw_options = {'BACKDROP', 'OUTLINE'}
         gizmoGroup.alpha = 0.0
-        gizmoGroup.color = 0,0,0
+        gizmoGroup.color = 1,0,0
         gizmoGroup.color_highlight = 1, 0, 0
         gizmoGroup.alpha_highlight = 0.2
         gizmoGroup.scale_basis = (80 * 0.35) / 2 
-        gizmoGroup.target_set_operator("object.amaas_menu")
+        #gizmoGroup.target_set_operator("view3d.astats_gizmomenu")
         gizmoGroup.use_grab_cursor = True
-        self.info_gizmo = gizmoGroup
+        gizmoGroup.matrix_basis[0][3] = 500
+        gizmoGroup.matrix_basis[1][3] = 500
+
 
 def getValue(name):
     return getattr(bpy.context.preferences.addons[__name__].preferences,name)
 
-def setValue(name):
-    return setattr(bpy.context.preferences.addons[__name__].preferences,name)
+def setValue(name,value):
+    return setattr(bpy.context.preferences.addons[__name__].preferences,name,value)
 
 def remap(value, low1, high1, low2, high2):
-    return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
+    return low2 + (value - low1) * (high2 - low2) / (high1 - low1)
 
 def relativeScale(size):
     if (getValue("bFontScaling")) == True:
@@ -279,7 +324,6 @@ def draw_callback_px(self, context):
     #tWidth = bpy.context.area.regions[1].width
     width = bpy.context.area.width
     height = bpy.context.area.height
-    view_layer = bpy.context.view_layer
     if getValue('bDispShadow') == True:
         displayShadow()
     objectName = getObjectNames()
@@ -351,12 +395,14 @@ def draw_callback_px(self, context):
 def register():
     bpy.utils.register_class(AddonPreferences)
     bpy.utils.register_class(AStatsButton)
+    bpy.utils.register_class(AStats_GizmoMenu)
     StatsText["handler"] = bpy.types.SpaceView3D.draw_handler_add(draw_callback_px, (None, None), 'WINDOW', 'POST_PIXEL')
 
 def unregister():
     bpy.utils.unregister_class(AddonPreferences)
     bpy.utils.unregister_class(AStatsButton)
+    bpy.utils.unregister_class(AStats_GizmoMenu)
     bpy.types.SpaceView3D.draw_handler_remove(StatsText["handler"],'WINDOW')
 
-if __name__ == "__main__":
-    register()
+#if __name__ == "__main__":
+    #register()
