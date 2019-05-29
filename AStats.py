@@ -451,7 +451,7 @@ def draw_callback_px(self, context):
                     shiftX += len(str(totalSelected[2]))*(relativeScale(getValue('sFontSize'))/1.5)
                     setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor','/',width,height)
                 else:
-                    setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor',str(totalSelected[2])+'',width,height)
+                    setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor',str(totalSelected[2])+'/',width,height)
                     shiftX += len(str(totalSelected[2]))*(relativeScale(getValue('sFontSize'))/1.5)
             shiftX += relativeScale(getValue('sFontSize'))/1.5
             setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor',str(totalComponents[2]),width,height)
