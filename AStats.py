@@ -291,9 +291,15 @@ def getDataFromSelectedObjects():
     for object in bpy.context.selected_objects:
         if object.type == "MESH":
             data = object.data
-            sum[0]+=len(data.polygons)
+            if getValue('bCalcTris'):
+                bm = bmesh.new()
+                bm.from_mesh(object.data)
+                sum[2]+=len(bm.calc_loop_triangles())
+                bmesh.types.BMesh.free
+            else:
+                sum[2]+=len(data.polygons)
             sum[1]+=len(data.edges)
-            sum[2]+=len(data.vertices)
+            sum[0]+=len(data.vertices)
     return sum
 
 def getSelectionStats():
