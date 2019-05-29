@@ -268,22 +268,18 @@ def setDrawParams(fontName,xName,yName,shiftX,shiftY,colorName,text,width,height
      posY = remap(getValue(yName),0,1000,0,height)+shiftY
      add_draw(posX,posY,size,getValue(colorName),text)
 
-def getTriCount():
+def getTriCount(object):
     tris = 0
+    notSelected = []
     bm = bmesh.new()
-   
-    for object in bpy.context.selected_objects:
-        mesh = object.data
-        bm.from_mesh(mesh)
-        notSelected = []
-        dupe = bm.copy()
-        for poly in dupe.faces:
-            if not poly.select:
-                notSelected.append(poly)
-        
-        bmesh.ops.delete(dupe,geom=notSelected,context='FACES')
-        tris+= len(dupe.calc_loop_triangles())
-    bmesh.types.BMesh.free
+    mesh = object.data
+    bm.from_mesh(mesh)
+    for poly in bm.faces:
+        if not poly.select:
+            notSelected.append(poly)
+    bmesh.ops.delete(bm,geom=notSelected,context='FACES')
+    tris += len(bm.calc_loop_triangles())
+    bm.free()
     return tris
 
 def getDataFromSelectedObjects():
@@ -316,7 +312,7 @@ def getSelectionStats():
                 edges += data.total_edge_sel
             if bpy.context.scene.tool_settings.mesh_select_mode[2] == True:
                 if getValue('bCalcTris'):
-                    faces += getTriCount()
+                    faces += getTriCount(object)
                 else:
                     faces += data.total_face_sel
     return [verts,edges,faces]
@@ -342,12 +338,13 @@ def getMaterialsFromSelection():
             object.update_from_editmode()
             data = object.data
             if bpy.context.mode == "EDIT_MESH":
-                for polygon in data.polygons:
-                    material = data.materials[polygon.material_index]
-                    if polygon.select:
-                        if material!=None:
-                            if material.name not in mats:
-                                mats.append(material.name)
+                if len(data.materials)>0:
+                    for polygon in data.polygons:
+                        material = data.materials[polygon.material_index]
+                        if polygon.select:
+                            if material!=None:
+                                if material.name not in mats:
+                                    mats.append(material.name)
             else:
                 for material in data.materials:
                     if material!=None:
