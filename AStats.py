@@ -31,6 +31,7 @@ bl_info = {
 
 import bpy
 import blf
+import bmesh
 StatsText = {
     "font_id": 0,
     "handler": None,
@@ -39,14 +40,17 @@ font_id = 0
 objectName = ""
 totalComponents = [0,0,0]
 totalSelected = [0,0,0]
-names = ["Verts : ", "Edges : ", "Faces : "]
+names = ["Verts : ", "Edges : ", "Faces : ","Tris :"]
 globalnames = ["Objects :","Faces :","Edges :","Verts :"]
 globalValues = [0,0,0,0]
+
 
 class AddonPreferences(bpy.types.AddonPreferences):
     bl_idname = __name__
     #TODO Add UV Channel Name check,snapping state
     #Location properties
+    iLocX:bpy.props.IntProperty(name="X",description="Icon X position", default=410,min=0,max=1000)
+    iLocY:bpy.props.IntProperty(name="Y",description="Icon Y position", default=986,min=0,max=1000)
     sLocX:bpy.props.IntProperty(name="X",description="Relative X position", default=90,min=0,max=1000)
     sLocY:bpy.props.IntProperty(name="Y",description="Relative Y position", default=900,min=0,max=1000)
     gLocX:bpy.props.IntProperty(name="X",description="Relative X position", default=910,min=0,max=1000)
@@ -64,6 +68,7 @@ class AddonPreferences(bpy.types.AddonPreferences):
     shadowColor:bpy.props.FloatVectorProperty(name="Color",description="Color", default=(0.0,0.0,0.0),subtype='COLOR')
     matColor:bpy.props.FloatVectorProperty(name="Color",description="Color", default=(0.5,0.5,0.5),subtype='COLOR')
     #Switches
+    bDispIcon: bpy.props.BoolProperty(name="On/Off",description="On/Off switch", default=True)
     bDispGlobal: bpy.props.BoolProperty(name="On/Off",description="On/Off switch", default=True)
     bDispShadow: bpy.props.BoolProperty(name="On/Off",description="On/Off switch", default=True)
     bDispSelected: bpy.props.BoolProperty(name="On/Off",description="On/Off switch", default=True)
@@ -71,6 +76,7 @@ class AddonPreferences(bpy.types.AddonPreferences):
     bShowMats: bpy.props.BoolProperty(name="On/Off",description="Switch for showing names of selected materials", default=True)
     bNameGrouping: bpy.props.BoolProperty(name="Name Grouping",description="Switch for name grouping", default=True)
     bFontScaling: bpy.props.BoolProperty(name="Font Sclaing",description="Switch for font scaling", default=True)
+    bCalcTris: bpy.props.BoolProperty(name="Calculate Tris",description="Switch for calculating triangles", default=True)
     bDrawFaces: bpy.props.BoolProperty(name="Draw Faces",description="Switch for drawing faces", default=True)
     bDrawEdges: bpy.props.BoolProperty(name="Draw Edges",description="Switch for drawing edges", default=True)
     bDrawVerts: bpy.props.BoolProperty(name="Draw Verts",description="Switch for drawing verts", default=True)
@@ -79,6 +85,13 @@ class AddonPreferences(bpy.types.AddonPreferences):
 
     def draw(self, context):
         layout = self.layout
+        #Icon Box
+        iconBox = layout.box()
+        iconBox.label(text="3DView Icon Options")
+        iRow = iconBox.row(align=True)
+        iRow.prop(self,"bDispIcon")
+        iRow.prop(self,"iLocX")
+        iRow.prop(self,"iLocY")
         #GlobalStats Box
         globalStatBox = layout.box()
         globalStatBox.label(text="Global Stats Options")
@@ -101,6 +114,7 @@ class AddonPreferences(bpy.types.AddonPreferences):
         SRow.prop(self, "sLocY")
         SRow.prop(self, "sStatColor")
         SRow.prop(self,"highlightColor" )
+        BRow.prop(self,'bCalcTris')
         BRow.prop(self,'bDrawFaces')
         BRow.prop(self,'bDrawEdges')
         BRow.prop(self,'bDrawVerts')
@@ -125,6 +139,7 @@ class AddonPreferences(bpy.types.AddonPreferences):
         MatRow.prop(self,"mFontSize")
         MatRow.prop(self,"matColor")
 #TODO Finish popup menu
+
 class AStats_GizmoMenu(bpy.types.Operator):
     bl_idname = "view3d.astats_gizmomenu"
     bl_label = "AStats 3DView Menu"
@@ -137,72 +152,93 @@ class AStats_GizmoMenu(bpy.types.Operator):
     def updateDispSelected(self,context):
         setValue('bDispSelected',self.bDispSelectedMenu)
         return None
-
-    def updateGLocX(self,context):
-        setValue('gLocX',self.gLocXMenu)
+    
+    def updateDispFaces(self,context):
+        setValue('bDrawFaces',self.bDrawFacesMenu)
         return None
 
-    def updateGLocY(self,context):
-        setValue('gLocY',self.gLocYMenu)
+    def updateDispEdges(self,context):
+        setValue('bDrawEdges',self.bDrawEdgesMenu)
         return None
+    
+    def updateDispVerts(self,context):
+        setValue('bDrawVerts',self.bDrawVertsMenu)
+        return None
+
+    def updateDispMats(self,context):
+        setValue('bShowMats',self.bShowMatsMenu)
+        return None
+
+    def updateDispActive(self,context):
+        setValue('bDispActive',self.bDispActiveMenu)
+        return None
+
 
     bDispGlobalMenu: bpy.props.BoolProperty(name="Display Global Stats",default = True,update=updateDispGlobal)
-    gLocXMenu: bpy.props.IntProperty(name="X",description="Global X position", default=910,min=0,max=1000,update=updateGLocX)
-    gLocYMenu: bpy.props.IntProperty(name="Y",description="Global Y position", default=910,min=0,max=1000,update=updateGLocY)
     bDispSelectedMenu: bpy.props.BoolProperty(name="Display Selected Stats",default = True,update=updateDispSelected)
-    
+    bDrawFacesMenu: bpy.props.BoolProperty(name="Draw Faces",description="Switch for drawing faces", default=True,update=updateDispFaces)
+    bDrawEdgesMenu: bpy.props.BoolProperty(name="Draw Edges",description="Switch for drawing edges", default=True,update=updateDispEdges)
+    bDrawVertsMenu: bpy.props.BoolProperty(name="Draw Verts",description="Switch for drawing verts", default=True,update=updateDispVerts)
+    bShowMatsMenu: bpy.props.BoolProperty(name="Draw Materials",description="Switch for showing names of selected materials", default=True,update=updateDispMats)
+    bDispActiveMenu: bpy.props.BoolProperty(name="Draw Selected Mode",description="Switch for showing stats based on selection type(ie only verts)", default=False,update=updateDispActive)
     def draw(self,context):
         layout = self.layout
+        
         gSwitches = layout.box()
         gRow = gSwitches.column(align=True)
-        sRow = gSwitches.column(align=True)
-        
         gRow.prop(self,"bDispGlobalMenu")
-        if self.bDispGlobalMenu:
-            gRow.prop(self,"gLocXMenu")
-            grow.prop(self,"gLocYMenu")
+        sSwitches = layout.box()
+        sRow = sSwitches.column(align=True)
+              
         sRow.prop(self,"bDispSelectedMenu")
+        if self.bDispSelectedMenu:
+            compSwitches = layout.box()
+            sCol = compSwitches.column()
+            sCol.prop(self,"bDrawFacesMenu")
+            sCol.prop(self,"bDrawEdgesMenu")
+            sCol.prop(self,"bDrawVertsMenu")
+            sCol.prop(self,"bShowMatsMenu")
+            sCol.prop(self,"bDispActiveMenu")
+
         
 
     def execute(self,context):
-        #print(getValue("gFontSize"))
-        #setValue("gFontSize",1)
-        #print(getValue("gFontSize"))
         return {'FINISHED'}
 
     def invoke(self, context, event):
         self.bDispGlobalMenu = getValue('bDispGlobal')
         self.bDispSelectedMenu = getValue('bDispSelected')
-        return context.window_manager.invoke_props_dialog(self)
+        return context.window_manager.invoke_popup(self,width=200)
 
-
+#TODO change to menu
 class AStatsButton(bpy.types.GizmoGroup):
     bl_idname = "view3d.astats_button"
     bl_label = "AStats 3D View Button"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'WINDOW'
     bl_options = {'PERSISTENT', 'SCALE'}
-    #def draw_prepare(self, context):
-        #x
-        #self.gizmoGroup.matrix_world[0][3] = 500
-        #y
-        #self.matrix_basis[2][3] = 500
+    
+
+    def draw_prepare(self,context):
+        width = bpy.context.area.width
+        height = bpy.context.area.height
+        for gizmo in self.gizmos:
+            gizmo.matrix_basis[0][3] = remap(getValue('iLocX'),0,1000,0,width)
+            gizmo.matrix_basis[1][3] = remap(getValue('iLocY'),0,1000,0,height)
 
     def setup(self, context):
         gizmoGroup = self.gizmos.new("GIZMO_GT_button_2d")
-       
         gizmoGroup.icon = 'INFO'
-        gizmoGroup.draw_options = {'BACKDROP', 'OUTLINE'}
+        gizmoGroup.draw_options = {'BACKDROP'}
         gizmoGroup.alpha = 0.0
         gizmoGroup.color = 1,0,0
         gizmoGroup.color_highlight = 1, 0, 0
         gizmoGroup.alpha_highlight = 0.2
         gizmoGroup.scale_basis = (80 * 0.35) / 2 
-        #gizmoGroup.target_set_operator("view3d.astats_gizmomenu")
+        gizmoGroup.target_set_operator("view3d.astats_gizmomenu")
         gizmoGroup.use_grab_cursor = True
-        gizmoGroup.matrix_basis[0][3] = 500
-        gizmoGroup.matrix_basis[1][3] = 500
-
+        gizmoGroup.matrix_basis[0][3] = 1024
+        gizmoGroup.matrix_basis[1][3] = 800
 
 def getValue(name):
     return getattr(bpy.context.preferences.addons[__name__].preferences,name)
@@ -232,6 +268,24 @@ def setDrawParams(fontName,xName,yName,shiftX,shiftY,colorName,text,width,height
      posY = remap(getValue(yName),0,1000,0,height)+shiftY
      add_draw(posX,posY,size,getValue(colorName),text)
 
+def getTriCount():
+    tris = 0
+    bm = bmesh.new()
+   
+    for object in bpy.context.selected_objects:
+        mesh = object.data
+        bm.from_mesh(mesh)
+        notSelected = []
+        dupe = bm.copy()
+        for poly in dupe.faces:
+            if not poly.select:
+                notSelected.append(poly)
+        
+        bmesh.ops.delete(dupe,geom=notSelected,context='FACES')
+        tris+= len(dupe.calc_loop_triangles())
+    bmesh.types.BMesh.free
+    return tris
+
 def getDataFromSelectedObjects():
     sum = [0,0,0]
     for object in bpy.context.selected_objects:
@@ -251,12 +305,15 @@ def getSelectionStats():
             data = object.data
             object.update_from_editmode()
             if bpy.context.scene.tool_settings.mesh_select_mode[0] == True:
-                faces += data.total_vert_sel
+                verts += data.total_vert_sel
             if bpy.context.scene.tool_settings.mesh_select_mode[1] == True:
                 edges += data.total_edge_sel
             if bpy.context.scene.tool_settings.mesh_select_mode[2] == True:
-                verts += data.total_face_sel
-    return [faces,edges,verts]
+                if getValue('bCalcTris'):
+                    faces += getTriCount()
+                else:
+                    faces += data.total_face_sel
+    return [verts,edges,faces]
 
 def getGlobalStats():
     stats = [0,0,0,0]
@@ -368,14 +425,19 @@ def draw_callback_px(self, context):
                     shiftX += len(str(totalSelected[1]))*(relativeScale(getValue('sFontSize'))/1.5)
                     setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor','/',width,height)
                 else:
-                    setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor',str(totalSelected[1]),width,height)
+                    setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor',str(totalSelected[1])+'/',width,height)
                     shiftX += len(str(totalSelected[1]))*(relativeScale(getValue('sFontSize'))/1.5)
             shiftX += relativeScale(getValue('sFontSize'))/1.5
             setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor',str(totalComponents[1]),width,height)
         #faces
         if (getValue('bDispActive') and bpy.context.scene.tool_settings.mesh_select_mode[2]) or (not getValue('bDispActive') and getValue('bDrawFaces')):
             shiftY += relativeScale(getValue('sFontSize'))*1.2
-            setDrawParams('sFontSize','sLocX','sLocY',0,-shiftY,'sStatColor',names[2],width,height)
+            #switch for tris/faces names
+            if getValue('bCalcTris'):
+                text = names[3]
+            else:
+                text = names[2]
+            setDrawParams('sFontSize','sLocX','sLocY',0,-shiftY,'sStatColor',text,width,height)
             shiftX = len(names[0])*(relativeScale(getValue('sFontSize'))/2)
             if bpy.context.mode == "EDIT_MESH":
                 if bpy.context.scene.tool_settings.mesh_select_mode[2]:
@@ -383,7 +445,7 @@ def draw_callback_px(self, context):
                     shiftX += len(str(totalSelected[2]))*(relativeScale(getValue('sFontSize'))/1.5)
                     setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor','/',width,height)
                 else:
-                    setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor',str(totalSelected[2]),width,height)
+                    setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor',str(totalSelected[2])+'',width,height)
                     shiftX += len(str(totalSelected[2]))*(relativeScale(getValue('sFontSize'))/1.5)
             shiftX += relativeScale(getValue('sFontSize'))/1.5
             setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor',str(totalComponents[2]),width,height)
@@ -395,15 +457,12 @@ def draw_callback_px(self, context):
 
 def register():
     bpy.utils.register_class(AddonPreferences)
-    bpy.utils.register_class(AStatsButton)
-    bpy.utils.register_class(AStats_GizmoMenu)
+    #bpy.utils.register_class(AStatsButton)
+    #bpy.utils.register_class(AStats_GizmoMenu)
     StatsText["handler"] = bpy.types.SpaceView3D.draw_handler_add(draw_callback_px, (None, None), 'WINDOW', 'POST_PIXEL')
 
 def unregister():
     bpy.utils.unregister_class(AddonPreferences)
-    bpy.utils.unregister_class(AStatsButton)
-    bpy.utils.unregister_class(AStats_GizmoMenu)
+    #bpy.utils.unregister_class(AStatsButton)
+    #bpy.utils.unregister_class(AStats_GizmoMenu)
     bpy.types.SpaceView3D.draw_handler_remove(StatsText["handler"],'WINDOW')
-
-#if __name__ == "__main__":
-    #register()
