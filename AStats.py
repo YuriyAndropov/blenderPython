@@ -400,7 +400,7 @@ def draw_callback_px(self, context):
         shiftX=0
         shiftY=0
         #verts
-        if (getValue('bDispActive') and bpy.context.scene.tool_settings.mesh_select_mode[0]) or (not getValue('bDispActive') and getValue('bDrawVerts')):
+        if (getValue('bDispActive') and bpy.context.scene.tool_settings.mesh_select_mode[0] and getValue('bDrawVerts')) or (not getValue('bDispActive') and getValue('bDrawVerts')):
             shiftY = relativeScale(getValue('sFontSize'))*1.5 
             setDrawParams('sFontSize','sLocX','sLocY',0,-shiftY,'sStatColor',names[0],width,height)
             shiftX = len(names[0])*(relativeScale(getValue('sFontSize'))/2)
@@ -415,7 +415,7 @@ def draw_callback_px(self, context):
             shiftX += relativeScale(getValue('sFontSize'))/1.5
             setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor',str(totalComponents[0]),width,height)
         #edges
-        if (getValue('bDispActive') and bpy.context.scene.tool_settings.mesh_select_mode[1]) or (not getValue('bDispActive') and getValue('bDrawEdges')):
+        if (getValue('bDispActive') and bpy.context.scene.tool_settings.mesh_select_mode[1] and getValue('bDrawEdges')) or (not getValue('bDispActive') and getValue('bDrawEdges')):
             shiftY += relativeScale(getValue('sFontSize'))*1.2
             setDrawParams('sFontSize','sLocX','sLocY',0,-shiftY,'sStatColor',names[1],width,height)
             shiftX = len(names[1])*(relativeScale(getValue('sFontSize'))/2)
@@ -430,7 +430,7 @@ def draw_callback_px(self, context):
             shiftX += relativeScale(getValue('sFontSize'))/1.5
             setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor',str(totalComponents[1]),width,height)
         #faces
-        if (getValue('bDispActive') and bpy.context.scene.tool_settings.mesh_select_mode[2]) or (not getValue('bDispActive') and getValue('bDrawFaces')):
+        if (getValue('bDispActive') and bpy.context.scene.tool_settings.mesh_select_mode[2] and getValue('bDrawFaces')) or (not getValue('bDispActive') and getValue('bDrawFaces')):
             shiftY += relativeScale(getValue('sFontSize'))*1.2
             setDrawParams('sFontSize','sLocX','sLocY',0,-shiftY,'sStatColor',names[2],width,height)
             shiftX = len(names[0])*(relativeScale(getValue('sFontSize'))/2)
@@ -445,7 +445,7 @@ def draw_callback_px(self, context):
             shiftX += relativeScale(getValue('sFontSize'))/1.5
             setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor',str(totalComponents[2]),width,height)
         #tris
-        if ((getValue('bDrawTris')) and bpy.context.scene.tool_settings.mesh_select_mode[2]) or (not getValue('bDispActive') and getValue('bDrawTris')):
+        if ((getValue('bDispActive')) and bpy.context.scene.tool_settings.mesh_select_mode[2] and getValue('bDrawTris')) or (not getValue('bDispActive') and getValue('bDrawTris')):
             shiftY += relativeScale(getValue('sFontSize'))*1.2
             setDrawParams('sFontSize','sLocX','sLocY',0,-shiftY,'sStatColor',names[3],width,height)
             shiftX = len(names[0])*(relativeScale(getValue('sFontSize'))/2)
