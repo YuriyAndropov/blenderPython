@@ -157,10 +157,15 @@ class AddonPreferences(bpy.types.AddonPreferences):
         MatRow.prop(self,"matColor")
 #TODO Finish popup menu
 
-class AStats_GizmoMenu(bpy.types.Operator):
-    bl_idname = "view3d.astats_gizmomenu"
-    bl_label = "AStats 3DView Menu"
-    bl_options = {'REGISTER', 'UNDO'}
+class AStats_Switches(bpy.types.Panel):
+    #bl_idname = "view3d.astats_switches"
+    #bl_label = "AStats Switches"
+    #bl_options = {'REGISTER', 'UNDO'}
+    bl_label = "Hello World Panel"
+    bl_idname = "OBJECT_PT_hello"
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context = "object"
 
     def updateDispGlobal(self,context):
         setValue('bDispGlobal',self.bDispGlobalMenu)
@@ -205,14 +210,14 @@ class AStats_GizmoMenu(bpy.types.Operator):
         sSwitches = layout.box()
         sRow = sSwitches.column(align=True)
         sRow.prop(self,"bDispSelectedMenu")
-        if self.bDispSelectedMenu:
-            compSwitches = layout.box()
-            sCol = compSwitches.column()
-            sCol.prop(self,"bDrawFacesMenu")
-            sCol.prop(self,"bDrawEdgesMenu")
-            sCol.prop(self,"bDrawVertsMenu")
-            sCol.prop(self,"bShowMatsMenu")
-            sCol.prop(self,"bDispActiveMenu")
+        #if self.bDispSelectedMenu:
+        compSwitches = layout.box()
+        sCol = compSwitches.column()
+        sCol.prop(self,"bDrawFacesMenu")
+        sCol.prop(self,"bDrawEdgesMenu")
+        sCol.prop(self,"bDrawVertsMenu")
+        sCol.prop(self,"bShowMatsMenu")
+        sCol.prop(self,"bDispActiveMenu")
 
     def execute(self,context):
         return {'FINISHED'}
@@ -223,38 +228,25 @@ class AStats_GizmoMenu(bpy.types.Operator):
         return context.window_manager.invoke_popup(self,width=200)
 
 #TODO change to menu
-class AStatsButton(bpy.types.GizmoGroup):
-    bl_idname = "view3d.astats_button"
-    bl_label = "AStats 3D View Button"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'WINDOW'
-    bl_options = {'PERSISTENT', 'SCALE'}
+class AStats_MT_Menu(bpy.types.Menu):
+    bl_idname = "OBJECT_MT_astats_menu"
+    bl_label = "AStats 3DView Menu"
 
-    def draw_prepare(self,context):
-        width = bpy.context.area.width
-        height = bpy.context.area.height
-        for gizmo in self.gizmos:
-            gizmo.matrix_basis[0][3] = remap(getValue('iLocX'),0,1000,0,width)
-            gizmo.matrix_basis[1][3] = remap(getValue('iLocY'),0,1000,0,height)
+    bDispGlobalMenu: bpy.props.BoolProperty(name="Display Global Stats",default = True)
 
-    def setup(self, context):
-        if getValue('bDispIcon'):
-            gizmoGroup = self.gizmos.new("GIZMO_GT_button_2d")
-            gizmoGroup.icon = 'INFO'
-            gizmoGroup.draw_options = {'BACKDROP'}
-            gizmoGroup.alpha = 0.0
-            gizmoGroup.color = 1,0,0
-            gizmoGroup.color_highlight = 1, 0, 0
-            gizmoGroup.alpha_highlight = 0.2
-            gizmoGroup.scale_basis = (80 * 0.35) / 2 
-            gizmoGroup.target_set_operator("view3d.astats_gizmomenu")
-            gizmoGroup.use_grab_cursor = True
-            gizmoGroup.matrix_basis[0][3] = 1024
-            gizmoGroup.matrix_basis[1][3] = 800
+    def draw(self,context):
+       layout = self.layout
+       layout.popover("OBJECT_PT_hello")
+       #layout.operator('view3d.astats_switches')
+
+    
             
 
 def getValue(name):
     return getattr(bpy.context.preferences.addons[__name__].preferences,name)
+
+def addmenu_callback(self, context):
+    self.layout.popover("OBJECT_PT_hello")
 
 def setValue(name,value):
     return setattr(bpy.context.preferences.addons[__name__].preferences,name,value)
@@ -521,12 +513,15 @@ def draw_callback_px(self, context):
 
 def register():
     bpy.utils.register_class(AddonPreferences)
-    #bpy.utils.register_class(AStatsButton)
-    #bpy.utils.register_class(AStats_GizmoMenu)
+    bpy.utils.register_class(AStats_Switches)
+    bpy.utils.register_class(AStats_MT_Menu)
+    bpy.types.VIEW3D_HT_header.append(addmenu_callback) 
     StatsText["handler"] = bpy.types.SpaceView3D.draw_handler_add(draw_callback_px, (None, None), 'WINDOW', 'POST_PIXEL')
 
 def unregister():
     bpy.utils.unregister_class(AddonPreferences)
-    #bpy.utils.unregister_class(AStatsButton)
-    #bpy.utils.unregister_class(AStats_GizmoMenu)
+    bpy.utils.unregister_class(AStats_Switches)
+    bpy.types.VIEW3D_HT_header.remove(addmenu_callback)
+    bpy.utils.unregister_class(AStats_MT_Menu)
+    
     bpy.types.SpaceView3D.draw_handler_remove(StatsText["handler"],'WINDOW')
