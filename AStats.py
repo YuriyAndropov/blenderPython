@@ -41,8 +41,9 @@ objectName = ""
 totalComponents = [0,0,0,0]
 totalSelected = [0,0,0,0]
 names = ["Verts : ", "Edges : ", "Faces : ","Tris :"]
-globalnames = ["Objects :","Faces :","Edges :","Verts :"]
-globalValues = [0,0,0,0]
+globalnames = ["Verts :","Edges :","Tris :","Faces :","Objects :"]
+globalValues = [0,0,0,0,0]
+globalStates = []
 
 
 class AddonPreferences(bpy.types.AddonPreferences):
@@ -70,6 +71,13 @@ class AddonPreferences(bpy.types.AddonPreferences):
     #Switches
     bDispIcon: bpy.props.BoolProperty(name="On/Off",description="On/Off switch", default=True)
     bDispGlobal: bpy.props.BoolProperty(name="On/Off",description="On/Off switch", default=True)
+    bDrawGlobalVerts: bpy.props.BoolProperty(name="Draw Verts",description="Switch for calculating triangles", default=True)
+    bDrawGlobalEdges: bpy.props.BoolProperty(name="Draw Edges",description="Switch for calculating triangles", default=True)
+    bDrawGlobalTris: bpy.props.BoolProperty(name="Draw Tris",description="Switch for calculating triangles", default=True)
+    bDrawGlobalFaces: bpy.props.BoolProperty(name="Draw Faces",description="Switch for calculating triangles", default=True)
+    bDrawGlobalObjects: bpy.props.BoolProperty(name="Draw Objects",description="Switch for calculating triangles", default=True)
+    bDrawGlobalOrient: bpy.props.BoolProperty(name="Draw Orientation",description="Switch for calculating triangles", default=True)
+    bDrawGlobalPivot: bpy.props.BoolProperty(name="Draw Pivot Placement",description="Switch for calculating triangles", default=True)
     bDispShadow: bpy.props.BoolProperty(name="On/Off",description="On/Off switch", default=True)
     bDispSelected: bpy.props.BoolProperty(name="On/Off",description="On/Off switch", default=True)
     bDispActive: bpy.props.BoolProperty(name="Selection Mode Only Display",description="Switch for showing stats based on selection type(ie only verts)", default=False)
@@ -86,16 +94,25 @@ class AddonPreferences(bpy.types.AddonPreferences):
     def draw(self, context):
         layout = self.layout
         #Icon Box
-        #iconBox = layout.box()
-        #iconBox.label(text="3DView Icon Options")
-        #iRow = iconBox.row(align=True)
-        #iRow.prop(self,"bDispIcon")
-        #iRow.prop(self,"iLocX")
-        #iRow.prop(self,"iLocY")
+        iconBox = layout.box()
+        iconBox.label(text="3DView Icon Options")
+        iRow = iconBox.row(align=True)
+        iRow.prop(self,"bDispIcon")
+        iRow.prop(self,"iLocX")
+        iRow.prop(self,"iLocY")
         #GlobalStats Box
         globalStatBox = layout.box()
         globalStatBox.label(text="Global Stats Options")
         GRow = globalStatBox.row(align=True)
+        sGRow = globalStatBox.row(align=True)
+        oGRow = globalStatBox.row(align=True)
+        sGRow.prop(self,'bDrawGlobalVerts')
+        sGRow.prop(self,'bDrawGlobalEdges')
+        sGRow.prop(self,'bDrawGlobalTris')
+        sGRow.prop(self,'bDrawGlobalFaces')
+        sGRow.prop(self,'bDrawGlobalObjects')
+        oGRow.prop(self,'bDrawGlobalOrient')
+        oGRow.prop(self,'bDrawGlobalPivot')
         GRow.prop(self, "bDispGlobal")
         GRow.prop(self, "gFontSize")
         GRow.prop(self, "gLocX")
@@ -173,7 +190,6 @@ class AStats_GizmoMenu(bpy.types.Operator):
         setValue('bDispActive',self.bDispActiveMenu)
         return None
 
-
     bDispGlobalMenu: bpy.props.BoolProperty(name="Display Global Stats",default = True,update=updateDispGlobal)
     bDispSelectedMenu: bpy.props.BoolProperty(name="Display Selected Stats",default = True,update=updateDispSelected)
     bDrawFacesMenu: bpy.props.BoolProperty(name="Draw Faces",description="Switch for drawing faces", default=True,update=updateDispFaces)
@@ -183,13 +199,11 @@ class AStats_GizmoMenu(bpy.types.Operator):
     bDispActiveMenu: bpy.props.BoolProperty(name="Draw Selected Mode",description="Switch for showing stats based on selection type(ie only verts)", default=False,update=updateDispActive)
     def draw(self,context):
         layout = self.layout
-        
         gSwitches = layout.box()
         gRow = gSwitches.column(align=True)
         gRow.prop(self,"bDispGlobalMenu")
         sSwitches = layout.box()
         sRow = sSwitches.column(align=True)
-              
         sRow.prop(self,"bDispSelectedMenu")
         if self.bDispSelectedMenu:
             compSwitches = layout.box()
@@ -199,8 +213,6 @@ class AStats_GizmoMenu(bpy.types.Operator):
             sCol.prop(self,"bDrawVertsMenu")
             sCol.prop(self,"bShowMatsMenu")
             sCol.prop(self,"bDispActiveMenu")
-
-        
 
     def execute(self,context):
         return {'FINISHED'}
@@ -217,7 +229,6 @@ class AStatsButton(bpy.types.GizmoGroup):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'WINDOW'
     bl_options = {'PERSISTENT', 'SCALE'}
-    
 
     def draw_prepare(self,context):
         width = bpy.context.area.width
@@ -227,18 +238,20 @@ class AStatsButton(bpy.types.GizmoGroup):
             gizmo.matrix_basis[1][3] = remap(getValue('iLocY'),0,1000,0,height)
 
     def setup(self, context):
-        gizmoGroup = self.gizmos.new("GIZMO_GT_button_2d")
-        gizmoGroup.icon = 'INFO'
-        gizmoGroup.draw_options = {'BACKDROP'}
-        gizmoGroup.alpha = 0.0
-        gizmoGroup.color = 1,0,0
-        gizmoGroup.color_highlight = 1, 0, 0
-        gizmoGroup.alpha_highlight = 0.2
-        gizmoGroup.scale_basis = (80 * 0.35) / 2 
-        gizmoGroup.target_set_operator("view3d.astats_gizmomenu")
-        gizmoGroup.use_grab_cursor = True
-        gizmoGroup.matrix_basis[0][3] = 1024
-        gizmoGroup.matrix_basis[1][3] = 800
+        if getValue('bDispIcon'):
+            gizmoGroup = self.gizmos.new("GIZMO_GT_button_2d")
+            gizmoGroup.icon = 'INFO'
+            gizmoGroup.draw_options = {'BACKDROP'}
+            gizmoGroup.alpha = 0.0
+            gizmoGroup.color = 1,0,0
+            gizmoGroup.color_highlight = 1, 0, 0
+            gizmoGroup.alpha_highlight = 0.2
+            gizmoGroup.scale_basis = (80 * 0.35) / 2 
+            gizmoGroup.target_set_operator("view3d.astats_gizmomenu")
+            gizmoGroup.use_grab_cursor = True
+            gizmoGroup.matrix_basis[0][3] = 1024
+            gizmoGroup.matrix_basis[1][3] = 800
+            
 
 def getValue(name):
     return getattr(bpy.context.preferences.addons[__name__].preferences,name)
@@ -267,6 +280,18 @@ def setDrawParams(fontName,xName,yName,shiftX,shiftY,colorName,text,width,height
      posX = remap(getValue(xName),0,1000,0,width)+shiftX
      posY = remap(getValue(yName),0,1000,0,height)+shiftY
      add_draw(posX,posY,size,getValue(colorName),text)
+
+def getGlobalStates():
+    states = []
+    #transform orientation
+    states.append(bpy.context.scene.transform_orientation_slots[0].type)
+    #get pivot
+    states.append(bpy.context.tool_settings.transform_pivot_point)
+    #snap target
+    states.append(bpy.context.tool_settings.snap_target)
+    #element snap to
+    states.append(bpy.context.tool_settings.snap_elements)
+    return states
 
 def getTriCount(object):
     tris = 0
@@ -315,16 +340,20 @@ def getSelectionStats():
     return [verts,edges,faces,tris]
 
 def getGlobalStats():
-    stats = [0,0,0,0]
+    stats = [0,0,0,0,0]
     if len(bpy.context.visible_objects) == 0:
             stats = [0,0,0,0]
     else:
         for object in bpy.context.visible_objects:
-            stats[0]+=1
+            stats[4]+=1
             if object.type == "MESH":
-                stats[1]+=len(object.data.polygons)
-                stats[2]+=len(object.data.edges)
-                stats[3]+=len(object.data.vertices)
+                stats[3]+=len(object.data.polygons)
+                data = object.data
+                bm = bmesh.new()
+                bm.from_mesh(object.data)
+                stats[2]+=len(bm.calc_loop_triangles())
+                stats[1]+=len(object.data.edges)
+                stats[0]+=len(object.data.vertices)
     return stats
 
 def getMaterialsFromSelection():
@@ -386,13 +415,39 @@ def draw_callback_px(self, context):
         displayShadow()
     objectName = getObjectNames()
     totalComponents = getDataFromSelectedObjects()
+    globalStates = getGlobalStates()
     #Draw global stats for visible objects
     if getValue('bDispGlobal') == True:
         globalValues = getGlobalStats()
-        for value in range(4):
-            size = relativeScale(getValue('gFontSize'))
-            text = globalnames[value]+str(globalValues[value])
-            setDrawParams('gFontSize','gLocX','gLocY',0,-size*value,'gStatColor',text,width,height)
+        size = relativeScale(getValue('gFontSize'))
+        if getValue('bDrawGlobalVerts'):
+            text = globalnames[0]+str(globalValues[0])
+            setDrawParams('gFontSize','gLocX','gLocY',0,size,'gStatColor',text,width,height)
+            size+=relativeScale(getValue('gFontSize'))
+        if getValue('bDrawGlobalEdges'):
+            text = globalnames[1]+str(globalValues[1])
+            setDrawParams('gFontSize','gLocX','gLocY',0,size,'gStatColor',text,width,height)
+            size+=relativeScale(getValue('gFontSize'))
+        if getValue('bDrawGlobalTris'):
+            text = globalnames[2]+str(globalValues[2])
+            setDrawParams('gFontSize','gLocX','gLocY',0,size,'gStatColor',text,width,height)
+            size+=relativeScale(getValue('gFontSize'))
+        if getValue('bDrawGlobalFaces'):
+            text = globalnames[3]+str(globalValues[3])
+            setDrawParams('gFontSize','gLocX','gLocY',0,size,'gStatColor',text,width,height)
+            size+=relativeScale(getValue('gFontSize'))
+        if getValue('bDrawGlobalObjects'):
+            text = globalnames[4]+str(globalValues[4])
+            setDrawParams('gFontSize','gLocX','gLocY',0,size,'gStatColor',text,width,height)
+            size+=relativeScale(getValue('gFontSize'))
+        if getValue('bDrawGlobalOrient'):
+            text = "Space :" + globalStates[0]
+            setDrawParams('gFontSize','gLocX','gLocY',0,size,'gStatColor',text,width,height)
+            size+=relativeScale(getValue('gFontSize'))
+        if getValue('bDrawGlobalPivot'):
+            text = "Pivot :" + globalStates[1]
+            setDrawParams('gFontSize','gLocX','gLocY',0,size,'gStatColor',text,width,height)
+            size+=relativeScale(getValue('gFontSize'))
     #Draw stats for selected objects
     if getValue('bDispSelected') == True:
         setDrawParams('sFontSize','sLocX','sLocY',0,0,'sStatColor',str(objectName),width,height)
@@ -461,7 +516,6 @@ def draw_callback_px(self, context):
             setDrawParams('sFontSize','sLocX','sLocY',shiftX,-shiftY,'sStatColor',str(totalComponents[3]),width,height)  
         #mats
         if (getValue('bShowMats')):
-            
             shiftY += relativeScale(getValue('sFontSize'))*1.2
             setDrawParams('mFontSize','sLocX','sLocY',0,-shiftY,'matColor',getMaterialsFromSelection(),width,height)
 
