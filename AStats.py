@@ -22,7 +22,7 @@ bl_info = {
     "name": "A* Statistics",
     "description": "Show Stats in Viewport",
     "author": "A*",
-    "version": (0, 0, 2),
+    "version": (0, 0, 3),
     "blender": (2, 80, 0),
     "location": "View3D",
     "wiki_url": "https://youtu.be/06zMRZzpbZc",
@@ -68,7 +68,6 @@ class AddonPreferences(bpy.types.AddonPreferences):
     shadowColor:bpy.props.FloatVectorProperty(name="Color",description="Color", default=(0.0,0.0,0.0),subtype='COLOR')
     matColor:bpy.props.FloatVectorProperty(name="Color",description="Color", default=(0.5,0.5,0.5),subtype='COLOR')
     #Switches
-    bDispIcon: bpy.props.BoolProperty(name="On/Off",description="On/Off switch", default=True)
     bDispGlobal: bpy.props.BoolProperty(name="On/Off",description="On/Off switch", default=True)
     bDrawGlobalVerts: bpy.props.BoolProperty(name="Draw Verts",description="Switch for calculating triangles", default=True)
     bDrawGlobalEdges: bpy.props.BoolProperty(name="Draw Edges",description="Switch for calculating triangles", default=True)
@@ -92,13 +91,6 @@ class AddonPreferences(bpy.types.AddonPreferences):
 
     def draw(self, context):
         layout = self.layout
-        #Icon Box
-        iconBox = layout.box()
-        iconBox.label(text="3DView Icon Options")
-        iRow = iconBox.row(align=True)
-        iRow.prop(self,"bDispIcon")
-        iRow.prop(self,"iLocX")
-        iRow.prop(self,"iLocY")
         #GlobalStats Box
         globalStatBox = layout.box()
         globalStatBox.label(text="Global Stats Options")
@@ -155,65 +147,48 @@ class AddonPreferences(bpy.types.AddonPreferences):
         MatRow.prop(self,"mFontSize")
         MatRow.prop(self,"matColor")
 
-class PanelSwitches(bpy.types.PropertyGroup):
-    def updateDispGlobal(self,context):
-        setValue('bDispGlobal',self.bDispGlobalMenu)
-        return None
-    
-    def updateDispSelected(self,context):
-        setValue('bDispSelected',self.bDispSelectedMenu)
-        return None
-    
-    def updateDispFaces(self,context):
-        setValue('bDrawFaces',self.bDrawFacesMenu)
-        return None
-
-    def updateDispEdges(self,context):
-        setValue('bDrawEdges',self.bDrawEdgesMenu)
-        return None
-    
-    def updateDispVerts(self,context):
-        setValue('bDrawVerts',self.bDrawVertsMenu)
-        return None
-
-    def updateDispMats(self,context):
-        setValue('bShowMats',self.bShowMatsMenu)
-        return None
-
-    def updateDispActive(self,context):
-        setValue('bDispActive',self.bDispActiveMenu)
-        return None
-
-    bDispGlobalMenu: bpy.props.BoolProperty(name="Display Global Stats",default = True,update=updateDispGlobal)
-    bDispSelectedMenu: bpy.props.BoolProperty(name="Display Selected Stats",default = True,update=updateDispSelected)
-    bDrawFacesMenu: bpy.props.BoolProperty(name="Draw Faces",description="Switch for drawing faces", default=True,update=updateDispFaces)
-    bDrawEdgesMenu: bpy.props.BoolProperty(name="Draw Edges",description="Switch for drawing edges", default=True,update=updateDispEdges)
-    bDrawVertsMenu: bpy.props.BoolProperty(name="Draw Verts",description="Switch for drawing verts", default=True,update=updateDispVerts)
-    bShowMatsMenu: bpy.props.BoolProperty(name="Draw Materials",description="Switch for showing names of selected materials", default=True,update=updateDispMats)
-    bDispActiveMenu: bpy.props.BoolProperty(name="Draw Selected Mode",description="Switch for showing stats based on selection type(ie only verts)", default=False,update=updateDispActive)
-
 class AStats_Switches(bpy.types.Panel):
-    bl_label = "Stats"
+    bl_label = "AStats"
     bl_idname = "VIEW3D_PT_Switches"
     
-    bl_space_type = 'PROPERTIES'
+    bl_space_type = 'VIEW_3D'
     bl_region_type = 'WINDOW'
-    bl_context = "object"
 
     def draw(self,context):
-        self.layout.prop(context.scene.stats_switches,'bDispGlobalMenu')
-        self.layout.prop(context.scene.stats_switches,'bDispSelectedMenu')
-        self.layout.prop(context.scene.stats_switches,'bDrawFacesMenu')
-        self.layout.prop(context.scene.stats_switches,'bDrawEdgesMenu')
-        self.layout.prop(context.scene.stats_switches,'bDrawVertsMenu')
-        self.layout.prop(context.scene.stats_switches,'bShowMatsMenu')
-        self.layout.prop(context.scene.stats_switches,'bDispActiveMenu')
+        layout = self.layout
+        layout.ui_units_x = 6
+        selectedBox = layout.box()
+        globalBox = layout.box()
+        globalBox.label(text="Global Stats")
+        selectedBox.label(text="Selected Stats")
+        addBox = layout.box()
+        addBox.label(text="Extra Options")
+        #global box
+        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDispGlobal',icon='FORCE_CHARGE')
+        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalFaces',icon='FACESEL')
+        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalTris',icon='MOD_TRIANGULATE')
+        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalEdges',icon='EDGESEL')
+        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalVerts',icon='VERTEXSEL')
+        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalObjects',icon='OBJECT_DATA')
+        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalOrient',icon='OBJECT_ORIGIN')
+        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalPivot',icon='PIVOT_CURSOR')
+        #selected box
+        selectedBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDispSelected',icon='FORCE_CHARGE')
+        selectedBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawFaces',icon='FACESEL')
+        selectedBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawTris',icon='MOD_TRIANGULATE')
+        selectedBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawEdges',icon='EDGESEL')
+        selectedBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawVerts',icon='VERTEXSEL')
+        selectedBox.prop(bpy.context.preferences.addons[__name__].preferences,'bShowMats',icon='MATERIAL')
+        selectedBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDispActive',icon='LAYER_ACTIVE')
+        #additional box
+        addBox.prop(bpy.context.preferences.addons[__name__].preferences,'bNameGrouping',icon='GROUP')
+        addBox.prop(bpy.context.preferences.addons[__name__].preferences,'bFontScaling',icon='FONTPREVIEW')
 
 def getValue(name):
     return getattr(bpy.context.preferences.addons[__name__].preferences,name)
 
 def addmenu_callback(self, context):
-    self.layout.popover("VIEW3D_PT_Switches")
+    self.layout.popover("VIEW3D_PT_Switches",icon='INFO',text='')
 
 def setValue(name,value):
     return setattr(bpy.context.preferences.addons[__name__].preferences,name,value)
@@ -480,16 +455,12 @@ def draw_callback_px(self, context):
 
 def register():
     bpy.utils.register_class(AddonPreferences)
-    bpy.utils.register_class(PanelSwitches)
     bpy.utils.register_class(AStats_Switches)
-    bpy.types.Scene.stats_switches = bpy.props.PointerProperty(type=PanelSwitches)
     bpy.types.VIEW3D_HT_header.append(addmenu_callback) 
     StatsText["handler"] = bpy.types.SpaceView3D.draw_handler_add(draw_callback_px, (None, None), 'WINDOW', 'POST_PIXEL')
 
 def unregister():
     bpy.utils.unregister_class(AddonPreferences)
-    del(bpy.types.Scene.stats_switches)
-    bpy.utils.unregister_class(PanelSwitches)
     bpy.utils.unregister_class(AStats_Switches)
     bpy.types.VIEW3D_HT_header.remove(addmenu_callback)
     bpy.types.SpaceView3D.draw_handler_remove(StatsText["handler"],'WINDOW')
