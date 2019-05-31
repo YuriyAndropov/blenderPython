@@ -67,6 +67,7 @@ class AddonPreferences(bpy.types.AddonPreferences):
     highlightColor:bpy.props.FloatVectorProperty(name="Color",description="Highlight color", default=(0.0,1.0,0.0),subtype='COLOR')
     shadowColor:bpy.props.FloatVectorProperty(name="Color",description="Color", default=(0.0,0.0,0.0),subtype='COLOR')
     matColor:bpy.props.FloatVectorProperty(name="Color",description="Color", default=(0.5,0.5,0.5),subtype='COLOR')
+    globalStatesColor:bpy.props.FloatVectorProperty(name="States",description="Color", default=(0.5,0.5,0.5),subtype='COLOR')
     #Switches
     bDispGlobal: bpy.props.BoolProperty(name="On/Off",description="On/Off switch", default=True)
     bDrawGlobalVerts: bpy.props.BoolProperty(name="Draw Verts",description="Switch for calculating triangles", default=True)
@@ -95,38 +96,21 @@ class AddonPreferences(bpy.types.AddonPreferences):
         globalStatBox = layout.box()
         globalStatBox.label(text="Global Stats Options")
         GRow = globalStatBox.row(align=True)
-        sGRow = globalStatBox.row(align=True)
-        oGRow = globalStatBox.row(align=True)
-        sGRow.prop(self,'bDrawGlobalVerts')
-        sGRow.prop(self,'bDrawGlobalEdges')
-        sGRow.prop(self,'bDrawGlobalTris')
-        sGRow.prop(self,'bDrawGlobalFaces')
-        sGRow.prop(self,'bDrawGlobalObjects')
-        oGRow.prop(self,'bDrawGlobalOrient')
-        oGRow.prop(self,'bDrawGlobalPivot')
-        GRow.prop(self, "bDispGlobal")
         GRow.prop(self, "gFontSize")
         GRow.prop(self, "gLocX")
         GRow.prop(self, "gLocY")
         GRow.prop(self, "gStatColor")
+        GRow.prop(self, "globalStatesColor")
         globalStatBox.label(text="Statistics for all visible objects")
         #SelectedStats Box
         SelectedStatBox = layout.box()
         SelectedStatBox.label(text="Selected Objects Stats Options")
         SRow = SelectedStatBox.row(align=True)
-        BRow = SelectedStatBox.row(align=True)
-        ORow = SelectedStatBox.row(align=True)
-        SRow.prop(self, "bDispSelected")
+        #SRow.prop(self, "bDispSelected")
         SRow.prop(self, "sFontSize")
         SRow.prop(self, "sLocX")
         SRow.prop(self, "sLocY")
-        SRow.prop(self, "sStatColor")
         SRow.prop(self,"highlightColor" )
-        BRow.prop(self,'bDrawTris')
-        BRow.prop(self,'bDrawFaces')
-        BRow.prop(self,'bDrawEdges')
-        BRow.prop(self,'bDrawVerts')
-        ORow.prop(self,'bDispActive')
         SelectedStatBox.label(text="Statistics for all selected objects")
         #Box for additional properties
         AddProp = layout.box()
@@ -135,18 +119,14 @@ class AddonPreferences(bpy.types.AddonPreferences):
         ShadowRow = AddProp.row(align=True)
         MatRow = AddProp.row(align=True)
         MatRow.label(text="Material Options")
-        ARow.prop(self,"bFontScaling" )
-        ARow.prop(self, "bNameGrouping")
         ARow.prop(self, "groupNames")
         ShadowRow.label(text="Shadow Options")
         ShadowRow.prop(self, "bDispShadow")
         ShadowRow.prop(self, "shOffsetX")
         ShadowRow.prop(self, "shOffsetY")
         ShadowRow.prop(self, "shadowColor")
-        MatRow.prop(self,"bShowMats")
         MatRow.prop(self,"mFontSize")
         MatRow.prop(self,"matColor")
-
 class AStats_Switches(bpy.types.Panel):
     bl_label = "AStats"
     bl_idname = "VIEW3D_PT_Switches"
@@ -165,24 +145,24 @@ class AStats_Switches(bpy.types.Panel):
         addBox.label(text="Extra Options")
         #global box
         globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDispGlobal',icon='FORCE_CHARGE')
-        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalFaces',icon='FACESEL')
-        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalTris',icon='MOD_TRIANGULATE')
-        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalEdges',icon='EDGESEL')
-        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalVerts',icon='VERTEXSEL')
-        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalObjects',icon='OBJECT_DATA')
-        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalOrient',icon='OBJECT_ORIGIN')
-        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalPivot',icon='PIVOT_CURSOR')
+        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalFaces')
+        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalTris')
+        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalEdges')
+        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalVerts')
+        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalObjects')
+        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalOrient')
+        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalPivot')
         #selected box
         selectedBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDispSelected',icon='FORCE_CHARGE')
-        selectedBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawFaces',icon='FACESEL')
-        selectedBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawTris',icon='MOD_TRIANGULATE')
-        selectedBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawEdges',icon='EDGESEL')
-        selectedBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawVerts',icon='VERTEXSEL')
-        selectedBox.prop(bpy.context.preferences.addons[__name__].preferences,'bShowMats',icon='MATERIAL')
+        selectedBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawFaces')
+        selectedBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawTris')
+        selectedBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawEdges')
+        selectedBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawVerts')
+        selectedBox.prop(bpy.context.preferences.addons[__name__].preferences,'bShowMats')
         selectedBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDispActive',icon='LAYER_ACTIVE')
         #additional box
-        addBox.prop(bpy.context.preferences.addons[__name__].preferences,'bNameGrouping',icon='GROUP')
-        addBox.prop(bpy.context.preferences.addons[__name__].preferences,'bFontScaling',icon='FONTPREVIEW')
+        addBox.prop(bpy.context.preferences.addons[__name__].preferences,'bNameGrouping')
+        addBox.prop(bpy.context.preferences.addons[__name__].preferences,'bFontScaling')
 
 def getValue(name):
     return getattr(bpy.context.preferences.addons[__name__].preferences,name)
@@ -375,12 +355,12 @@ def draw_callback_px(self, context):
             setDrawParams('gFontSize','gLocX','gLocY',0,size,'gStatColor',text,width,height)
             size+=relativeScale(getValue('gFontSize'))
         if getValue('bDrawGlobalOrient'):
-            text = "Space :" + globalStates[0]
-            setDrawParams('gFontSize','gLocX','gLocY',0,size,'gStatColor',text,width,height)
+            text = globalStates[0]
+            setDrawParams('gFontSize','gLocX','gLocY',0,size,'globalStatesColor',text,width,height)
             size+=relativeScale(getValue('gFontSize'))
         if getValue('bDrawGlobalPivot'):
-            text = "Pivot :" + globalStates[1]
-            setDrawParams('gFontSize','gLocX','gLocY',0,size,'gStatColor',text,width,height)
+            text = globalStates[1]
+            setDrawParams('gFontSize','gLocX','gLocY',0,size,'globalStatesColor',text,width,height)
             size+=relativeScale(getValue('gFontSize'))
     #Draw stats for selected objects
     if getValue('bDispSelected') == True:
