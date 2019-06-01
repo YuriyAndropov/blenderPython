@@ -49,12 +49,10 @@ class AddonPreferences(bpy.types.AddonPreferences):
     bl_idname = __name__
     #TODO Add UV Channel Name check,snapping state
     #Location properties
-    iLocX:bpy.props.IntProperty(name="X",description="Icon X position", default=410,min=0,max=1000)
-    iLocY:bpy.props.IntProperty(name="Y",description="Icon Y position", default=986,min=0,max=1000)
-    sLocX:bpy.props.IntProperty(name="X",description="Relative X position", default=90,min=0,max=1000)
-    sLocY:bpy.props.IntProperty(name="Y",description="Relative Y position", default=900,min=0,max=1000)
-    gLocX:bpy.props.IntProperty(name="X",description="Relative X position", default=910,min=0,max=1000)
-    gLocY:bpy.props.IntProperty(name="Y",description="Relative Y position", default=70,min=0,max=1000)
+    sLocX:bpy.props.IntProperty(name="X",description="Relative X position", default=20,min=0,max=1000)
+    sLocY:bpy.props.IntProperty(name="Y",description="Relative Y position", default=890,min=0,max=1000)
+    gLocX:bpy.props.IntProperty(name="X",description="Relative X position", default=880,min=0,max=1000)
+    gLocY:bpy.props.IntProperty(name="Y",description="Relative Y position", default=0,min=0,max=1000)
     shOffsetX:bpy.props.IntProperty(name="X",description="X shadow offset ", default=1,min=-1000,max=1000)
     shOffsetY:bpy.props.IntProperty(name="Y",description="X shadow offset ", default=-1,min=-1000,max=1000)
     #sFontSize Properties
@@ -62,37 +60,38 @@ class AddonPreferences(bpy.types.AddonPreferences):
     gFontSize:bpy.props.IntProperty(name="Size",description="Font size", default=16)
     mFontSize:bpy.props.IntProperty(name="Size",description="Font size", default=16)
     #Color Properties
-    gStatColor:bpy.props.FloatVectorProperty(name="Color",description="Color", default=(1.0,1.0,1.0),subtype='COLOR')
-    sStatColor:bpy.props.FloatVectorProperty(name="Color",description="Color", default=(1.0,1.0,1.0),subtype='COLOR')
-    highlightColor:bpy.props.FloatVectorProperty(name="Color",description="Highlight color", default=(0.0,1.0,0.0),subtype='COLOR')
-    shadowColor:bpy.props.FloatVectorProperty(name="Color",description="Color", default=(0.0,0.0,0.0),subtype='COLOR')
-    matColor:bpy.props.FloatVectorProperty(name="Color",description="Color", default=(0.5,0.5,0.5),subtype='COLOR')
+    gStatColor:bpy.props.FloatVectorProperty(name="Stats",description="Color", default=(1.0,1.0,1.0),subtype='COLOR')
+    sStatColor:bpy.props.FloatVectorProperty(name="Stats",description="Color", default=(1.0,1.0,1.0),subtype='COLOR')
+    highlightColor:bpy.props.FloatVectorProperty(name="Highlight",description="Highlight color", default=(0.0,1.0,0.0),subtype='COLOR')
+    shadowColor:bpy.props.FloatVectorProperty(name="Shadow",description="Color", default=(0.0,0.0,0.0),subtype='COLOR')
+    matColor:bpy.props.FloatVectorProperty(name="Material",description="Color", default=(0.5,0.5,0.5),subtype='COLOR')
     globalStatesColor:bpy.props.FloatVectorProperty(name="States",description="Color", default=(0.5,0.5,0.5),subtype='COLOR')
     #Switches
     bDispGlobal: bpy.props.BoolProperty(name="On/Off",description="On/Off switch", default=True)
-    bDrawGlobalVerts: bpy.props.BoolProperty(name="Draw Verts",description="Switch for calculating triangles", default=True)
-    bDrawGlobalEdges: bpy.props.BoolProperty(name="Draw Edges",description="Switch for calculating triangles", default=True)
-    bDrawGlobalTris: bpy.props.BoolProperty(name="Draw Tris",description="Switch for calculating triangles", default=True)
-    bDrawGlobalFaces: bpy.props.BoolProperty(name="Draw Faces",description="Switch for calculating triangles", default=True)
-    bDrawGlobalObjects: bpy.props.BoolProperty(name="Draw Objects",description="Switch for calculating triangles", default=True)
-    bDrawGlobalOrient: bpy.props.BoolProperty(name="Draw Orientation",description="Switch for calculating triangles", default=True)
-    bDrawGlobalPivot: bpy.props.BoolProperty(name="Draw Pivot Placement",description="Switch for calculating triangles", default=True)
+    bDrawGlobalVerts: bpy.props.BoolProperty(name="Verts",description="Switch for calculating triangles", default=True)
+    bDrawGlobalEdges: bpy.props.BoolProperty(name="Edges",description="Switch for calculating triangles", default=True)
+    bDrawGlobalTris: bpy.props.BoolProperty(name="Tris",description="Switch for calculating triangles", default=True)
+    bDrawGlobalFaces: bpy.props.BoolProperty(name="Faces",description="Switch for calculating triangles", default=True)
+    bDrawGlobalObjects: bpy.props.BoolProperty(name="Objects Number",description="Switch for calculating triangles", default=True)
+    bDrawGlobalOrient: bpy.props.BoolProperty(name="Axis",description="Switch for calculating triangles", default=True)
+    bDrawGlobalPivot: bpy.props.BoolProperty(name="Pivot",description="Switch for calculating triangles", default=True)
     bDispShadow: bpy.props.BoolProperty(name="On/Off",description="On/Off switch", default=True)
     bDispSelected: bpy.props.BoolProperty(name="On/Off",description="On/Off switch", default=True)
-    bDispActive: bpy.props.BoolProperty(name="Selection Mode Only Display",description="Switch for showing stats based on selection type(ie only verts)", default=False)
-    bShowMats: bpy.props.BoolProperty(name="On/Off",description="Switch for showing names of selected materials", default=True)
-    bNameGrouping: bpy.props.BoolProperty(name="Name Grouping",description="Switch for name grouping", default=True)
-    bFontScaling: bpy.props.BoolProperty(name="Font Sclaing",description="Switch for font scaling", default=True)
-    bDrawTris: bpy.props.BoolProperty(name="Draw Tris",description="Switch for calculating triangles", default=True)
-    bDrawFaces: bpy.props.BoolProperty(name="Draw Faces",description="Switch for drawing faces", default=True)
-    bDrawEdges: bpy.props.BoolProperty(name="Draw Edges",description="Switch for drawing edges", default=True)
-    bDrawVerts: bpy.props.BoolProperty(name="Draw Verts",description="Switch for drawing verts", default=True)
+    bDispActive: bpy.props.BoolProperty(name="SelectionMode",description="Switch for showing stats based on selection type(ie only verts)", default=False)
+    bShowMats: bpy.props.BoolProperty(name="Materials",description="Switch for showing names of selected materials", default=True)
+    bNameGrouping: bpy.props.BoolProperty(name="Group Names",description="Switch for name grouping", default=True)
+    bFontScaling: bpy.props.BoolProperty(name="Font Scaling",description="Switch for font scaling", default=True)
+    bDrawTris: bpy.props.BoolProperty(name="Tris",description="Switch for calculating triangles", default=True)
+    bDrawFaces: bpy.props.BoolProperty(name="Faces",description="Switch for drawing faces", default=True)
+    bDrawEdges: bpy.props.BoolProperty(name="Edges",description="Switch for drawing edges", default=True)
+    bDrawVerts: bpy.props.BoolProperty(name="Verts",description="Switch for drawing verts", default=True)
     #Additional Properties
     groupNames: bpy.props.IntProperty(name="Group names after",description="When the number of of selected object is bigger than the value it will be replaced by Number of Objects", default=2)
 
     def draw(self, context):
         layout = self.layout
         #GlobalStats Box
+        SelectedStatBox = layout.box()
         globalStatBox = layout.box()
         globalStatBox.label(text="Global Stats Options")
         GRow = globalStatBox.row(align=True)
@@ -103,7 +102,6 @@ class AddonPreferences(bpy.types.AddonPreferences):
         GRow.prop(self, "globalStatesColor")
         globalStatBox.label(text="Statistics for all visible objects")
         #SelectedStats Box
-        SelectedStatBox = layout.box()
         SelectedStatBox.label(text="Selected Objects Stats Options")
         SRow = SelectedStatBox.row(align=True)
         #SRow.prop(self, "bDispSelected")
@@ -115,11 +113,9 @@ class AddonPreferences(bpy.types.AddonPreferences):
         #Box for additional properties
         AddProp = layout.box()
         AddProp.label(text="Additional Options")
-        ARow = AddProp.row(align=True)
-        ShadowRow = AddProp.row(align=True)
         MatRow = AddProp.row(align=True)
+        ShadowRow = AddProp.row(align=True)
         MatRow.label(text="Material Options")
-        ARow.prop(self, "groupNames")
         ShadowRow.label(text="Shadow Options")
         ShadowRow.prop(self, "bDispShadow")
         ShadowRow.prop(self, "shOffsetX")
@@ -127,10 +123,10 @@ class AddonPreferences(bpy.types.AddonPreferences):
         ShadowRow.prop(self, "shadowColor")
         MatRow.prop(self,"mFontSize")
         MatRow.prop(self,"matColor")
+        MatRow.prop(self, "groupNames")
 class AStats_Switches(bpy.types.Panel):
     bl_label = "AStats"
     bl_idname = "VIEW3D_PT_Switches"
-    
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'WINDOW'
 
@@ -140,7 +136,7 @@ class AStats_Switches(bpy.types.Panel):
         selectedBox = layout.box()
         globalBox = layout.box()
         globalBox.label(text="Global Stats")
-        selectedBox.label(text="Selected Stats")
+        selectedBox.label(text="Selection Stats")
         addBox = layout.box()
         addBox.label(text="Extra Options")
         #global box
@@ -190,10 +186,12 @@ def add_draw(posX,posY,size,color,text):
     blf.draw(font_id, text)
 
 def setDrawParams(fontName,xName,yName,shiftX,shiftY,colorName,text,width,height):
-     size = relativeScale(getValue(fontName))
-     posX = remap(getValue(xName),0,1000,0,width)+shiftX
-     posY = remap(getValue(yName),0,1000,0,height)+shiftY
-     add_draw(posX,posY,size,getValue(colorName),text)
+    nWidth = bpy.context.area.regions[3].width
+    tWidth = bpy.context.area.regions[2].width
+    size = relativeScale(getValue(fontName))
+    posX = remap(getValue(xName),0,1000,0+tWidth,width-nWidth)+shiftX
+    posY = remap(getValue(yName),0,1000,0,height)+shiftY
+    add_draw(posX,posY,size,getValue(colorName),text)
 
 def getGlobalStates():
     states = []
@@ -262,7 +260,6 @@ def getGlobalStats():
             stats[4]+=1
             if object.type == "MESH":
                 stats[3]+=len(object.data.polygons)
-                data = object.data
                 bm = bmesh.new()
                 bm.from_mesh(object.data)
                 stats[2]+=len(bm.calc_loop_triangles())
@@ -317,12 +314,6 @@ def getObjectNames():
     return text
 
 def draw_callback_px(self, context):
-    nWidth = 0
-    tWidth = 0
-    #TODO T and N now 2 and 3. Need to do more inteligent way to track toolbars
-    #disabled until I find a way to get the width of T and N toolbars
-    #nWidth = bpy.context.area.regions[2].width
-    #tWidth = bpy.context.area.regions[1].width
     width = bpy.context.area.width
     height = bpy.context.area.height
     if getValue('bDispShadow') == True:
