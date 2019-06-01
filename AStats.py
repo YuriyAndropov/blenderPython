@@ -108,6 +108,7 @@ class AddonPreferences(bpy.types.AddonPreferences):
         SRow.prop(self, "sFontSize")
         SRow.prop(self, "sLocX")
         SRow.prop(self, "sLocY")
+        SRow.prop(self,'sStatColor')
         SRow.prop(self,"highlightColor" )
         SelectedStatBox.label(text="Statistics for all selected objects")
         #Box for additional properties
