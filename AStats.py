@@ -25,7 +25,7 @@ bl_info = {
     "version": (0, 0, 3),
     "blender": (2, 80, 0),
     "location": "View3D",
-    "wiki_url": "https://youtu.be/06zMRZzpbZc",
+    "wiki_url": "https://youtu.be/6Ra_2eng3XE",
     "category": "3D View"
 }
 
