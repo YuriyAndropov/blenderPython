@@ -239,31 +239,35 @@ def getSelectionStats():
     faces = 0
     edges = 0
     verts = 0
-    for object in bpy.context.selected_objects:
-        if object.type == "MESH" and bpy.context.mode == "EDIT_MESH":
-            data = object.data
-            object.update_from_editmode()
-            if bpy.context.scene.tool_settings.mesh_select_mode[0] == True:
-                verts += data.total_vert_sel
-            if bpy.context.scene.tool_settings.mesh_select_mode[1] == True:
-                edges += data.total_edge_sel
-            if bpy.context.scene.tool_settings.mesh_select_mode[2] == True:
+    bStat = bpy.context.scene.statistics(bpy.context.view_layer).split("|")
+    if bpy.context.scene.tool_settings.mesh_select_mode[0] == True:
+        verts = bStat[1].split(':')[1].split("/")[0]
+    if bpy.context.scene.tool_settings.mesh_select_mode[1] == True:
+        edges = bStat[2].split(':')[1].split("/")[0]
+    if bpy.context.scene.tool_settings.mesh_select_mode[2] == True:
+        faces = bStat[3].split(':')[1].split("/")[0]
+        for object in bpy.context.selected_objects:
+            if object.type == "MESH" and bpy.context.mode == "EDIT_MESH":
                 tris += getTriCount(object)
-                faces += data.total_face_sel
     return [verts,edges,faces,tris]
 
 def getGlobalStats():
     stats = [0,0,0,0,0]
-    if len(bpy.context.visible_objects) == 0:
-            stats = [0,0,0,0]
+    stats[4] = len(bpy.context.visible_objects)
+    if bpy.context.mode == "OBJECT":
+        bStat = bpy.context.scene.statistics(bpy.context.view_layer).split("|")
+        stats[0] = bStat[2].split(":")[1]
+        for object in bpy.context.visible_objects:
+            if object.type == "MESH":
+                stats[1]+=len(object.data.edges)
+        stats[2] = bStat[4].split(":")[1]
+        stats[3] = bStat[3].split(":")[1]
     else:
         for object in bpy.context.visible_objects:
-            stats[4]+=1
             if object.type == "MESH":
                 stats[3]+=len(object.data.polygons)
-                bm = bmesh.new()
-                bm.from_mesh(object.data)
-                stats[2]+=len(bm.calc_loop_triangles())
+                #Disabling global tri count in edit mode. To get it I need to use bmesh, which results in FPS drop wiht poly heavy scenes
+                setValue("bDrawGlobalTris",False)
                 stats[1]+=len(object.data.edges)
                 stats[0]+=len(object.data.vertices)
     return stats
