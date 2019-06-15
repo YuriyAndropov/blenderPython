@@ -412,11 +412,20 @@ class AQPipe_PostEdit(bpy.types.Operator):
     bl_label = "AQPipe post edit menu"
     bl_options = {'REGISTER', 'UNDO'}
 
+    pRotation: bpy.props.IntVectorProperty(name="Rotation",default = (0,0,0))
 
+    def draw(self,context):
+        layout = self.layout
+        tBox = layout.box()
+        rRow = tBox.row()
+        rRow.prop(self,"pRotation")
     def execute(self,context):
-        createCurve()
+        #createCurve()
         
         return {'FINISHED'}
+
+    def invoke(self,context,event):
+        return context.window_manager.invoke_props_dialog(self, width=300, height=20)
 
 def register():
     bpy.utils.register_class(AQPipePreferences)
