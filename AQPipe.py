@@ -332,23 +332,36 @@ class AQPipe_SweepProfile(bpy.types.Operator):
         enumRow.prop(self,"sceneProfiles")
         sceneProfiles = "0"
     
-    def convertProfToCurve(self,object):
-        if object.type == "MESH":
-            object.select_set(True) 
-            bpy.context.view_layer.objects.active = object
-            bpy.ops.object.convert('INVOKE_DEFAULT', target='CURVE')
+    def convertProfToCurve(self,mesh):
+            if mesh.type == "MESH":
+                mesh.select_set(True) 
+                bpy.context.view_layer.objects.active = mesh
+                bpy.ops.object.convert('INVOKE_DEFAULT', target='CURVE')
+
+    def convertPathToCurve(self):
+        for path in getObjectInCollection('Paths').children:
+            if path.type == "MESH":
+                path.select_set(True) 
+                bpy.context.view_layer.objects.active = path
+                bpy.ops.object.convert('INVOKE_DEFAULT', target='CURVE')
+        bpy.ops.object.select_all(action='DESELECT')
+        for path in getObjectInCollection('Paths').children:
+            path.select_set(True)
+        bpy.ops.object.join()
 
     def execute(self,context):
         createCollectionAndParents()
         bObj = None
         for profile in getObjectInCollection('Profiles').children:
             if profile.name == self.sceneProfiles:
+                bpy.types.Scene.AQPipe_bevelProfile = self.sceneProfiles
                 bObj = profile
-                bObj = self.dupProfile(bObj)
                 self.convertProfToCurve(bObj)
-        for paths in getObjectInCollection('Paths').children:
-            convertToCurve("Paths")
+        self.convertPathToCurve()
+        curve = getObjectInCollection("Paths").children[0].data
+        curve.bevel_object = bObj
         self.setBevel(bObj)
+        bpy.ops.object.aqpipe_postedit()
         return {'FINISHED'}
 
     def invoke(self,context,event):
@@ -409,10 +422,23 @@ class AQPipe_AdditionalOptions(bpy.types.Operator):
 
 class AQPipe_PostEdit(bpy.types.Operator):
     bl_idname = "object.aqpipe_postedit"
-    bl_label = "AQPipe post edit menu"
+    bl_label = "AQPipe Post Edit Menu"
     bl_options = {'REGISTER', 'UNDO'}
 
-    pRotation: bpy.props.IntVectorProperty(name="Rotation",default = (0,0,0))
+    def rotationUpdate(self,context):
+        prof = None
+        #print(bpy.types.Scene.AQPipe_bevelProfile)
+        for profile in getObjectInCollection('Profiles').children:
+            if profile.name == bpy.types.Scene.AQPipe_bevelProfile:
+                prof = profile
+        if prof != None:
+            prof.rotation_euler += (self.pRotation[0],self.pRotation[1],self.pRotation[2])
+            prof.select_set(True) 
+            bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+
+        return None
+    
+    pRotation: bpy.props.IntVectorProperty(name="Rotation",default = (0,0,0),update=rotationUpdate)
 
     def draw(self,context):
         layout = self.layout
@@ -425,9 +451,11 @@ class AQPipe_PostEdit(bpy.types.Operator):
         return {'FINISHED'}
 
     def invoke(self,context,event):
+        bpy.ops.object.select_all(action='DESELECT')
         return context.window_manager.invoke_props_dialog(self, width=300, height=20)
 
 def register():
+    bpy.types.Scene.AQPipe_bevelProfile = bpy.props.StringProperty(default="None")
     bpy.utils.register_class(AQPipePreferences)
     bpy.utils.register_class(AQPipe_MakeProfile)
     bpy.utils.register_class(AQPipe_MakePath)
@@ -440,7 +468,7 @@ def register():
     
     
 def unregister():
-    
+    del bpy.types.Scene.AQPipe_bevelProfile
     bpy.utils.unregister_class(AQPipePreferences)
     bpy.utils.unregister_class(AQPipe_MakeProfile)
     bpy.utils.unregister_class(AQPipe_MakePath)
@@ -450,3 +478,4 @@ def unregister():
     bpy.utils.unregister_class(AQPipe_FlushPaths)
     bpy.utils.unregister_class(AQPipe_CleanUp)
     bpy.utils.unregister_class(AQPipe_PostEdit)
+    
