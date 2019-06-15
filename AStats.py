@@ -70,7 +70,6 @@ class AddonPreferences(bpy.types.AddonPreferences):
     bDispGlobal: bpy.props.BoolProperty(name="On/Off",description="On/Off switch", default=True)
     bDrawGlobalVerts: bpy.props.BoolProperty(name="Verts",description="Switch for calculating triangles", default=True)
     bDrawGlobalEdges: bpy.props.BoolProperty(name="Edges",description="Switch for calculating triangles", default=True)
-    bDrawGlobalTris: bpy.props.BoolProperty(name="Tris",description="Switch for calculating triangles", default=True)
     bDrawGlobalFaces: bpy.props.BoolProperty(name="Faces",description="Switch for calculating triangles", default=True)
     bDrawGlobalObjects: bpy.props.BoolProperty(name="Objects Number",description="Switch for calculating triangles", default=True)
     bDrawGlobalOrient: bpy.props.BoolProperty(name="Axis",description="Switch for calculating triangles", default=True)
@@ -143,7 +142,6 @@ class AStats_Switches(bpy.types.Panel):
         #global box
         globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDispGlobal',icon='FORCE_CHARGE')
         globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalFaces')
-        globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalTris')
         globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalEdges')
         globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalVerts')
         globalBox.prop(bpy.context.preferences.addons[__name__].preferences,'bDrawGlobalObjects')
@@ -241,14 +239,17 @@ def getSelectionStats():
     verts = 0
     bStat = bpy.context.scene.statistics(bpy.context.view_layer).split("|")
     if bpy.context.scene.tool_settings.mesh_select_mode[0] == True:
-        verts = bStat[1].split(':')[1].split("/")[0]
+        if bpy.context.mode == "EDIT_MESH":
+            verts = bStat[1].split(':')[1].split("/")[0]
     if bpy.context.scene.tool_settings.mesh_select_mode[1] == True:
-        edges = bStat[2].split(':')[1].split("/")[0]
+        if bpy.context.mode == "EDIT_MESH":
+            edges = bStat[2].split(':')[1].split("/")[0]
     if bpy.context.scene.tool_settings.mesh_select_mode[2] == True:
-        faces = bStat[3].split(':')[1].split("/")[0]
-        for object in bpy.context.selected_objects:
-            if object.type == "MESH" and bpy.context.mode == "EDIT_MESH":
-                tris += getTriCount(object)
+        if bpy.context.mode == "EDIT_MESH":
+            faces = bStat[3].split(':')[1].split("/")[0]
+            for object in bpy.context.selected_objects:
+                if object.type == "MESH" and bpy.context.mode == "EDIT_MESH":
+                    tris += getTriCount(object)
     return [verts,edges,faces,tris]
 
 def getGlobalStats():
@@ -266,8 +267,6 @@ def getGlobalStats():
         for object in bpy.context.visible_objects:
             if object.type == "MESH":
                 stats[3]+=len(object.data.polygons)
-                #Disabling global tri count in edit mode. To get it I need to use bmesh, which results in FPS drop wiht poly heavy scenes
-                setValue("bDrawGlobalTris",False)
                 stats[1]+=len(object.data.edges)
                 stats[0]+=len(object.data.vertices)
     return stats
@@ -336,10 +335,6 @@ def draw_callback_px(self, context):
             size+=relativeScale(getValue('gFontSize'))
         if getValue('bDrawGlobalEdges'):
             text = globalnames[1]+str(globalValues[1])
-            setDrawParams('gFontSize','gLocX','gLocY',0,size,'gStatColor',text,width,height)
-            size+=relativeScale(getValue('gFontSize'))
-        if getValue('bDrawGlobalTris'):
-            text = globalnames[2]+str(globalValues[2])
             setDrawParams('gFontSize','gLocX','gLocY',0,size,'gStatColor',text,width,height)
             size+=relativeScale(getValue('gFontSize'))
         if getValue('bDrawGlobalFaces'):
