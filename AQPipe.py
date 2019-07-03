@@ -31,6 +31,8 @@ bl_info = {
 
 import bpy
 import bmesh
+import mathutils
+import math
 
 #profile selection enum list
 listItems = []
@@ -216,6 +218,7 @@ def convertToCurve(typeName):
 
 
 #make profile from selection operator
+#FIXME not working if path was created first
 class AQPipe_MakeProfile(bpy.types.Operator):
     bl_idname = "object.aqpipe_makeprofile"
     bl_label = "AQPipe Make Profile"
@@ -425,6 +428,7 @@ class AQPipe_PostEdit(bpy.types.Operator):
     bl_label = "AQPipe Post Edit Menu"
     bl_options = {'REGISTER', 'UNDO'}
 
+
     def rotationUpdate(self,context):
         prof = None
         #print(bpy.types.Scene.AQPipe_bevelProfile)
@@ -432,13 +436,29 @@ class AQPipe_PostEdit(bpy.types.Operator):
             if profile.name == bpy.types.Scene.AQPipe_bevelProfile:
                 prof = profile
         if prof != None:
-            prof.rotation_euler += (self.pRotation[0],self.pRotation[1],self.pRotation[2])
+            #TODO rotation works, but it is wrong
+            rot = mathutils.Matrix.Rotation(math.radians(0), 4, 'X') @  mathutils.Matrix.Rotation(math.radians(0), 4, 'Y') @ mathutils.Matrix.Rotation(math.radians(0), 4, 'Z')
+            scale = mathutils.Matrix.Scale(1,4,(0.0,0.0,1.0)) 
+            loc = mathutils.Matrix.Translation(self.bLocation)
+            baseMatrix = rot @ scale @ loc
+            xMatrix = mathutils.Matrix.Rotation(math.radians(self.pRotation[0]), 4, 'X')
+            yMatrix = mathutils.Matrix.Rotation(math.radians(self.pRotation[1]), 4, 'Y')
+            zMatrix = mathutils.Matrix.Rotation(math.radians(self.pRotation[2]), 4, 'Z')
+            prof.matrix_world = xMatrix @ baseMatrix
+            prof.matrix_world = yMatrix @ baseMatrix
+            prof.matrix_world = zMatrix @ baseMatrix
+            
             prof.select_set(True) 
+            
+            
             bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
 
         return None
     
     pRotation: bpy.props.IntVectorProperty(name="Rotation",default = (0,0,0),update=rotationUpdate)
+    bRotation: bpy.props.FloatVectorProperty(default = (0,0,0))
+    bLocation: bpy.props.FloatVectorProperty(default = (0,0,0))
+    bScale: bpy.props.FloatVectorProperty(default = (0,0,0))
 
     def draw(self,context):
         layout = self.layout
@@ -452,6 +472,7 @@ class AQPipe_PostEdit(bpy.types.Operator):
 
     def invoke(self,context,event):
         bpy.ops.object.select_all(action='DESELECT')
+        
         return context.window_manager.invoke_props_dialog(self, width=300, height=20)
 
 def register():
