@@ -111,9 +111,10 @@ def getCollection(name):
 
 #get object in collection by name
 def getObjectInCollection(name):
-    for object in getCollection("QPipe").objects:
-        if object.name == name:
-            return object
+    if checkCollections("QPipe"):
+        for object in getCollection("QPipe").objects:
+            if object.type != None and object.name == name:
+                return object
     return None
 
 #check if there is already a collection with specified name
@@ -133,14 +134,15 @@ def checkForObject(value):
 def updateList(self,context):
     del listItems[:]
     id = 0
-    for profile in getObjectInCollection("Profiles").children:
-        pId = str(id)
-        name = profile.name
-        des = profile.name
-        icon = 'OUTLINER_DATA_CURVE'
-        if (str(id),name,des,icon,id) not in listItems:
-            listItems.append((name,name,des,icon,id))
-        id+=1
+    if checkCollections('Profiles'):
+        for profile in getObjectInCollection("Profiles").children:
+            pId = str(id)
+            name = profile.name
+            des = profile.name
+            icon = 'OUTLINER_DATA_CURVE'
+            if (str(id),name,des,icon,id) not in listItems:
+                listItems.append((name,name,des,icon,id))
+            id+=1
     return listItems
 
 #TODO add check for None type collection
@@ -190,6 +192,8 @@ def objectFromPath(profileName,typeName):
             dupe.to_mesh(newMesh)
             newObj = bpy.data.objects.new(profileName, newMesh)
             col.objects.link(newObj)
+            print(profObj)
+            print('loc')
             newObj.location = object.location
             newObj.parent = profObj
             bmesh.types.BMesh.free
@@ -437,83 +441,49 @@ class AQPipe_PostEdit(bpy.types.Operator):
     bl_label = "AQPipe Post Edit Menu"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def getProfile(self):
-        for profile in getObjectInCollection('Profiles').children:
-            if profile.name == bpy.types.Scene.AQPipe_bevelProfile:
-                return profile
+    sceneProfiles: bpy.props.EnumProperty(name="Scene Profiles",items=updateList)
 
-    def updateX(self,context):
-        prof = self.getProfile()
-        rot = mathutils.Matrix.Rotation(math.radians(self.xRot), 4, 'X')
-        prof.matrix_world = prof.matrix_world @ rot
-        prof.select_set(True) 
-        bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
-        return None
-    def updateY(self,context):
-        prof = self.getProfile()
-        rot = mathutils.Matrix.Rotation(math.radians(self.yRot), 4, 'Y')
-        prof.matrix_world = prof.matrix_world @ rot
-        prof.select_set(True) 
-        bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
-        return None
-    def updateZ(self,context):
-        prof = self.getProfile()
-        rot = mathutils.Matrix.Rotation(math.radians(self.zRot), 4, 'Z')
-        prof.matrix_world = prof.matrix_world @ rot
-        prof.select_set(True) 
-        bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
-        return None
-    def rotationUpdate(self,context):
-        prof = None
-        #print(bpy.types.Scene.AQPipe_bevelProfile)
-        for profile in getObjectInCollection('Profiles').children:
-            if profile.name == bpy.types.Scene.AQPipe_bevelProfile:
-                prof = profile
-        if prof != None:
-            #TODO rotation works, but it is wrong
-            rot = mathutils.Matrix.Rotation(math.radians(0), 4, 'X') @  mathutils.Matrix.Rotation(math.radians(0), 4, 'Y') @ mathutils.Matrix.Rotation(math.radians(0), 4, 'Z')
-            scale = mathutils.Matrix.Scale(1,4,(0.0,0.0,1.0)) 
-            loc = mathutils.Matrix.Translation((0,0,0))
-            baseMatrix = loc
-            xMatrix = mathutils.Matrix.Rotation(math.radians(self.pRotation[0]), 4, 'X')
-            yMatrix = mathutils.Matrix.Rotation(math.radians(self.pRotation[1]), 4, 'Y')
-            zMatrix = mathutils.Matrix.Rotation(math.radians(self.pRotation[2]), 4, 'Z')
-            rotMatrix = xMatrix @ yMatrix @ zMatrix
-            prof.matrix_world = rotMatrix @ baseMatrix
-            prof.matrix_world = rotMatrix @ baseMatrix
-            prof.matrix_world = rotMatrix @ baseMatrix
-            
-            prof.select_set(True) 
-            
-            
-            bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
-
-        return None
-    
-    pRotation: bpy.props.IntVectorProperty(name="Rotation",default = (0,0,0),update=rotationUpdate)
-    xRot: bpy.props.IntProperty(name = "X",update=updateX)
-    yRot: bpy.props.IntProperty(name = "Y",update=updateY)
-    zRot: bpy.props.IntProperty(name = "Z",update=updateZ)
-    bRotation: bpy.props.FloatVectorProperty(default = (0,0,0))
-    bLocation: bpy.props.FloatVectorProperty(default = (0,0,0))
-    bScale: bpy.props.FloatVectorProperty(default = (0,0,0))
-
+    def execute(self,context):
+        return {'FINISHED'}
     def draw(self,context):
         layout = self.layout
-        tBox = layout.box()
-        rRow = tBox.row()
-        rRow.prop(self,"xRot")
-        rRow.prop(self,"yRot")
-        rRow.prop(self,"zRot")
-    def execute(self,context):
-        #createCurve()
+        enumRow = layout.row(align=True)
+
+        enumRow.prop(self,"sceneProfiles")
         
-        return {'FINISHED'}
+    # def draw_callback_px(self, context):
+    #     #draw stuff
+    def modal(self,context,event):
+        print(len(self.sceneProfiles))
+        #print('modal')
+        if event.type == "P":
+            print('keys')
+            #context.window_manager.invoke_props_dialog(self, width=300, height=40)
+        # if event.type == "W":
+        #     #run move
+        # if event.type == "E":
+        #     #run rotate
+        # if event.type == "R":
+        #     #run scale
+        # if event.type == "X":
+        #     #leave as curve
+        if event.type =="ESC":
+            return {'CANCELLED'}
+        if event.type == "SPACE":
+            return {'FINISHED'}
+
+        return {'RUNNING_MODAL'}
+    
+    
+    
 
     def invoke(self,context,event):
-        #bpy.ops.object.select_all(action='DESELECT')
+        #print('invoke')
+        #FIXME CRASH
+        #context.window_manager.invoke_props_dialog(self, width=300, height=40)
+        context.window_manager.modal_handler_add(self)
         
-        return context.window_manager.invoke_props_dialog(self, width=300, height=20)
+        return {'RUNNING_MODAL'}
 
 def register():
     bpy.types.Scene.AQPipe_bevelProfile = bpy.props.StringProperty(default="None")
