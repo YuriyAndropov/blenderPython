@@ -134,15 +134,14 @@ def checkForObject(value):
 def updateList(self,context):
     del listItems[:]
     id = 0
-    if checkCollections('Profiles'):
-        for profile in getObjectInCollection("Profiles").children:
-            pId = str(id)
-            name = profile.name
-            des = profile.name
-            icon = 'OUTLINER_DATA_CURVE'
-            if (str(id),name,des,icon,id) not in listItems:
-                listItems.append((name,name,des,icon,id))
-            id+=1
+    for profile in getObjectInCollection("Profiles").children:
+        pId = str(id)
+        name = profile.name
+        des = profile.name
+        icon = 'OUTLINER_DATA_CURVE'
+        if (str(id),name,des,icon,id) not in listItems:
+            listItems.append((name,name,des,icon,id))
+        id+=1
     return listItems
 
 #TODO add check for None type collection
@@ -314,71 +313,27 @@ class AQPipe_SweepProfile(bpy.types.Operator):
     bl_label = "AQPipe Sweep Profile"
     bl_options = {'REGISTER', 'UNDO'}
 
-    sceneProfiles: bpy.props.EnumProperty(name="Scene Profiles",items=updateList)
+    def profileUpdate(self,context):
+        bpy.types.Scene.AQPipe_bevelProfile = self.sceneProfiles
+        #print(bpy.types.Scene.AQPipe_bevelProfile)
+       
+        #bpy.ops.object.aqpipe_postedit(bevelProfile = self.sceneProfiles)
+        
+        #bpy.ops.object.aqpipe_postedit.bevelProfile = self.sceneProfiles
+        #print(bpy.ops.object.aqpipe_postedit.bevelProfile)
+        return None
+
+    sceneProfiles: bpy.props.EnumProperty(name="Scene Profiles",items=updateList,update=profileUpdate)
   
-    def setBevel(self,bevelObject):
-        for path in getObjectInCollection("Paths").children:
-            curve = path.data
-            curve.bevel_object = bevelObject
-
-    def dupProfile(self,meshProfile):
-        if meshProfile.type == "MESH":
-            meshProfile.select_set(True) 
-            bpy.context.view_layer.objects.active = meshProfile
-            bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-            data = meshProfile.data
-            bm = bmesh.from_edit_mesh(data)
-            dupe = bm.copy()
-            newMesh = bpy.data.meshes.new("ProfileMesh")
-            dupe.to_mesh(newMesh)
-            newObj = bpy.data.objects.new("SweeProfile", newMesh)
-            col = getCollection('QPipe')
-            col.objects.link(newObj)
-            newObj.location = meshProfile.location
-            newObj.parent = getObjectInCollection('Temp')
-            bmesh.types.BMesh.free
-            return newObj
-        else:
-            return None
-
     def draw(self,context):
         layout = self.layout
         enumRow = layout.row(align=True)
-
         enumRow.prop(self,"sceneProfiles")
-        sceneProfiles = "0"
+
     
-    def convertProfToCurve(self,mesh):
-            if mesh.type == "MESH":
-                mesh.select_set(True) 
-                bpy.context.view_layer.objects.active = mesh
-                bpy.ops.object.convert('INVOKE_DEFAULT', target='CURVE')
-
-    def convertPathToCurve(self):
-        for path in getObjectInCollection('Paths').children:
-            if path.type == "MESH":
-                path.select_set(True) 
-                bpy.context.view_layer.objects.active = path
-                bpy.ops.object.convert('INVOKE_DEFAULT', target='CURVE')
-        bpy.ops.object.select_all(action='DESELECT')
-        for path in getObjectInCollection('Paths').children:
-            path.select_set(True)
-        bpy.ops.object.join()
-
+    
     def execute(self,context):
-        createCollectionAndParents()
-        bObj = None
-        for profile in getObjectInCollection('Profiles').children:
-            if profile.name == self.sceneProfiles:
-                bpy.types.Scene.AQPipe_bevelProfile = self.sceneProfiles
-                bObj = profile
-                self.convertProfToCurve(bObj)
-        self.convertPathToCurve()
-        curve = getObjectInCollection("Paths").children[0].data
-        curve.bevel_object = bObj
-        self.setBevel(bObj)
-        #bpy.ops.object.aqpipe_postedit()
-        return {'FINISHED'}
+        return {'INTERFACE'}
 
     def invoke(self,context,event):
         return context.window_manager.invoke_props_dialog(self, width=300, height=40)
@@ -441,24 +396,31 @@ class AQPipe_PostEdit(bpy.types.Operator):
     bl_label = "AQPipe Post Edit Menu"
     bl_options = {'REGISTER', 'UNDO'}
 
-    sceneProfiles: bpy.props.EnumProperty(name="Scene Profiles",items=updateList)
+    def getPath(self):
+        paths = []
+        for path in getObjectInCollection("Paths").children:
+            paths.append(path)
+        return paths
+    
+    def convertPath(self):
+        curves = []
+        for path in  self.getPath():
+            if path.type == "MESH":
+                path.select_set(True) 
+                bpy.context.view_layer.objects.active = path
+                bpy.ops.object.convert('INVOKE_DEFAULT', target='CURVE')
+        for path in self.getPath():
+            if path.type == "CURVE":
+                curves.append(path)
 
     def execute(self,context):
         return {'FINISHED'}
-    def draw(self,context):
-        layout = self.layout
-        enumRow = layout.row(align=True)
-
-        enumRow.prop(self,"sceneProfiles")
-        
-    # def draw_callback_px(self, context):
-    #     #draw stuff
     def modal(self,context,event):
-        print(len(self.sceneProfiles))
-        #print('modal')
+        print('modal')
+        curves = []
         if event.type == "P":
-            print('keys')
-            #context.window_manager.invoke_props_dialog(self, width=300, height=40)
+            bpy.ops.object.aqpipe_sweepprofile("INVOKE_DEFAULT")
+
         # if event.type == "W":
         #     #run move
         # if event.type == "E":
@@ -470,6 +432,7 @@ class AQPipe_PostEdit(bpy.types.Operator):
         if event.type =="ESC":
             return {'CANCELLED'}
         if event.type == "SPACE":
+            
             return {'FINISHED'}
 
         return {'RUNNING_MODAL'}
@@ -478,12 +441,29 @@ class AQPipe_PostEdit(bpy.types.Operator):
     
 
     def invoke(self,context,event):
+        bevelProfile = None
+        self.convertPath()
+        bpy.ops.object.aqpipe_sweepprofile("INVOKE_DEFAULT")
+        if bpy.types.Scene.AQPipe_bevelProfile != "None":
+            for profile in getObjectInCollection('Profiles').children:
+                if profile.name == bpy.types.Scene.AQPipe_bevelProfile:
+                    if profile.type == "MESH":
+                        profile.select_set(True) 
+                        bpy.context.view_layer.objects.active = profile
+                        bpy.ops.object.convert('INVOKE_DEFAULT', target='CURVE')
+                    bevelProfile = profile
+            print(bevelProfile)
+            for path in getObjectInCollection('Paths').children:
+                path.data.bevel_object = bevelProfile
+                print(path.data.bevel_object)
         #print('invoke')
         #FIXME CRASH
-        #context.window_manager.invoke_props_dialog(self, width=300, height=40)
-        context.window_manager.modal_handler_add(self)
-        
-        return {'RUNNING_MODAL'}
+        #
+        #bpy.ops.object.aqpipe_sweepprofile('INVOKE_DEFAULT')
+        #if bpy.ops.object.aqpipe_sweepprofile
+            context.window_manager.modal_handler_add(self) 
+        #if context.window_manager.invoke_props_dialog(self, width=300, height=40) == {'FINISHED'}: 
+            return {'RUNNING_MODAL'}
 
 def register():
     bpy.types.Scene.AQPipe_bevelProfile = bpy.props.StringProperty(default="None")
