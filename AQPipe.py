@@ -306,7 +306,6 @@ class AQPipe_MakePath(bpy.types.Operator):
     def invoke(self,context,event):
         return context.window_manager.invoke_props_dialog(self, width=300, height=20)
 
-#TODO add check for 0 profiles
 #profile selection operator
 class AQPipe_SweepProfile(bpy.types.Operator):
     bl_idname = "object.aqpipe_sweepprofile"
@@ -315,27 +314,24 @@ class AQPipe_SweepProfile(bpy.types.Operator):
 
     def profileUpdate(self,context):
         bpy.types.Scene.AQPipe_bevelProfile = self.sceneProfiles
-        #print(bpy.types.Scene.AQPipe_bevelProfile)
-       
-        #bpy.ops.object.aqpipe_postedit(bevelProfile = self.sceneProfiles)
-        
-        #bpy.ops.object.aqpipe_postedit.bevelProfile = self.sceneProfiles
-        #print(bpy.ops.object.aqpipe_postedit.bevelProfile)
         return None
 
     sceneProfiles: bpy.props.EnumProperty(name="Scene Profiles",items=updateList,update=profileUpdate)
-  
+    
     def draw(self,context):
         layout = self.layout
         enumRow = layout.row(align=True)
         enumRow.prop(self,"sceneProfiles")
-
-    
     
     def execute(self,context):
+        bpy.ops.object.aqpipe_postedit('INVOKE_DEFAULT')
         return {'INTERFACE'}
 
     def invoke(self,context,event):
+        if len(getObjectInCollection('Profiles').children) == 0:
+             self.report({'INFO'}, 'No available profiles in the scene')
+             return {'CANCELLED'}
+        bpy.types.Scene.AQPipe_bevelProfile = self.sceneProfiles
         return context.window_manager.invoke_props_dialog(self, width=300, height=40)
 
 #additional options 
@@ -396,11 +392,21 @@ class AQPipe_PostEdit(bpy.types.Operator):
     bl_label = "AQPipe Post Edit Menu"
     bl_options = {'REGISTER', 'UNDO'}
 
+    baseScale: bpy.props.FloatVectorProperty(default=(0,0,0))
+    bScale : bpy.props.BoolProperty(default=False)
+    bMove : bpy.props.BoolProperty(default=False)
+
     def getPath(self):
         paths = []
         for path in getObjectInCollection("Paths").children:
             paths.append(path)
         return paths
+    
+    def getProfile(self):
+        for profile in getObjectInCollection("Profiles").children:
+            if profile.name == bpy.types.Scene.AQPipe_bevelProfile:
+                return profile
+        return None
     
     def convertPath(self):
         curves = []
@@ -416,34 +422,44 @@ class AQPipe_PostEdit(bpy.types.Operator):
     def execute(self,context):
         return {'FINISHED'}
     def modal(self,context,event):
-        print('modal')
-        curves = []
-        if event.type == "P":
-            bpy.ops.object.aqpipe_sweepprofile("INVOKE_DEFAULT")
-
-        # if event.type == "W":
+        # if event.type == "M":
         #     #run move
-        # if event.type == "E":
-        #     #run rotate
         # if event.type == "R":
-        #     #run scale
-        # if event.type == "X":
-        #     #leave as curve
+        #     #run rotate
+        if event.type == "S" and event.value == "PRESS":
+            if self.bScale == False:
+                self.bScale = True
+            else:
+                self.bScale = False
+        if event.type == "M" and event.value == "PRESS":
+            if self.bMove == False:
+                self.bMove = True
+            else:
+                self.bMove = False
+
+        if self.bScale == True:
+            
+            if event.type == "WHEELUPMOUSE":
+                self.getProfile().scale = self.getProfile().scale + mathutils.Vector((0.1, 0.1, 0.1)) 
+            if event.type == "WHEELDOWNMOUSE":
+                self.getProfile().scale = self.getProfile().scale - mathutils.Vector((0.1, 0.1, 0.1))   
         if event.type =="ESC":
+            self.report({'INFO'}, 'Canceled')
             return {'CANCELLED'}
         if event.type == "SPACE":
-            
+            self.report({'INFO'}, 'Finished')
             return {'FINISHED'}
+        #ignoring left and middle mouse for navigation
+        if (event.type == 'LEFTMOUSE' and event.value == "PRESS") :
+            return {'PASS_THROUGH'}
+        if event.type == 'MIDDLEMOUSE' and event.value == "PRESS":
+            return {'PASS_THROUGH'}
 
         return {'RUNNING_MODAL'}
-    
-    
-    
-
     def invoke(self,context,event):
+        self.baseScale = self.getProfile().scale
         bevelProfile = None
         self.convertPath()
-        bpy.ops.object.aqpipe_sweepprofile("INVOKE_DEFAULT")
         if bpy.types.Scene.AQPipe_bevelProfile != "None":
             for profile in getObjectInCollection('Profiles').children:
                 if profile.name == bpy.types.Scene.AQPipe_bevelProfile:
@@ -452,18 +468,11 @@ class AQPipe_PostEdit(bpy.types.Operator):
                         bpy.context.view_layer.objects.active = profile
                         bpy.ops.object.convert('INVOKE_DEFAULT', target='CURVE')
                     bevelProfile = profile
-            print(bevelProfile)
             for path in getObjectInCollection('Paths').children:
                 path.data.bevel_object = bevelProfile
                 print(path.data.bevel_object)
-        #print('invoke')
-        #FIXME CRASH
-        #
-        #bpy.ops.object.aqpipe_sweepprofile('INVOKE_DEFAULT')
-        #if bpy.ops.object.aqpipe_sweepprofile
             context.window_manager.modal_handler_add(self) 
-        #if context.window_manager.invoke_props_dialog(self, width=300, height=40) == {'FINISHED'}: 
-            return {'RUNNING_MODAL'}
+        return {'RUNNING_MODAL'}
 
 def register():
     bpy.types.Scene.AQPipe_bevelProfile = bpy.props.StringProperty(default="None")
