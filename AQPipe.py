@@ -196,26 +196,6 @@ def objectFromPath(profileName,typeName):
             newObj.location = object.location
             newObj.parent = profObj
             bmesh.types.BMesh.free
-            #setting origin to center of new object
-            #bpy.ops.object.mode_set(mode='OBJECT')
-            #bpy.ops.object.select_all( action = 'DESELECT' )
-            #newObj.select_set(True)
-            #bpy.context.view_layer.objects.active = newObj
-            #bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY')
-
-            
-
-
-#don't want to use built-in operator for creating a curve
-def createCurve():
-    objects = bpy.context.selected_objects
-    for object in objects:
-        data = object.data
-        curveData = bpy.data.curves.new('QpipeCurve', type='CURVE')
-        spline = curveData.splines.new('POLY')
-        for vert in data.verts:
-            spline.points.add(1)
-       
         
 def convertToCurve(typeName):
     profiles = getObjectInCollection(typeName)
@@ -412,7 +392,7 @@ class AQPipe_PostEdit(bpy.types.Operator):
                 return profile
         return None
     
-    def transform(self,event,property,attr):
+    def transform(self,event):
         if self.bScale or self.bMove:
             if event.type == "X" and event.value == "PRESS" and self.bXAxis==False:
                 self.bXAxis = True
@@ -429,9 +409,9 @@ class AQPipe_PostEdit(bpy.types.Operator):
             if not self.bXAxis and not self.bYAxis and not self.bZAxis:
                 if self.bScale:
                     if event.type == "WHEELUPMOUSE":
-                        self.getProfile().scale = getattr(self.getProfile(),attr) + mathutils.Vector((0.1 , 0.1, 0.1 )) 
+                        self.getProfile().scale = getattr(self.getProfile(),'scale') + mathutils.Vector((0.1 , 0.1, 0.1 )) 
                     if event.type == "WHEELDOWNMOUSE":
-                        self.getProfile().scale = getattr(self.getProfile(),attr) - mathutils.Vector((0.1 , 0.1, 0.1)) 
+                        self.getProfile().scale = getattr(self.getProfile(),'scale') - mathutils.Vector((0.1 , 0.1, 0.1)) 
                 if self.bMove:
                     for spline in self.getProfile().data.splines:
                         for point in spline.points:
@@ -439,12 +419,14 @@ class AQPipe_PostEdit(bpy.types.Operator):
                                 point.co = point.co + mathutils.Vector((0.1 , 0.1, 0.1, 0.1 ))
                             if event.type == "WHEELDOWNMOUSE":
                                 point.co = point.co - mathutils.Vector((0.1 , 0.1, 0.1, 0.1 ))
+                if self.bRotate:
+
             else:
                 if self.bScale:
                     if event.type == "WHEELUPMOUSE":
-                        self.getProfile().scale = getattr(self.getProfile(),attr) + mathutils.Vector((0.1 * int(self.bXAxis), 0.1 * int(self.bYAxis), 0.1 * int(self.bZAxis))) 
+                        self.getProfile().scale = getattr(self.getProfile(),'scale') + mathutils.Vector((0.1 * int(self.bXAxis), 0.1 * int(self.bYAxis), 0.1 * int(self.bZAxis))) 
                     if event.type == "WHEELDOWNMOUSE":
-                        self.getProfile().scale = getattr(self.getProfile(),attr) - mathutils.Vector((0.1 * int(self.bXAxis), 0.1 * int(self.bYAxis), 0.1 * int(self.bZAxis))) 
+                        self.getProfile().scale = getattr(self.getProfile(),'scale') - mathutils.Vector((0.1 * int(self.bXAxis), 0.1 * int(self.bYAxis), 0.1 * int(self.bZAxis))) 
                 if self.bMove:
                     for spline in self.getProfile().data.splines:
                         for point in spline.points:
@@ -452,8 +434,6 @@ class AQPipe_PostEdit(bpy.types.Operator):
                                 point.co = point.co + mathutils.Vector((0.1 * int(self.bXAxis), 0.1 * int(self.bYAxis), 0.1 * int(self.bZAxis),0))
                             if event.type == "WHEELDOWNMOUSE":
                                 point.co = point.co - mathutils.Vector((0.1 * int(self.bXAxis), 0.1 * int(self.bYAxis), 0.1 * int(self.bZAxis),0))
-
-
     
     def convertPath(self):
         curves = []
@@ -469,31 +449,33 @@ class AQPipe_PostEdit(bpy.types.Operator):
     def execute(self,context):
         return {'FINISHED'}
     def modal(self,context,event):
+        #TODO add all modal events to dict, so I don't have to write exeption for every case
+        #TODO add keys to addon properties
         qEvents = {'S','M','ESC','SPACE','WHEELUPMOUSE','WHEELDOWNMOUSE'}
-        # if event.type == "M":
-        #     #run move
-        # if event.type == "R":
-        #     #run rotate
         if event.type == "S" and event.value == "PRESS":
             self.report({'INFO'}, 'Scale')
-            
             if self.bScale == False:
-                print('Scale')
                 self.bScale = True
                 self.bMove = False
             else:
                 self.bScale = False
-                print('not Scale')
         if event.type == "M" and event.value == "PRESS":
             self.report({'INFO'}, 'Move')
             if self.bMove == False:
-                print('Move')
                 self.bMove = True
                 self.bScale = False
             else:
                 self.bMove = False
-                print('not Move')
-        self.transform(event,self.bScale,'scale')
+        if event.type == "R" and event.value == "PRESS":
+            self.report({'INFO'}, 'Rotate')
+            if self.bRotate == False:
+                self.bRotate = True
+                self.bMove = False
+                self.bScale = False
+            else:
+                self.bRotate = False
+        
+        self.transform(event)
         if event.type == 'ESC':
             self.report({'INFO'}, 'Cancelled')
             return {'CANCELLED'}
