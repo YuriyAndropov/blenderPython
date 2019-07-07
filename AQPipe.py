@@ -393,8 +393,12 @@ class AQPipe_PostEdit(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     baseScale: bpy.props.FloatVectorProperty(default=(0,0,0))
+    bXAxis: bpy.props.BoolProperty(default=False)
+    bYAxis: bpy.props.BoolProperty(default=False)
+    bZAxis: bpy.props.BoolProperty(default=False)
     bScale : bpy.props.BoolProperty(default=False)
     bMove : bpy.props.BoolProperty(default=False)
+    bRotate : bpy.props.BoolProperty(default=False)
 
     def getPath(self):
         paths = []
@@ -407,6 +411,49 @@ class AQPipe_PostEdit(bpy.types.Operator):
             if profile.name == bpy.types.Scene.AQPipe_bevelProfile:
                 return profile
         return None
+    
+    def transform(self,event,property,attr):
+        if self.bScale or self.bMove:
+            if event.type == "X" and event.value == "PRESS" and self.bXAxis==False:
+                self.bXAxis = True
+            elif event.type == "X" and event.value == "PRESS" and self.bXAxis==True:
+                self.bXAxis = False
+            if event.type == "Y" and event.value == "PRESS" and self.bYAxis==False:
+                self.bYAxis = True
+            elif event.type == "Y" and event.value == "PRESS" and self.bYAxis==True:
+                self.bYAxis = False
+            if event.type == "Z" and event.value == "PRESS" and self.bZAxis==False:
+                self.bZAxis = True
+            elif event.type == "Z" and event.value == "PRESS" and self.bZAxis==True:
+                self.bZAxis = False
+            if not self.bXAxis and not self.bYAxis and not self.bZAxis:
+                if self.bScale:
+                    if event.type == "WHEELUPMOUSE":
+                        self.getProfile().scale = getattr(self.getProfile(),attr) + mathutils.Vector((0.1 , 0.1, 0.1 )) 
+                    if event.type == "WHEELDOWNMOUSE":
+                        self.getProfile().scale = getattr(self.getProfile(),attr) - mathutils.Vector((0.1 , 0.1, 0.1)) 
+                if self.bMove:
+                    for spline in self.getProfile().data.splines:
+                        for point in spline.points:
+                            if event.type == "WHEELUPMOUSE":
+                                point.co = point.co + mathutils.Vector((0.1 , 0.1, 0.1, 0.1 ))
+                            if event.type == "WHEELDOWNMOUSE":
+                                point.co = point.co - mathutils.Vector((0.1 , 0.1, 0.1, 0.1 ))
+            else:
+                if self.bScale:
+                    if event.type == "WHEELUPMOUSE":
+                        self.getProfile().scale = getattr(self.getProfile(),attr) + mathutils.Vector((0.1 * int(self.bXAxis), 0.1 * int(self.bYAxis), 0.1 * int(self.bZAxis))) 
+                    if event.type == "WHEELDOWNMOUSE":
+                        self.getProfile().scale = getattr(self.getProfile(),attr) - mathutils.Vector((0.1 * int(self.bXAxis), 0.1 * int(self.bYAxis), 0.1 * int(self.bZAxis))) 
+                if self.bMove:
+                    for spline in self.getProfile().data.splines:
+                        for point in spline.points:
+                            if event.type == "WHEELUPMOUSE":
+                                point.co = point.co + mathutils.Vector((0.1 * int(self.bXAxis), 0.1 * int(self.bYAxis), 0.1 * int(self.bZAxis),0))
+                            if event.type == "WHEELDOWNMOUSE":
+                                point.co = point.co - mathutils.Vector((0.1 * int(self.bXAxis), 0.1 * int(self.bYAxis), 0.1 * int(self.bZAxis),0))
+
+
     
     def convertPath(self):
         curves = []
@@ -422,29 +469,33 @@ class AQPipe_PostEdit(bpy.types.Operator):
     def execute(self,context):
         return {'FINISHED'}
     def modal(self,context,event):
+        qEvents = {'S','M','ESC','SPACE','WHEELUPMOUSE','WHEELDOWNMOUSE'}
         # if event.type == "M":
         #     #run move
         # if event.type == "R":
         #     #run rotate
         if event.type == "S" and event.value == "PRESS":
+            self.report({'INFO'}, 'Scale')
+            
             if self.bScale == False:
+                print('Scale')
                 self.bScale = True
+                self.bMove = False
             else:
                 self.bScale = False
+                print('not Scale')
         if event.type == "M" and event.value == "PRESS":
+            self.report({'INFO'}, 'Move')
             if self.bMove == False:
+                print('Move')
                 self.bMove = True
+                self.bScale = False
             else:
                 self.bMove = False
-
-        if self.bScale == True:
-            
-            if event.type == "WHEELUPMOUSE":
-                self.getProfile().scale = self.getProfile().scale + mathutils.Vector((0.1, 0.1, 0.1)) 
-            if event.type == "WHEELDOWNMOUSE":
-                self.getProfile().scale = self.getProfile().scale - mathutils.Vector((0.1, 0.1, 0.1))   
-        if event.type =="ESC":
-            self.report({'INFO'}, 'Canceled')
+                print('not Move')
+        self.transform(event,self.bScale,'scale')
+        if event.type == 'ESC':
+            self.report({'INFO'}, 'Cancelled')
             return {'CANCELLED'}
         if event.type == "SPACE":
             self.report({'INFO'}, 'Finished')
