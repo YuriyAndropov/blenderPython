@@ -372,13 +372,21 @@ class AQPipe_PostEdit(bpy.types.Operator):
     bl_label = "AQPipe Post Edit Menu"
     bl_options = {'REGISTER', 'UNDO'}
 
+    bScale: bpy.props.BoolProperty(name='Scale',default=False)
+    bMove:  bpy.props.BoolProperty(name='Move',default=False)
+    bRotate:bpy.props.BoolProperty(name='Rotate',default=False)
+    bXAxis: bpy.props.BoolProperty(name='X',default=False)
+    bYAxis: bpy.props.BoolProperty(name='Y',default=False)
+    bZAxis: bpy.props.BoolProperty(name='Z',default=False)
+
     baseScale: bpy.props.FloatVectorProperty(default=(0,0,0))
-    bXAxis: bpy.props.BoolProperty(default=False)
-    bYAxis: bpy.props.BoolProperty(default=False)
-    bZAxis: bpy.props.BoolProperty(default=False)
-    bScale : bpy.props.BoolProperty(default=False)
-    bMove : bpy.props.BoolProperty(default=False)
-    bRotate : bpy.props.BoolProperty(default=False)
+    baseLoc: bpy.props.FloatVectorProperty(default=(0,0,0))
+    baseRotation: bpy.props.BoolProperty(default=(0,0,0))
+    locChange: bpy.props.FloatProperty(default=(0,0,0),size=4)
+   
+   
+    
+   
 
     def getPath(self):
         paths = []
@@ -393,7 +401,7 @@ class AQPipe_PostEdit(bpy.types.Operator):
         return None
     
     def transform(self,event):
-        if self.bScale or self.bMove:
+        if self.bScale or self.bMove or self.bRotate:
             if event.type == "X" and event.value == "PRESS" and self.bXAxis==False:
                 self.bXAxis = True
             elif event.type == "X" and event.value == "PRESS" and self.bXAxis==True:
@@ -416,10 +424,18 @@ class AQPipe_PostEdit(bpy.types.Operator):
                     for spline in self.getProfile().data.splines:
                         for point in spline.points:
                             if event.type == "WHEELUPMOUSE":
-                                point.co = point.co + mathutils.Vector((0.1 , 0.1, 0.1, 0.1 ))
+                                point.co = point.co + mathutils.Vector((0.1 , 0.1, 0.1, 0.0 ))
+                                self.locChange += mathutils.Vector((0.1 , 0.1, 0.1, 0.0 ))
                             if event.type == "WHEELDOWNMOUSE":
-                                point.co = point.co - mathutils.Vector((0.1 , 0.1, 0.1, 0.1 ))
+                                point.co = point.co - mathutils.Vector((0.1 , 0.1, 0.1, 0.0 ))
+                                self.locChange -= mathutils.Vector((0.1 , 0.1, 0.1, 0.0 ))
                 if self.bRotate:
+                    self.getProfile().rotation_euler[0] = self.getProfile().rotation_euler[0] + 10 
+                    bpy.context.view_layer.objects.active = self.getProfile
+
+                            if event.type == "WHEELDOWNMOUSE":
+                                print('none')
+                   
 
             else:
                 if self.bScale:
@@ -455,6 +471,7 @@ class AQPipe_PostEdit(bpy.types.Operator):
         if event.type == "S" and event.value == "PRESS":
             self.report({'INFO'}, 'Scale')
             if self.bScale == False:
+                
                 self.bScale = True
                 self.bMove = False
             else:
@@ -490,7 +507,12 @@ class AQPipe_PostEdit(bpy.types.Operator):
 
         return {'RUNNING_MODAL'}
     def invoke(self,context,event):
+        #print(self.bScale)
+        #print(self.bRotate)
+        #print(self.bMove)
         self.baseScale = self.getProfile().scale
+        self.baseLoc = self.getProfile().location
+        self.baseRotation = self.getProfile().rotation_euler
         bevelProfile = None
         self.convertPath()
         if bpy.types.Scene.AQPipe_bevelProfile != "None":
