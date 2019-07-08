@@ -366,7 +366,7 @@ class AQPipe_AdditionalOptions(bpy.types.Operator):
 
     def invoke(self,context,event):
         return context.window_manager.invoke_props_dialog(self, width=300, height=20)
-
+#TODO add abort with profile transform reverting to original values
 class AQPipe_PostEdit(bpy.types.Operator):
     bl_idname = "object.aqpipe_postedit"
     bl_label = "AQPipe Post Edit Menu"
