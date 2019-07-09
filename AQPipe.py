@@ -419,7 +419,10 @@ class AQPipe_PostEdit(bpy.types.Operator):
                     if event.type == "WHEELUPMOUSE":
                         self.getProfile().scale = getattr(self.getProfile(),'scale') + mathutils.Vector((0.1 , 0.1, 0.1 )) 
                     if event.type == "WHEELDOWNMOUSE":
-                        self.getProfile().scale = getattr(self.getProfile(),'scale') - mathutils.Vector((0.1 , 0.1, 0.1)) 
+                        self.getProfile().scale = getattr(self.getProfile(),'scale') - mathutils.Vector((0.1 , 0.1, 0.1))
+                    if event.type == 'ESC' and self.bScale :
+                        self.getProfile().scale = self.baseScale
+                        self.bScale = False 
                 if self.bMove:
                     for spline in self.getProfile().data.splines:
                         for point in spline.points:
@@ -430,11 +433,15 @@ class AQPipe_PostEdit(bpy.types.Operator):
                                 point.co = point.co - mathutils.Vector((0.1 , 0.1, 0.1, 0.0 ))
                                 self.locChange -= mathutils.Vector((0.1 , 0.1, 0.1, 0.0 ))
                 if self.bRotate:
-                    self.getProfile().rotation_euler[0] = self.getProfile().rotation_euler[0] + 10 
-                    bpy.context.view_layer.objects.active = self.getProfile
-
-                            if event.type == "WHEELDOWNMOUSE":
-                                print('none')
+                    if event.type == "WHEELUPMOUSE":
+                        self.getProfile().rotation_euler[0] = self.getProfile().rotation_euler[0] + math.radians(10) 
+                        bpy.context.view_layer.objects.active = self.getProfile()
+                        bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+                    if event.type == "WHEELDOWNMOUSE":
+                        self.getProfile().rotation_euler[0] = self.getProfile().rotation_euler[0] + math.radians(-10) 
+                        bpy.context.view_layer.objects.active = self.getProfile()
+                        bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+                       
                    
 
             else:
@@ -493,7 +500,7 @@ class AQPipe_PostEdit(bpy.types.Operator):
                 self.bRotate = False
         
         self.transform(event)
-        if event.type == 'ESC':
+        if event.type == 'ESC' and not self.bScale and not self.bRotate and not self.bMove and event.value == 'ESC':
             self.report({'INFO'}, 'Cancelled')
             return {'CANCELLED'}
         if event.type == "SPACE":
@@ -507,9 +514,6 @@ class AQPipe_PostEdit(bpy.types.Operator):
 
         return {'RUNNING_MODAL'}
     def invoke(self,context,event):
-        #print(self.bScale)
-        #print(self.bRotate)
-        #print(self.bMove)
         self.baseScale = self.getProfile().scale
         self.baseLoc = self.getProfile().location
         self.baseRotation = self.getProfile().rotation_euler
