@@ -39,7 +39,10 @@ import blf
 listItems = []
 addon_keymaps = []
 font_id = 0
-
+TooltipText = {
+    "font_id": 0,
+    "handler": None,
+}
 class AQPipePreferences(bpy.types.AddonPreferences):
     bl_idname = __name__
     keyList = (("A", "A", "A"),("B", "B", "B"),("C", "C", "C"),
@@ -348,6 +351,14 @@ class AQPipe_FlushProfiles(bpy.types.Operator):
            bpy.data.objects.remove(profile,do_unlink=True,do_id_user=True,do_ui_user=True)
         return {'FINISHED'}
 
+def draw_callback_px(self,context):
+        width = bpy.context.area.width
+        height = bpy.context.area.height
+
+        blf.position(font_id, width/2,height/2, 0)
+        blf.size(font_id, 52, 72)
+        blf.color(font_id, 1, 1, 1, 1)
+        blf.draw(font_id, 'test')
 
 class AQPipe_AdditionalOptions(bpy.types.Operator):
     bl_idname = "object.aqpipe_addoptions"
@@ -387,13 +398,13 @@ class AQPipe_PostEdit(bpy.types.Operator):
     baseLoc: bpy.props.FloatVectorProperty(default=(0.0,0.0,0.0,0.0),subtype='TRANSLATION',size=4)
     baseRotation: bpy.props.FloatVectorProperty(default=(0,0,0))
 
-    def drawTooltips(self,context):
+    def drawTooltips(self,context,event):
         width = bpy.context.area.width
         height = bpy.context.area.height
-
-        blf.position(font_id, posX,posY, 0)
-        blf.size(font_id, size, 72)
-        blf.color(font_id, color[0], color[1], color[2], 1)
+        text = 'Sweep Profile Mode'
+        blf.position(font_id, width/2-len(text)*1.5,height-100, 0)
+        blf.size(font_id, 52, 72)
+        blf.color(font_id, 1, 1, 1, 1)
         blf.draw(font_id, text)
 
     def getPath(self):
@@ -542,11 +553,13 @@ class AQPipe_PostEdit(bpy.types.Operator):
                 curves.append(path)
 
     def execute(self,context):
+        bpy.types.SpaceView3D.draw_handler_remove(TooltipText ["handler"],'WINDOW')
         return {'FINISHED'}
     def modal(self,context,event):
         #TODO add all modal events to dict, so I don't have to write exeption for every case
         #TODO add keys to addon properties
         qEvents = {'S','M','ESC','SPACE','WHEELUPMOUSE','WHEELDOWNMOUSE'}
+       # self.drawTooltips(context)
         self.setTool(event)
         self.addScale(event)
         self.addRotation(event)
@@ -555,9 +568,11 @@ class AQPipe_PostEdit(bpy.types.Operator):
         if not self.bScale and not self.bRotate and not self.bMove:
             if event.type =='ESC' and event.value=='PRESS':
                 self.report({'INFO'}, 'Cancelled')
+                bpy.types.SpaceView3D.draw_handler_remove(TooltipText ["handler"],'WINDOW')
                 return {'CANCELLED'}
         if event.type == "SPACE":
             self.report({'INFO'}, 'Finished')
+            bpy.types.SpaceView3D.draw_handler_remove(TooltipText ["handler"],'WINDOW')
             return {'FINISHED'}
         #ignoring left and middle mouse for navigation
         if (event.type == 'LEFTMOUSE' and event.value == "PRESS") :
@@ -567,6 +582,8 @@ class AQPipe_PostEdit(bpy.types.Operator):
 
         return {'RUNNING_MODAL'}
     def invoke(self,context,event):
+        TooltipText ["handler"] = bpy.types.SpaceView3D.draw_handler_add(self.drawTooltips,(None,None), 'WINDOW', 'POST_PIXEL')
+        #bpy.types.SpaceView3D.draw_handler_remove(TooltipText["handler"],'WINDOW')
         self.baseScale = self.getProfile().scale
         bevelProfile = None
         self.convertPath()
