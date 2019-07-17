@@ -398,58 +398,56 @@ class AQPipe_PostEdit(bpy.types.Operator):
     baseLoc: bpy.props.FloatVectorProperty(default=(0.0,0.0,0.0,0.0),subtype='TRANSLATION',size=4)
     baseRotation: bpy.props.FloatVectorProperty(default=(0,0,0))
     #TODO optimize
+
+    def remap(self,value, low1, high1, low2, high2):
+        return low2 + (value - low1) * (high2 - low2) / (high1 - low1)
+
+    def addDraw(self,x,y,size,text,color):
+        blf.position(font_id, x, y, 0)
+        blf.size(font_id, size, 72)
+        blf.color(font_id, color[0], color[1], color[2], 1)
+        blf.draw(font_id, text)
+
     def drawTooltips(self,context,event):
         tWidth = bpy.context.area.regions[2].width
         width = bpy.context.area.width
         height = bpy.context.area.height
+        color = (1,0.4,0.2)
+        size = 25
         text = 'Sweep Profile Mode'
-        blf.position(font_id, width/2-tWidth - len(text),height-50, 0)
-        blf.size(font_id, 21, 72)
-        blf.color(font_id, 1, 0.4, 0.2, 1)
-        blf.draw(font_id, text)
-
+        self.addDraw(width/2-tWidth - len(text)/2*21,height-50,size,text,color)
+        text = 'Hotkeys :'
+        self.addDraw(tWidth,height/2+63*2,size,text,color)
+        size = 21
         text = 'M : Move'
-        blf.position(font_id, tWidth,height/2+ 42 * 1.5, 0)
-        blf.size(font_id, 21, 72)
-        blf.color(font_id, 1, 0.6, 0.2, 1)
-        blf.draw(font_id, text)
-
+        self.addDraw(tWidth+size,height/2+42*1.5,size,text,color)
         text = 'R : Rotate'
-        blf.position(font_id, tWidth,height/2 + 21 * 1.5, 0)
-        blf.size(font_id, 21, 72)
-        blf.color(font_id, 1, 0.6, 0.1, 1)
-        blf.draw(font_id, text)
-        
+        self.addDraw(tWidth+size,height/2+21*1.5,size,text,color)
         text = 'S : Scale'
-        blf.position(font_id, tWidth,height/2 , 0)
-        blf.size(font_id, 21, 72)
-        blf.color(font_id, 1, 0.6, 0.1, 1)
-        blf.draw(font_id, text)
-
-        text = 'X : X Axis'
-        blf.position(font_id, tWidth,height/2 - 21 * 1.5 - 20, 0)
-        blf.size(font_id, 18, 72)
-        blf.color(font_id, 1, 0.6, 0.2, 1)
-        blf.draw(font_id, text)
-
-        text = 'Y : Y Axis'
-        blf.position(font_id, tWidth,height/2 - 42 * 1.5 - 20, 0)
-        blf.size(font_id, 18, 72)
-        blf.color(font_id, 1, 0.6, 0.2, 1)
-        blf.draw(font_id, text)
-
-        text = 'Z : Z Axis'
-        blf.position(font_id, tWidth,height/2 - 63 * 1.5 - 20, 0)
-        blf.size(font_id, 18, 72)
-        blf.color(font_id, 1, 0.6, 0.2, 1)
-        blf.draw(font_id, text)
-
+        self.addDraw(tWidth+size,height/2,size,text,color)
         
-        text = 'Operator and Value'
-        blf.position(font_id, event.mouse_x, event.mouse_y, 0)
-        blf.size(font_id, 18, 72)
-        blf.color(font_id, 1, 0.2, 0.2, 1)
-        blf.draw(font_id, text)
+        text = 'X : X Axis'
+        self.addDraw(tWidth+size,height/2 - 21 *1.5-20,size,text,color)
+        text = 'Y : Y Axis'
+        self.addDraw(tWidth+size,height/2 -42 *1.5 -20,size,text,color)
+        text = 'Z : Z Axis'
+        self.addDraw(tWidth+size,height/2 -63 *1.5 -20,size,text,color)
+        text = 'C : Cap Ends Toggle'
+        self.addDraw(tWidth+size,height/2 -84 *1.5 -20,size,text,color)
+        text = 'Q : Leave as Curve Toggle'
+        self.addDraw(tWidth+size,height/2 -105 *1.5 -20,size,text,color)
+
+        if self.bMove:
+            text = 'Move : ' + 'X : ' + str(round(self.baseLoc[0],2)) + ',' + 'Y : ' + (round(self.baseLoc[1],2)) + ',' + 'Z : ' + (round(self.baseLoc[2],2))
+        elif self.bScale:
+            text = "Scale : "
+        elif self.bRotate:
+            text = 'Rotate : ' + 'X : ' + str(round(math.degrees(self.baseRotation[0]),0)) + ',' + 'Y : ' + str(round(math.degrees(self.baseRotation[1]),0)) + ',' + 'Z : ' + str(round(math.degrees(self.baseRotation[2]),0))
+        else:
+            text = "No Operator"
+        size = 15
+        self.addDraw(event.mouse_x,event.mouse_y-150,size,text,color)
+       
 
     def getPath(self):
         paths = []
@@ -610,11 +608,10 @@ class AQPipe_PostEdit(bpy.types.Operator):
         self.addRotation(event)
         self.addLocation(event)
         self.setAxis(event)
-        if not self.bScale and not self.bRotate and not self.bMove:
-            if event.type =='ESC' and event.value=='PRESS':
-                self.report({'INFO'}, 'Cancelled')
-                bpy.types.SpaceView3D.draw_handler_remove(TooltipText ["handler"],'WINDOW')
-                return {'CANCELLED'}
+        if event.type =='ESC' and event.value=='PRESS':
+            self.report({'INFO'}, 'Cancelled')
+            bpy.types.SpaceView3D.draw_handler_remove(TooltipText ["handler"],'WINDOW')
+            return {'CANCELLED'}
         if event.type == "SPACE":
             self.report({'INFO'}, 'Finished')
             bpy.types.SpaceView3D.draw_handler_remove(TooltipText ["handler"],'WINDOW')
