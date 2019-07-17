@@ -397,14 +397,58 @@ class AQPipe_PostEdit(bpy.types.Operator):
     baseScale: bpy.props.FloatVectorProperty(default=(0,0,0))
     baseLoc: bpy.props.FloatVectorProperty(default=(0.0,0.0,0.0,0.0),subtype='TRANSLATION',size=4)
     baseRotation: bpy.props.FloatVectorProperty(default=(0,0,0))
-
+    #TODO optimize
     def drawTooltips(self,context,event):
+        tWidth = bpy.context.area.regions[2].width
         width = bpy.context.area.width
         height = bpy.context.area.height
         text = 'Sweep Profile Mode'
-        blf.position(font_id, width/2-len(text)*1.5,height-100, 0)
-        blf.size(font_id, 52, 72)
-        blf.color(font_id, 1, 1, 1, 1)
+        blf.position(font_id, width/2-tWidth - len(text),height-50, 0)
+        blf.size(font_id, 21, 72)
+        blf.color(font_id, 1, 0.4, 0.2, 1)
+        blf.draw(font_id, text)
+
+        text = 'M : Move'
+        blf.position(font_id, tWidth,height/2+ 42 * 1.5, 0)
+        blf.size(font_id, 21, 72)
+        blf.color(font_id, 1, 0.6, 0.2, 1)
+        blf.draw(font_id, text)
+
+        text = 'R : Rotate'
+        blf.position(font_id, tWidth,height/2 + 21 * 1.5, 0)
+        blf.size(font_id, 21, 72)
+        blf.color(font_id, 1, 0.6, 0.1, 1)
+        blf.draw(font_id, text)
+        
+        text = 'S : Scale'
+        blf.position(font_id, tWidth,height/2 , 0)
+        blf.size(font_id, 21, 72)
+        blf.color(font_id, 1, 0.6, 0.1, 1)
+        blf.draw(font_id, text)
+
+        text = 'X : X Axis'
+        blf.position(font_id, tWidth,height/2 - 21 * 1.5 - 20, 0)
+        blf.size(font_id, 18, 72)
+        blf.color(font_id, 1, 0.6, 0.2, 1)
+        blf.draw(font_id, text)
+
+        text = 'Y : Y Axis'
+        blf.position(font_id, tWidth,height/2 - 42 * 1.5 - 20, 0)
+        blf.size(font_id, 18, 72)
+        blf.color(font_id, 1, 0.6, 0.2, 1)
+        blf.draw(font_id, text)
+
+        text = 'Z : Z Axis'
+        blf.position(font_id, tWidth,height/2 - 63 * 1.5 - 20, 0)
+        blf.size(font_id, 18, 72)
+        blf.color(font_id, 1, 0.6, 0.2, 1)
+        blf.draw(font_id, text)
+
+        
+        text = 'Operator and Value'
+        blf.position(font_id, event.mouse_x, event.mouse_y, 0)
+        blf.size(font_id, 18, 72)
+        blf.color(font_id, 1, 0.2, 0.2, 1)
         blf.draw(font_id, text)
 
     def getPath(self):
@@ -498,7 +542,6 @@ class AQPipe_PostEdit(bpy.types.Operator):
 
     def addRotation(self,event):
         if self.bRotate:
-            
             if event.type == "WHEELUPMOUSE":
                 self.getProfile().rotation_euler[0] = self.getProfile().rotation_euler.x + math.radians(10)*int(self.bXAxis)
                 self.getProfile().rotation_euler[1] = self.getProfile().rotation_euler.y + math.radians(10)*int(self.bYAxis)
@@ -556,10 +599,12 @@ class AQPipe_PostEdit(bpy.types.Operator):
         bpy.types.SpaceView3D.draw_handler_remove(TooltipText ["handler"],'WINDOW')
         return {'FINISHED'}
     def modal(self,context,event):
+        
         #TODO add all modal events to dict, so I don't have to write exeption for every case
         #TODO add keys to addon properties
         qEvents = {'S','M','ESC','SPACE','WHEELUPMOUSE','WHEELDOWNMOUSE'}
-       # self.drawTooltips(context)
+        #redraw viewport       
+        context.area.tag_redraw()
         self.setTool(event)
         self.addScale(event)
         self.addRotation(event)
@@ -582,8 +627,7 @@ class AQPipe_PostEdit(bpy.types.Operator):
 
         return {'RUNNING_MODAL'}
     def invoke(self,context,event):
-        TooltipText ["handler"] = bpy.types.SpaceView3D.draw_handler_add(self.drawTooltips,(None,None), 'WINDOW', 'POST_PIXEL')
-        #bpy.types.SpaceView3D.draw_handler_remove(TooltipText["handler"],'WINDOW')
+        TooltipText ["handler"] = bpy.types.SpaceView3D.draw_handler_add(self.drawTooltips,(context,event), 'WINDOW', 'POST_PIXEL')
         self.baseScale = self.getProfile().scale
         bevelProfile = None
         self.convertPath()

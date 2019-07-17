@@ -33,4 +33,8 @@ def Context():
     #set context mode
     #'OBJECT', 'EDIT', 'SCULPT', 'VERTEX_PAINT', 'WEIGHT_PAINT', 'TEXTURE_PAINT', 'PARTICLE_EDIT', 'POSE'
     bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+
+def Viewport():
+    #redraw viewport
+    context.area.tag_redraw()
     
