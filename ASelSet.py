@@ -32,31 +32,14 @@ bl_info = {
 
 import bpy
 
-selSets = []
 
 
-# def updateList(self,context):
-#     del listItems[1:]
-#     id = 1
-#     for set in selSets:
-#         if set != None:
-#             name = set.name
-#             des = set.name
-#             icon = GROUP_VERTEX
-#             if (str(id),name,des,icon,id) not in listItems:
-#                 listItems.append((name,name,des,icon,id))
-#         id+=1
-#     return listItems
-
-def getSets():
-    for object in bpy.context.selected_objects:
-        if object.vertex_groups.name not in selSets:
-            selSets.append(object.vertex_groups.name)
 
 class ASel_Set(bpy.types.Operator):
     bl_idname = "object.asel_set"
     bl_label = "ASelSet Set"
     bl_options = {'REGISTER', 'UNDO'}
+
 
     def updateSet(self,context):
         if self.bSet:
@@ -88,26 +71,78 @@ class ASel_Set(bpy.types.Operator):
                         id+=1
         return sets
 
+    def updateEnum(self,context):
+        self.name = self.objSets
+        return None
+
     bSet: bpy.props.BoolProperty(default=True,name='Set',update=updateSet)
     bAdd: bpy.props.BoolProperty(default=False,name='Add',update=updateAdd)
     bSub: bpy.props.BoolProperty(default=False,name='Sub',update=updateSub)
     objSets:bpy.props.EnumProperty(name="Objects Sets",items=updateList)
+    newSet: bpy.props.StringProperty(default='set')
+    newWeight: bpy.props.FloatProperty(default=1.0)
 
     def draw(self,context):
         layout = self.layout
         setBox = layout.box()
         sRow = setBox.row(align=True)
+        nRow = setBox.row(align=True)
         bRow = setBox.row(align=True)
 
         sRow.prop(self,"objSets")
+        nRow.prop(self,'newSet')
         bRow.prop(self,"bSet")
         bRow.prop(self,"bAdd")
         bRow.prop(self,"bSub")
 
     def invoke(self,context,event):
+        if bpy.context.mode != "EDIT_MESH":
+            self.report({'WARNING'},'Invalid mode')
+            return{'CANCELLED'}
+        elif bpy.context.scene.statistics(bpy.context.view_layer).split("|")[1].split(':')[1].split("/")[0]=='0':
+            self.report({'WARNING'},'Nothing is selected')
+            return{'CANCELLED'}
         self.updateList(context)
         return context.window_manager.invoke_props_dialog(self, width = 200)
     def execute(self,context):
+        #get enum items
+        sets = self.updateList(context)
+        #get group name
+        if self.objSets == '0':
+            name = self.newSet
+        else:
+            for item in sets:
+                if item[0]==self.objSets:
+                    name = item[1]
+        for obj in bpy.context.selected_objects:
+            #get selected vert ID
+            verts = []
+            allVerts = []
+            data = obj.data
+            if self.objSets == '0':
+                if len(obj.vertex_groups)>0:
+                #checking group name
+                    for group in obj.vertex_groups:
+                        if group.name == name:
+                            vGroup = group
+                            break
+                    vGroup = obj.vertex_groups.new(name=self.newSet)
+                else:
+                    vGroup = obj.vertex_groups.new(name=self.newSet)
+            for vert in data.vertices:
+                allVerts.append(vert.index)
+                if vert.select:
+                    verts.append(vert.index)
+            #adding to group is possible only in object mode
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+            if self.bSet:
+                vGroup.remove(allVerts)
+                vGroup.add(verts,1,'REPLACE')
+            elif self.bAdd:
+                vGroup.add(verts,1,'REPLACE')
+            elif self.bSub:
+                vGroup.remove(verts)
+            bpy.ops.object.mode_set(mode='EDIT', toggle=False)
         return {'FINISHED'}
 
     
