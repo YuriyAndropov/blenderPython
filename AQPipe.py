@@ -303,6 +303,14 @@ class AQPipe_SweepProfile(bpy.types.Operator):
 
     sceneProfiles: bpy.props.EnumProperty(name="Scene Profiles",items=updateList,update=profileUpdate)
     
+    def checkSelectionMode(self):
+        if bpy.context.mode == 'OBJECT':
+            return False
+        if bpy.context.mode == 'EDIT_MESH':
+            if bpy.context.scene.statistics(bpy.context.view_layer).split("|")[2].split(':')[1].split('/')[0] == '0':
+                return False
+        return True
+
     def draw(self,context):
         layout = self.layout
         enumRow = layout.row(align=True)
@@ -313,8 +321,14 @@ class AQPipe_SweepProfile(bpy.types.Operator):
         return {'INTERFACE'}
 
     def invoke(self,context,event):
+        if not checkCollections('QPipe'):
+            self.report({'WARNING'},'No profiles and paths data in the scene')
+            return {'CANCELED'}
         if len(getObjectInCollection('Profiles').children) == 0:
-            self.report({'INFO'}, 'No available profiles in the scene')
+            self.report({'WARNING'}, 'No available profiles in the scene')
+            return {'CANCELLED'}
+        if len(getObjectInCollection('Paths').children) == 0 and not self.checkSelectionMode():
+            self.report({'WARNING'}, 'No available path in the scene')
             return {'CANCELLED'}
         bpy.types.Scene.AQPipe_bevelProfile = self.sceneProfiles
         return context.window_manager.invoke_props_dialog(self, width=300, height=40)
@@ -440,7 +454,7 @@ class AQPipe_PostEdit(bpy.types.Operator):
         if self.bMove:
             text = 'Move : ' + 'X : ' + str(round(self.baseLoc[0],2)) + ',' + 'Y : ' + str(round(self.baseLoc[1],2)) + ',' + 'Z : ' + str(round(self.baseLoc[2],2))
         elif self.bScale:
-            text = "Scale : " + 'X : ' + str(round(1 + self.baseScale[0],2)) + ',' + 'Y : '+ str(round(1 + self.baseScale[1],2)) + ',' + 'Z' + str(round(1 + self.baseScale[2],2))     
+            text = "Scale : " + 'X : ' + str(round(self.getProfile().scale[0],2)) + ',' + 'Y : '+ str(round(self.getProfile().scale[1],2)) + ',' + 'Z' + str(round(self.getProfile().scale[2],2))     
         elif self.bRotate:
             text = 'Rotate : ' + 'X : ' + str(round(math.degrees(self.baseRotation[0]),0)) + ',' + 'Y : ' + str(round(math.degrees(self.baseRotation[1]),0)) + ',' + 'Z : ' + str(round(math.degrees(self.baseRotation[2]),0))
         else:
@@ -549,17 +563,13 @@ class AQPipe_PostEdit(bpy.types.Operator):
         if self.bScale:
             if event.type == "WHEELUPMOUSE":
                 if not self.bXAxis and not self.bYAxis and not self.bZAxis:
-                    self.baseScale+=mathutils.Vector((0.1 , 0.1, 0.1 ))
                     self.getProfile().scale = getattr(self.getProfile(),'scale') + mathutils.Vector((0.1 , 0.1, 0.1 ))
                 else:
-                    self.baseScale = getattr(self.getProfile(),'scale') + mathutils.Vector((0.1 * int(self.bXAxis), 0.1 * int(self.bYAxis), 0.1 * int(self.bZAxis)))
                     self.getProfile().scale = getattr(self.getProfile(),'scale') + mathutils.Vector((0.1 * int(self.bXAxis), 0.1 * int(self.bYAxis), 0.1 * int(self.bZAxis))) 
             if event.type == "WHEELDOWNMOUSE":
                 if not self.bXAxis and not self.bYAxis and not self.bZAxis:
-                    self.baseScale = getattr(self.getProfile(),'scale') - mathutils.Vector((0.1 , 0.1, 0.1))
                     self.getProfile().scale = getattr(self.getProfile(),'scale') - mathutils.Vector((0.1 , 0.1, 0.1))
                 else:
-                    self.baseScale = getattr(self.getProfile(),'scale') - mathutils.Vector((0.1 * int(self.bXAxis), 0.1 * int(self.bYAxis), 0.1 * int(self.bZAxis)))
                     self.getProfile().scale = getattr(self.getProfile(),'scale') - mathutils.Vector((0.1 * int(self.bXAxis), 0.1 * int(self.bYAxis), 0.1 * int(self.bZAxis)))
             #scale exit with reverting scale
             if event.type == 'RIGHTMOUSE' and self.bScale :
@@ -613,6 +623,9 @@ class AQPipe_PostEdit(bpy.types.Operator):
         if self.bCap:
             for path in self.getPath():
                 path.data.use_fill_caps = True
+        if not self.bCap:
+            for path in self.getPath():
+                path.daya.use_fill_caps = False
     
     def convertPath(self):
         curves = [] 
@@ -658,7 +671,7 @@ class AQPipe_PostEdit(bpy.types.Operator):
         return {'RUNNING_MODAL'}
     def invoke(self,context,event):
         TooltipText ["handler"] = bpy.types.SpaceView3D.draw_handler_add(self.drawTooltips,(context,event), 'WINDOW', 'POST_PIXEL')
-        #self.baseScale = self.getProfile().scale
+        self.baseScale = self.getProfile().scale
         bevelProfile = None
         self.convertPath()
         if bpy.types.Scene.AQPipe_bevelProfile != "None":
@@ -675,8 +688,14 @@ class AQPipe_PostEdit(bpy.types.Operator):
             context.window_manager.modal_handler_add(self) 
         return {'RUNNING_MODAL'}
 
+def rmbMenu(self,context):
+    layout = self.layout
+
+    layout.operator('object.aqpipe_postedit',text='Sweep')
+
 def register():
     bpy.types.Scene.AQPipe_bevelProfile = bpy.props.StringProperty(default="None")
+    bpy.types.VIEW3D_MT_edit_mesh_context_menu.append(rmbMenu)
     bpy.utils.register_class(AQPipePreferences)
     bpy.utils.register_class(AQPipe_MakeProfile)
     bpy.utils.register_class(AQPipe_MakePath)
