@@ -207,6 +207,16 @@ class ASel_Get(bpy.types.Operator):
                 name = item[1]
         for obj in bpy.context.selected_objects:
             data = obj.data
+            for vert in data.vertices:
+                if self.bGet:
+                    for group in vert.groups:
+                        for vgroup in obj.vertex_groups:
+                            if group.group != vgroup.index:
+                                vert.select = False
+                            else:
+                                vert.select = True
+                if self.bAdd:
+                if self.bSub:
         return {'FINISHED'}
     
 
