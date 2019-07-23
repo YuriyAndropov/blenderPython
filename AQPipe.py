@@ -409,9 +409,9 @@ class AQPipe_PostEdit(bpy.types.Operator):
         blf.draw(font_id, text)
 
     def drawTooltips(self,context,event):
-        tWidth = bpy.context.area.regions[2].width
-        width = bpy.context.area.width
-        height = bpy.context.area.height
+        tWidth = context.area.regions[2].width
+        width = context.area.width
+        height = context.area.height
         color = (1,0.4,0.2)
         size = 25
         text = 'Sweep Profile Mode'
@@ -480,8 +480,8 @@ class AQPipe_PostEdit(bpy.types.Operator):
                 self.bYAxis = False
                 self.bZAxis = False
         if event.type == "M" and event.value == "PRESS":
-            self.report({'INFO'}, 'Move Active')
             if self.bMove == False:
+                self.report({'INFO'}, 'Move Active')
                 #setting x-axis as default when move is active, since drag add to location is awkward with 3 axes
                 self.getProfile().select_set(True) 
                 bpy.context.view_layer.objects.active = self.getProfile()
@@ -515,9 +515,9 @@ class AQPipe_PostEdit(bpy.types.Operator):
         if event.type == 'C' and event.value == 'PRESS':
             if not self.bCap:
                 self.report({'INFO'},'Fill Caps')
-                self.bCap==True
+                self.bCap=True
             else:
-                self.bCap==False
+                self.bCap=False
     # set axes on key press
     def setAxis(self,event):
         if self.bScale or self.bMove or self.bRotate:
@@ -611,10 +611,8 @@ class AQPipe_PostEdit(bpy.types.Operator):
 
     def setAdditionalOptions(self):
         if self.bCap:
-            print('caps`')
-            for paths in self.getPath():
-                for obj in paths:
-                    obj.data.use_fill_caps = True
+            for path in self.getPath():
+                path.data.use_fill_caps = True
     
     def convertPath(self):
         curves = [] 
