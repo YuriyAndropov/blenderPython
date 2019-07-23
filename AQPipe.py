@@ -526,13 +526,65 @@ class AQPipe_PostEdit(bpy.types.Operator):
                 self.bXAxis = False
                 self.bYAxis = False
                 self.bZAxis = False
-        if event.type == 'C' and event.value == 'PRESS':
-            if not self.bCap:
-                self.report({'INFO'},'Fill Caps')
-                self.bCap=True
-            else:
-                self.bCap=False
+        # if event.type == 'C' and event.value == 'PRESS':
+        #     if not self.bCap:
+        #         self.report({'INFO'},'Fill Caps')
+        #         self.bCap=True
+        #     else:
+        #         self.bCap=False
     # set axes on key press
+    #TODO move all key processing to one function
+    def processEvents(self,event):
+        if event.type == "S" and event.value == "PRESS":
+            self.report({'INFO'}, 'Scale Active')
+            if self.bScale == False:
+                self.getProfile().select_set(True) 
+                bpy.context.view_layer.objects.active = self.getProfile()
+                bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+                self.bScale = True
+                self.bMove = False
+                self.bRotate = False
+                self.bXAxis = False
+                self.bYAxis = False
+                self.bZAxis = False
+            else:
+                self.bScale = False
+                self.bXAxis = False
+                self.bYAxis = False
+                self.bZAxis = False
+        if event.type == "M" and event.value == "PRESS":
+            if self.bMove == False:
+                self.report({'INFO'}, 'Move Active')
+                #setting x-axis as default when move is active, since drag add to location is awkward with 3 axes
+                self.getProfile().select_set(True) 
+                bpy.context.view_layer.objects.active = self.getProfile()
+                bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+                self.bXAxis = True
+                self.bMove = True
+                self.bScale = False
+                self.bRotate = False
+                self.bYAxis = False
+                self.bZAxis = False
+            else:
+                self.bMove = False
+                self.bXAxis = False
+                self.bYAxis = False
+                self.bZAxis = False
+        if event.type == "R" and event.value == "PRESS":
+            self.report({'INFO'}, 'Rotate Active')
+            if self.bRotate == False:
+                #setting x-axis as default when move is active, since drag rotate is awkward with 3 axes
+                self.bXAxis = True
+                self.bRotate = True
+                self.bMove = False
+                self.bScale = False
+                self.bYAxis = False
+                self.bZAxis = False
+            else:
+                self.bRotate = False
+                self.bXAxis = False
+                self.bYAxis = False
+                self.bZAxis = False
     def setAxis(self,event):
         if self.bScale or self.bMove or self.bRotate:
             if event.type == "X" and event.value == "PRESS" and self.bXAxis==False:
@@ -619,13 +671,17 @@ class AQPipe_PostEdit(bpy.types.Operator):
                         point.co -= self.baseLoc
                 self.baseLoc = mathutils.Vector((0.0,0.0,0.0,0.0))
 
-    def setAdditionalOptions(self):
-        if self.bCap:
+    def setAdditionalOptions(self,event):
+        if event.type == "C" and not self.bCap:
+            self.bCap = True
             for path in self.getPath():
                 path.data.use_fill_caps = True
-        if not self.bCap:
+            self.report({'INFO'},'Fill Caps On')
+        if event.type == 'C' and self.bCap:
+            self.bCap = False
             for path in self.getPath():
-                path.daya.use_fill_caps = False
+                path.data.use_fill_caps = False
+            self.report({'INFO'},'Fill Caps Off')
     
     def convertPath(self):
         curves = [] 
