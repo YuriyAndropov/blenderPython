@@ -270,8 +270,6 @@ class AQPipe_MakeProfile(bpy.types.Operator):
         nRow.prop(self,"pName")
 
     def execute(self,context):
-        #type = "Profiles"
-        #objectFromPath(self.pName,"Profiles")
         if self.checkState()==True:
             objectFromPath(self.pName,"Profiles")
             self.dropSelection()
@@ -346,6 +344,8 @@ class AQPipe_SweepProfile(bpy.types.Operator):
         return {'INTERFACE'}
 
     def invoke(self,context,event):
+        if bpy.context.mode =='OBEJCT' and self.checkSelectionMode():
+            objectFromPath('Path','Paths')
         if not checkCollections('QPipe'):
             self.report({'WARNING'},'No profiles and paths data in the scene')
             return {'CANCELED'}
@@ -389,15 +389,6 @@ class AQPipe_FlushProfiles(bpy.types.Operator):
         for profile in getObjectInCollection('Profiles').children:
             bpy.data.objects.remove(profile,do_unlink=True,do_id_user=True,do_ui_user=True)
         return {'FINISHED'}
-
-def draw_callback_px(self,context):
-        width = bpy.context.area.width
-        height = bpy.context.area.height
-
-        blf.position(font_id, width/2,height/2, 0)
-        blf.size(font_id, 52, 72)
-        blf.color(font_id, 1, 1, 1, 1)
-        blf.draw(font_id, 'test')
 
 class AQPipe_AdditionalOptions(bpy.types.Operator):
     bl_idname = "object.aqpipe_addoptions"
@@ -499,7 +490,6 @@ class AQPipe_PostEdit(bpy.types.Operator):
                 return profile
         return None
         
-    #TODO move all key processing to one function
     def processEvents(self,event):
         #setting tools
         if event.type == "S" and event.value == "PRESS":
@@ -699,7 +689,7 @@ class AQPipe_PostEdit(bpy.types.Operator):
         #redraw viewport       
         context.area.tag_redraw()
         self.processEvents(event)
-        kEvents = ['S','R','M','X','Y','Z','C','ESC','WHEELUPMOUSE','WHEELDOWNMOUSE','RIGHTMOUSE','SPACEBAR']
+        kEvents = ['S','R','M','X','Y','Z','C','ESC','WHEELUPMOUSE','WHEELDOWNMOUSE','RIGHTMOUSE','SPACE']
         if event.type not in kEvents:
             return {'PASS_THROUGH'}
         if event.type =='ESC' and event.value=='PRESS' and not self.bRotate and not self.bMove and not self.bScale:
