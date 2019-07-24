@@ -19,14 +19,14 @@ Created by Yurii Andropov
 '''
 
 bl_info = {
-    "name": "A* Quick Pipe",
-    "description": "Fast Profile Along Path Generation",
+    "name": "A* Profiler",
+    "description": "Fast Profile Along Path ",
     "author": "A*",
     "version": (0, 0, 1),
     "blender": (2, 80, 0),
-    "location": "View3D",
+    "location": "Mesh",
     "wiki_url": "",
-    "category": "3D View"
+    "category": "Mesh"
 }
 
 import bpy
@@ -45,7 +45,7 @@ TooltipText = {
 }
 class AQPipePreferences(bpy.types.AddonPreferences):
     bl_idname = __name__
-    keyList = (("A", "A", "A"),("B", "B", "B"),("C", "C", "C"),
+    keyList = (('NONE','None','NONE'),("A", "A", "A"),("B", "B", "B"),("C", "C", "C"),
     ("D", "D", "D"),("E", "E", "E"),("F", "F", "F"),("G", "G", "G"),
     ("H", "H", "H"),("I", "I", "I"),("J", "J", "J"),("K", "K", "K"),
     ("L", "L", "L"),("M", "M", "M"),("N", "N", "N"),("O", "O", "O"),
@@ -55,53 +55,79 @@ class AQPipePreferences(bpy.types.AddonPreferences):
 
     
 
-    profKey:bpy.props.EnumProperty(items=keyList,default="M")
+    profKey:bpy.props.EnumProperty(name="Make Profile",items=keyList,default="NONE")
     profAlt:bpy.props.BoolProperty(name="Alt",description="Alt modifier",default=False)
-    profCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=True)
+    profCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=False)
     profShift:bpy.props.BoolProperty(name="Shift",description="Shift modifier",default=False)
 
-    pathKey:bpy.props.EnumProperty(items=keyList,default="M")
+    pathKey:bpy.props.EnumProperty(name="Make Path",items=keyList,default="NONE")
     pathAlt:bpy.props.BoolProperty(name="Alt",description="Alt modifier",default=False)
-    pathCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=True)
+    pathCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=False)
     pathShift:bpy.props.BoolProperty(name="Shift",description="Shift modifier",default=False)
 
-    sweepKey:bpy.props.EnumProperty(items=keyList,default="M")
+    sweepKey:bpy.props.EnumProperty(name='Sweep Profile',items=keyList,default="NONE")
     sweepAlt:bpy.props.BoolProperty(name="Alt",description="Alt modifier",default=False)
-    sweepCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=True)
+    sweepCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=False)
     sweepShift:bpy.props.BoolProperty(name="Shift",description="Shift modifier",default=False)
 
-    aOptKey:bpy.props.EnumProperty(items=keyList,default="M")
+    aOptKey:bpy.props.EnumProperty(name='Additional Options',items=keyList,default="NONE")
     aOptAlt:bpy.props.BoolProperty(name="Alt",description="Alt modifier",default=False)
-    aOptCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=True)
+    aOptCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=False)
     aOptShift:bpy.props.BoolProperty(name="Shift",description="Shift modifier",default=False)
+
+    mMove:bpy.props.EnumProperty(name='Move',items=keyList,default="M")
+    mRotate:bpy.props.EnumProperty(name='Rotate',items=keyList,default="R")
+    mScale:bpy.props.EnumProperty(name='Scale',items=keyList,default="S")
+
+    mX:bpy.props.EnumProperty(name='X',items=keyList,default="X")
+    mY:bpy.props.EnumProperty(name='Y',items=keyList,default="Y")
+    mZ:bpy.props.EnumProperty(name='Z',items=keyList,default="Z")
 
     def draw(self,context):
         layout = self.layout
-        propBox = layout.box()
-        profRow = propBox.row(align=True)
-        pathRow = propBox.row(align=True)
-        sweepRow = propBox.row(align=True)
-        aOptRow = propBox.row(align=True)
-
+        optBox = layout.box()
+        optBox.label(text='Addon Options')
+        modalBox = layout.box()
+        modalBox.label(text="Modal Hotkeys")
+        mainBox = layout.box()
+        mainBox.label(text='Optional Hotkeys. They are not set. Addon was designed with menus in mind')
+        profBox = mainBox.box()
+        profBox.label(text="Make Profile Hotkey")
+        profRow = profBox.row(align=True)
         profRow.prop(self,"profKey")
         profRow.prop(self,"profAlt")
         profRow.prop(self,"profCtrl")
         profRow.prop(self,"profShift")
 
+        pathBox = mainBox.box()
+        pathBox.label(text="Make Path Hotkey")
+        pathRow = pathBox.row(align=True)
         pathRow.prop(self,"pathKey")
         pathRow.prop(self,"pathAlt")
         pathRow.prop(self,"pathCtrl")
         pathRow.prop(self,"pathShift")
 
+        sweepBox = mainBox.box()
+        sweepBox.label(text="Sweep Profile Hotkey")
+        sweepRow = sweepBox.row(align=True)
         sweepRow.prop(self,"sweepKey")
         sweepRow.prop(self,"sweepAlt")
         sweepRow.prop(self,"sweepCtrl")
         sweepRow.prop(self,"sweepShift")
 
-        aOptRow.prop(self,"aOptKey")
-        aOptRow.prop(self,"aOptAlt")
-        aOptRow.prop(self,"aOptCtrl")
-        aOptRow.prop(self,"aOptShift")
+        toolBox = modalBox.box()
+        toolBox.label(text='Tool hotkeys in modal')
+        toolRow = toolBox.row(align=True)
+        toolRow.prop(self,'mMove')
+        toolRow.prop(self,'mRotate')
+        toolRow.prop(self,'mScale')
+
+        axisBox = modalBox.box()
+        axisBox.label(text='Axis hotkeys in modal')
+        axisRow = axisBox.row(align=True)
+        axisRow.prop(self,'mX')
+        axisRow.prop(self,'mY')
+        axisRow.prop(self,'mZ')
 
 #get addon preferences option by name
 def getProp(name):
@@ -211,10 +237,9 @@ def convertToCurve(typeName):
             bpy.ops.object.convert('INVOKE_DEFAULT', target='CURVE')
         if path.type == "CURVE":
             path.parent = getObjectInCollection(typeName)
-            
-
 
 #make profile from selection operator
+#TODO Add selection check
 #FIXME not working if path was created first
 class AQPipe_MakeProfile(bpy.types.Operator):
     bl_idname = "object.aqpipe_makeprofile"
@@ -473,68 +498,10 @@ class AQPipe_PostEdit(bpy.types.Operator):
             if profile.name == bpy.types.Scene.AQPipe_bevelProfile:
                 return profile
         return None
-
-    def setTool(self,event):
-        if event.type == "S" and event.value == "PRESS":
-            self.report({'INFO'}, 'Scale Active')
-            if self.bScale == False:
-                self.getProfile().select_set(True) 
-                bpy.context.view_layer.objects.active = self.getProfile()
-                bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
-                self.bScale = True
-                self.bMove = False
-                self.bRotate = False
-                self.bXAxis = False
-                self.bYAxis = False
-                self.bZAxis = False
-            else:
-
-                self.bScale = False
-                self.bXAxis = False
-                self.bYAxis = False
-                self.bZAxis = False
-        if event.type == "M" and event.value == "PRESS":
-            if self.bMove == False:
-                self.report({'INFO'}, 'Move Active')
-                #setting x-axis as default when move is active, since drag add to location is awkward with 3 axes
-                self.getProfile().select_set(True) 
-                bpy.context.view_layer.objects.active = self.getProfile()
-                bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
-                self.bXAxis = True
-                self.bMove = True
-                self.bScale = False
-                self.bRotate = False
-                self.bYAxis = False
-                self.bZAxis = False
-            else:
-                self.bMove = False
-                self.bXAxis = False
-                self.bYAxis = False
-                self.bZAxis = False
-        if event.type == "R" and event.value == "PRESS":
-            self.report({'INFO'}, 'Rotate Active')
-            if self.bRotate == False:
-                #setting x-axis as default when move is active, since drag rotate is awkward with 3 axes
-                self.bXAxis = True
-                self.bRotate = True
-                self.bMove = False
-                self.bScale = False
-                self.bYAxis = False
-                self.bZAxis = False
-            else:
-                self.bRotate = False
-                self.bXAxis = False
-                self.bYAxis = False
-                self.bZAxis = False
-        # if event.type == 'C' and event.value == 'PRESS':
-        #     if not self.bCap:
-        #         self.report({'INFO'},'Fill Caps')
-        #         self.bCap=True
-        #     else:
-        #         self.bCap=False
-    # set axes on key press
+        
     #TODO move all key processing to one function
     def processEvents(self,event):
+        #setting tools
         if event.type == "S" and event.value == "PRESS":
             self.report({'INFO'}, 'Scale Active')
             if self.bScale == False:
@@ -585,58 +552,75 @@ class AQPipe_PostEdit(bpy.types.Operator):
                 self.bXAxis = False
                 self.bYAxis = False
                 self.bZAxis = False
-    def setAxis(self,event):
-        if self.bScale or self.bMove or self.bRotate:
-            if event.type == "X" and event.value == "PRESS" and self.bXAxis==False:
-                self.report({'INFO'}, 'X Axis')
-                self.bXAxis = True
-                self.bYAxis = False
-                self.bZAxis = False
-            elif event.type == "X" and event.value == "PRESS" and self.bXAxis==True:
-                self.bXAxis = False
+        #setting axes
+        if event.type == "X" and event.value == "PRESS" and self.bXAxis==False:
+            self.report({'INFO'}, 'X Axis')
+            self.bXAxis = True
+            self.bYAxis = False
+            self.bZAxis = False
+        elif event.type == "X" and event.value == "PRESS" and self.bXAxis==True:
+            self.bXAxis = False
+        
+        if event.type == "Y" and event.value == "PRESS" and self.bYAxis==False:
+            self.report({'INFO'}, 'Y Axis')
+            self.bYAxis = True
+            self.bXAxis = False
+            self.bZAxis = False
+        elif event.type == "Y" and event.value == "PRESS" and self.bYAxis==True:
+            self.bYAxis = False
 
-            if event.type == "Y" and event.value == "PRESS" and self.bYAxis==False:
-                self.report({'INFO'}, 'Y Axis')
-                self.bYAxis = True
-                self.bXAxis = False
-                self.bZAxis = False
-            elif event.type == "Y" and event.value == "PRESS" and self.bYAxis==True:
-                self.bYAxis = False
-
-            if event.type == "Z" and event.value == "PRESS" and self.bZAxis==False:
-                self.report({'INFO'}, 'Z Axis')
-                self.bZAxis = True
-                self.bYAxis = False
-                self.bXAxis = False
-            elif event.type == "Z" and event.value == "PRESS" and self.bZAxis==True:
-                self.bZAxis = False
-    #TODO change baseScale
+        if event.type == "Z" and event.value == "PRESS" and self.bZAxis==False:
+            self.report({'INFO'}, 'Z Axis')
+            self.bZAxis = True
+            self.bYAxis = False
+            self.bXAxis = False
+        elif event.type == "Z" and event.value == "PRESS" and self.bZAxis==True:
+            self.bZAxis = False
+        #adding transform
+        if (event.type == "WHEELUPMOUSE" or event.type == "WHEELDOWNMOUSE" or 'RIGHTMOUSE') and self.bRotate:
+            self.addRotation(event.type)
+        if (event.type == "WHEELUPMOUSE" or event.type == "WHEELDOWNMOUSE" or 'RIGHTMOUSE' ) and self.bMove:
+            self.addLocation(event.type)
+        if (event.type == "WHEELUPMOUSE" or event.type == "WHEELDOWNMOUSE" or 'RIGHTMOUSE' ) and self.bScale:
+            self.addScale(event.type)
+        if event.type == 'C' and event.value == 'PRESS' and self.bCap==False:
+            self.bCap=True
+            self.setCap()
+        elif event.type == 'C' and event.value == 'PRESS' and self.bCap==True:
+            self.bCap=False
+            self.setCap()
+            
     def addScale(self,event):
         if self.bScale:
-            if event.type == "WHEELUPMOUSE":
+            if event == "WHEELUPMOUSE":
                 if not self.bXAxis and not self.bYAxis and not self.bZAxis:
                     self.getProfile().scale = getattr(self.getProfile(),'scale') + mathutils.Vector((0.1 , 0.1, 0.1 ))
                 else:
                     self.getProfile().scale = getattr(self.getProfile(),'scale') + mathutils.Vector((0.1 * int(self.bXAxis), 0.1 * int(self.bYAxis), 0.1 * int(self.bZAxis))) 
-            if event.type == "WHEELDOWNMOUSE":
+            if event == "WHEELDOWNMOUSE":
                 if not self.bXAxis and not self.bYAxis and not self.bZAxis:
                     self.getProfile().scale = getattr(self.getProfile(),'scale') - mathutils.Vector((0.1 , 0.1, 0.1))
                 else:
                     self.getProfile().scale = getattr(self.getProfile(),'scale') - mathutils.Vector((0.1 * int(self.bXAxis), 0.1 * int(self.bYAxis), 0.1 * int(self.bZAxis)))
             #scale exit with reverting scale
-            if event.type == 'RIGHTMOUSE' and self.bScale :
-                self.getProfile().scale = self.baseScale -1
+            if event == 'RIGHTMOUSE':
+                self.report({'INFO'}, 'Exit and Revert Scale')
+                self.getProfile().scale = self.baseScale 
+            if event == 'ESC':
+                self.report({'INFO'}, 'Exit and Revert Scale')
+                self.getProfile().scale = self.baseScale 
+                self.bScale = False
 
     def addRotation(self,event):
         if self.bRotate:
-            if event.type == "WHEELUPMOUSE":
+            if event == "WHEELUPMOUSE":
                 self.getProfile().rotation_euler[0] = self.getProfile().rotation_euler.x + math.radians(10)*int(self.bXAxis)
                 self.getProfile().rotation_euler[1] = self.getProfile().rotation_euler.y + math.radians(10)*int(self.bYAxis)
                 self.getProfile().rotation_euler[2] = self.getProfile().rotation_euler.z + math.radians(10)*int(self.bZAxis)
                 self.baseRotation[0] += math.radians(10)*int(self.bXAxis)
                 self.baseRotation[1] += math.radians(10)*int(self.bYAxis)
                 self.baseRotation[2] += math.radians(10)*int(self.bZAxis)
-            if event.type == "WHEELDOWNMOUSE":
+            if event == "WHEELDOWNMOUSE":
                 self.getProfile().rotation_euler[0] = self.getProfile().rotation_euler.x + math.radians(-10)*int(self.bXAxis)
                 self.getProfile().rotation_euler[1] = self.getProfile().rotation_euler.y + math.radians(-10)*int(self.bYAxis)
                 self.getProfile().rotation_euler[2] = self.getProfile().rotation_euler.z + math.radians(-10)*int(self.bZAxis)
@@ -646,39 +630,52 @@ class AQPipe_PostEdit(bpy.types.Operator):
             self.getProfile().select_set(True) 
             bpy.context.view_layer.objects.active = self.getProfile()
             bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
-            if event.type == 'RIGHTMOUSE' and self.bRotate :
+            if event == 'RIGHTMOUSE':
                 self.getProfile().rotation_euler[0] -= self.baseRotation[0] 
                 self.getProfile().rotation_euler[1] -= self.baseRotation[1] 
                 self.getProfile().rotation_euler[2] -= self.baseRotation[2]
                 self.baseRotation = (0,0,0) 
+                self.report({'INFO'}, 'Revert Rotation')
+            if event == 'ESC':
+                self.getProfile().rotation_euler[0] -= self.baseRotation[0] 
+                self.getProfile().rotation_euler[1] -= self.baseRotation[1] 
+                self.getProfile().rotation_euler[2] -= self.baseRotation[2]
+                self.baseRotation = (0,0,0) 
+                self.report({'INFO'}, 'Exit and Revert Rotation')
+                self.bRotate = False
 
     def addLocation(self,event):
-        if self.bMove:
-            shift = mathutils.Vector((0.1 * int(self.bXAxis), 0.1 * int(self.bYAxis), 0.1 * int(self.bZAxis),0))
-            if event.type == "WHEELUPMOUSE" :
-                self.baseLoc += shift
-                for spline in self.getProfile().data.splines:
-                    for point in spline.points:
-                        point.co += shift
-            if event.type == "WHEELDOWNMOUSE":
-                self.baseLoc -= shift
-                for spline in self.getProfile().data.splines:
-                    for point in spline.points:
-                        point.co -= shift
-            if event.type == 'RIGHTMOUSE' and self.bMove :
-                for spline in self.getProfile().data.splines:
-                    for point in spline.points:
-                        point.co -= self.baseLoc
-                self.baseLoc = mathutils.Vector((0.0,0.0,0.0,0.0))
+        shift = mathutils.Vector((0.1 * int(self.bXAxis), 0.1 * int(self.bYAxis), 0.1 * int(self.bZAxis),0))
+        if event == "WHEELUPMOUSE" :
+            self.baseLoc += shift
+            for spline in self.getProfile().data.splines:
+                for point in spline.points:
+                    point.co += shift
+        if event == "WHEELDOWNMOUSE":
+            self.baseLoc -= shift
+            for spline in self.getProfile().data.splines:
+                for point in spline.points:
+                    point.co -= shift
+        if event == 'RIGHTMOUSE':
+            for spline in self.getProfile().data.splines:
+                for point in spline.points:
+                    point.co -= self.baseLoc
+            self.baseLoc = mathutils.Vector((0.0,0.0,0.0,0.0))
+            self.report({'INFO'}, 'Revert Movement')
+        if event == 'ESC' :
+            for spline in self.getProfile().data.splines:
+                for point in spline.points:
+                    point.co -= self.baseLoc
+            self.baseLoc = mathutils.Vector((0.0,0.0,0.0,0.0))
+            self.report({'INFO'}, 'Exit and Revert Movement')
+            self.bMove = False
 
-    def setAdditionalOptions(self,event):
-        if event.type == "C" and not self.bCap:
-            self.bCap = True
+    def setCap(self):
+        if self.bCap == True:
             for path in self.getPath():
                 path.data.use_fill_caps = True
             self.report({'INFO'},'Fill Caps On')
-        if event.type == 'C' and self.bCap:
-            self.bCap = False
+        if self.bCap==False:
             for path in self.getPath():
                 path.data.use_fill_caps = False
             self.report({'INFO'},'Fill Caps Off')
@@ -698,19 +695,14 @@ class AQPipe_PostEdit(bpy.types.Operator):
         bpy.types.SpaceView3D.draw_handler_remove(TooltipText ["handler"],'WINDOW')
         return {'FINISHED'}
     def modal(self,context,event):
-        
-        #TODO add all modal events to dict, so I don't have to write exeption for every case
         #TODO add keys to addon properties
-        qEvents = {'S','M','ESC','SPACE','WHEELUPMOUSE','WHEELDOWNMOUSE'}
         #redraw viewport       
         context.area.tag_redraw()
-        self.setTool(event)
-        self.addScale(event)
-        self.addRotation(event)
-        self.addLocation(event)
-        self.setAxis(event)
-        self.setAdditionalOptions()
-        if event.type =='ESC' and event.value=='PRESS':
+        self.processEvents(event)
+        kEvents = ['S','R','M','X','Y','Z','C','ESC','WHEELUPMOUSE','WHEELDOWNMOUSE','RIGHTMOUSE','SPACEBAR']
+        if event.type not in kEvents:
+            return {'PASS_THROUGH'}
+        if event.type =='ESC' and event.value=='PRESS' and not self.bRotate and not self.bMove and not self.bScale:
             self.report({'INFO'}, 'Cancelled')
             bpy.types.SpaceView3D.draw_handler_remove(TooltipText ["handler"],'WINDOW')
             return {'CANCELLED'}
@@ -718,11 +710,6 @@ class AQPipe_PostEdit(bpy.types.Operator):
             self.report({'INFO'}, 'Finished')
             bpy.types.SpaceView3D.draw_handler_remove(TooltipText ["handler"],'WINDOW')
             return {'FINISHED'}
-        #ignoring left and middle mouse for navigation
-        if (event.type == 'LEFTMOUSE' and event.value == "PRESS") :
-            return {'PASS_THROUGH'}
-        if event.type == 'MIDDLEMOUSE' and event.value == "PRESS":
-            return {'PASS_THROUGH'}
 
         return {'RUNNING_MODAL'}
     def invoke(self,context,event):
@@ -744,14 +731,34 @@ class AQPipe_PostEdit(bpy.types.Operator):
             context.window_manager.modal_handler_add(self) 
         return {'RUNNING_MODAL'}
 
+class AQPipe_Menu(bpy.types.Menu):
+    bl_label = "Profiler"
+    bl_idname = "VIEW3D_MT_Profiler"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'WINDOW'
+
+    def draw(self,context):
+        layout = self.layout
+        cColumn = layout.column()
+        if context.mode == 'EDIT_MESH':
+            cColumn.operator('object.aqpipe_makeprofile')
+            cColumn.operator('object.aqpipe_makepath')
+        cColumn.separator(factor=1.0)
+        cColumn.operator('object.aqpipe_sweepprofile')
+        cColumn.separator(factor=1.0)
+        cColumn.operator('object.aqpipe_addoptions')
+        
+
 def rmbMenu(self,context):
     layout = self.layout
 
-    layout.operator('object.aqpipe_postedit',text='Sweep')
+    layout.menu('VIEW3D_MT_Profiler',text='A*Profiler')
 
 def register():
+    bpy.utils.register_class(AQPipe_Menu)
     bpy.types.Scene.AQPipe_bevelProfile = bpy.props.StringProperty(default="None")
     bpy.types.VIEW3D_MT_edit_mesh_context_menu.append(rmbMenu)
+    bpy.types.VIEW3D_MT_object_context_menu.append(rmbMenu)
     bpy.utils.register_class(AQPipePreferences)
     bpy.utils.register_class(AQPipe_MakeProfile)
     bpy.utils.register_class(AQPipe_MakePath)
@@ -765,6 +772,9 @@ def register():
     
 def unregister():
     del bpy.types.Scene.AQPipe_bevelProfile
+    bpy.utils.unregister_class(AQPipe_Menu)
+    bpy.types.VIEW3D_MT_edit_mesh_context_menu.remove(rmbMenu)
+    bpy.types.VIEW3D_MT_object_context_menu.remove(rmbMenu)
     bpy.utils.unregister_class(AQPipePreferences)
     bpy.utils.unregister_class(AQPipe_MakeProfile)
     bpy.utils.unregister_class(AQPipe_MakePath)
