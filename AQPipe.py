@@ -53,27 +53,51 @@ class AQPipePreferences(bpy.types.AddonPreferences):
     ("T", "T", "T"),("U", "U", "U"),("V", "V", "V"),("W", "W", "W"),
     ("X", "X", "X"),("Y", "Y", "Y"),("Z", "Z", "Z"))
 
-    
+    def updateKeys(self,context):
+        for km, kmi in addon_keymaps:
+            km.keymap_items.remove(kmi)
+            addon_keymaps.clear()
+        wm = bpy.context.window_manager
+        if getProp('profKey')[0] != 'NONE':
+            kmi = km.keymap_items.new("object.amaas_menu",getProp("profKey")[0],value="PRESS",any=False,alt=getProp("profAlt"),ctrl=getProp("profCtrl"),shift=getProp("profShift"),head=True)
+            km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+            addon_keymaps.append((km, kmi))
+        if getProp('pathKey')[0] != 'NONE':
+            kmi = km.keymap_items.new("object.amaas_menu",getProp("pathKey")[0],value="PRESS",any=False,alt=getProp("pathAlt"),ctrl=getProp("pathCtrl"),shift=getProp("pathShift"),head=True)
+            km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+            addon_keymaps.append((km, kmi))
+        if getProp('sweepKey')[0] != 'NONE':
+            kmi = km.keymap_items.new("object.amaas_menu",getProp("sweepKey")[0],value="PRESS",any=False,alt=getProp("sweepAlt"),ctrl=getProp("sweepCtrl"),shift=getProp("sweepShift"),head=True)
+            km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+            addon_keymaps.append((km, kmi))
+        if getProp('aOptKey')[0] != 'NONE':
+            kmi = km.keymap_items.new("object.amaas_menu",getProp("aOptKey")[0],value="PRESS",any=False,alt=getProp("aOptAlt"),ctrl=getProp("aOptCtrl"),shift=getProp("aOptShift"),head=True)
+            km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+            addon_keymaps.append((km, kmi))
+        #kmi = km.keymap_items.new("object.amaas_menu",getProp("key")[0],value="PRESS",any=False,alt=getProp("alt"),ctrl=getProp("ctrl"),shift=getProp("shift"),head=True)
+        #km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+        #addon_keymaps.append((km, kmi))
+        return None
 
-    profKey:bpy.props.EnumProperty(name="Make Profile",items=keyList,default="NONE")
-    profAlt:bpy.props.BoolProperty(name="Alt",description="Alt modifier",default=False)
-    profCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=False)
-    profShift:bpy.props.BoolProperty(name="Shift",description="Shift modifier",default=False)
+    profKey:bpy.props.EnumProperty(name="Make Profile",items=keyList,default="NONE",update=updateKeys)
+    profAlt:bpy.props.BoolProperty(name="Alt",description="Alt modifier",default=False,update=updateKeys)
+    profCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=False,update=updateKeys)
+    profShift:bpy.props.BoolProperty(name="Shift",description="Shift modifier",default=False,update=updateKeys)
 
-    pathKey:bpy.props.EnumProperty(name="Make Path",items=keyList,default="NONE")
-    pathAlt:bpy.props.BoolProperty(name="Alt",description="Alt modifier",default=False)
-    pathCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=False)
-    pathShift:bpy.props.BoolProperty(name="Shift",description="Shift modifier",default=False)
+    pathKey:bpy.props.EnumProperty(name="Make Path",items=keyList,default="NONE",update=updateKeys)
+    pathAlt:bpy.props.BoolProperty(name="Alt",description="Alt modifier",default=False,update=updateKeys)
+    pathCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=False,update=updateKeys)
+    pathShift:bpy.props.BoolProperty(name="Shift",description="Shift modifier",default=False,update=updateKeys)
 
-    sweepKey:bpy.props.EnumProperty(name='Sweep Profile',items=keyList,default="NONE")
-    sweepAlt:bpy.props.BoolProperty(name="Alt",description="Alt modifier",default=False)
-    sweepCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=False)
-    sweepShift:bpy.props.BoolProperty(name="Shift",description="Shift modifier",default=False)
+    sweepKey:bpy.props.EnumProperty(name='Sweep Profile',items=keyList,default="NONE",update=updateKeys)
+    sweepAlt:bpy.props.BoolProperty(name="Alt",description="Alt modifier",default=False,update=updateKeys)
+    sweepCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=False,update=updateKeys)
+    sweepShift:bpy.props.BoolProperty(name="Shift",description="Shift modifier",default=False,update=updateKeys)
 
-    aOptKey:bpy.props.EnumProperty(name='Additional Options',items=keyList,default="NONE")
-    aOptAlt:bpy.props.BoolProperty(name="Alt",description="Alt modifier",default=False)
-    aOptCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=False)
-    aOptShift:bpy.props.BoolProperty(name="Shift",description="Shift modifier",default=False)
+    aOptKey:bpy.props.EnumProperty(name='Additional Options',items=keyList,default="NONE",update=updateKeys)
+    aOptAlt:bpy.props.BoolProperty(name="Alt",description="Alt modifier",default=False,update=updateKeys)
+    aOptCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=False,update=updateKeys)
+    aOptShift:bpy.props.BoolProperty(name="Shift",description="Shift modifier",default=False,update=updateKeys)
 
     mMove:bpy.props.EnumProperty(name='Move',items=keyList,default="M")
     mRotate:bpy.props.EnumProperty(name='Rotate',items=keyList,default="R")
@@ -83,10 +107,20 @@ class AQPipePreferences(bpy.types.AddonPreferences):
     mY:bpy.props.EnumProperty(name='Y',items=keyList,default="Y")
     mZ:bpy.props.EnumProperty(name='Z',items=keyList,default="Z")
 
+    mCap:bpy.props.EnumProperty(name='Cap',items=keyList,default="C")
+    mKeep:bpy.props.EnumProperty(name='KeepSpline',items=keyList,default="Q")
+
+
+    cursorColor:bpy.props.FloatVectorProperty(name="Main Color",description="Color", default=(1.0,1.0,1.0),subtype='COLOR')
+    highlightColor:bpy.props.FloatVectorProperty(name="Highlight Color",description="Color", default=(0.0,1.0,0.0),subtype='COLOR')
+    bTips:bpy.props.BoolProperty(name='Show KeyTips',default=True)
+    bDefCap:bpy.props.BoolProperty(name='Fill Caps',default=True)
+    bDefKeep:bpy.props.BoolProperty(name='Keep as Spline',default=False)
+
     def draw(self,context):
         layout = self.layout
         optBox = layout.box()
-        optBox.label(text='Addon Options')
+        optBox.label(text='Addon Default Settings')
         modalBox = layout.box()
         modalBox.label(text="Modal Hotkeys")
         mainBox = layout.box()
@@ -121,6 +155,10 @@ class AQPipePreferences(bpy.types.AddonPreferences):
         toolRow.prop(self,'mMove')
         toolRow.prop(self,'mRotate')
         toolRow.prop(self,'mScale')
+        addRow = toolBox.row(align=True)
+        addRow.prop(self,'mCap')
+        addRow.prop(self,'mKeep')
+        
 
         axisBox = modalBox.box()
         axisBox.label(text='Axis hotkeys in modal')
@@ -128,6 +166,14 @@ class AQPipePreferences(bpy.types.AddonPreferences):
         axisRow.prop(self,'mX')
         axisRow.prop(self,'mY')
         axisRow.prop(self,'mZ')
+
+        sRow = optBox.row()
+        sRow.prop(self,'bTips')
+        sRow.prop(self,'bDefCap')
+        sRow.prop(self,'bDefKeep')
+        cRow = optBox.row()
+        cRow.prop(self,'cursorColor')
+        cRow.prop(self,'highlightColor')
 
 #get addon preferences option by name
 def getProp(name):
@@ -453,32 +499,34 @@ class AQPipe_PostEdit(bpy.types.Operator):
 
     def drawTooltips(self,context,event):
         tWidth = context.area.regions[2].width
+        nWidth = bpy.context.area.regions[3].width
         width = context.area.width
         height = context.area.height
-        color = (1,0.4,0.2)
+        color = getProp('cursorColor')
         size = 25
         text = 'Sweep Profile Mode'
-        self.addDraw(width/2-tWidth - len(text)/2*21,height-50,size,text,color)
-        text = 'Hotkeys :'
-        self.addDraw(tWidth,height/2+63*2,size,text,color)
-        size = 21
-        text = 'M : Move'
-        self.addDraw(tWidth+size,height/2+42*1.5,size,text,color)
-        text = 'R : Rotate'
-        self.addDraw(tWidth+size,height/2+21*1.5,size,text,color)
-        text = 'S : Scale'
-        self.addDraw(tWidth+size,height/2,size,text,color)
+        self.addDraw((width-tWidth-nWidth)/2 - len(text)/2,height-50,size,text,color)
+        if getProp('bTips'):
+            text = 'Hotkeys :'
+            self.addDraw(tWidth,height/2+63*2,size,text,color)
+            size = 21
+            text = getProp('mMove') +  ' : Move'
+            self.addDraw(tWidth+size,height/2+42*1.5,size,text,color)
+            text = getProp('mRotate') +  ' : Rotate'
+            self.addDraw(tWidth+size,height/2+21*1.5,size,text,color)
+            text = getProp('mScale') + ' : Scale'
+            self.addDraw(tWidth+size,height/2,size,text,color)
         
-        text = 'X : X Axis'
-        self.addDraw(tWidth+size,height/2 - 21 *1.5-20,size,text,color)
-        text = 'Y : Y Axis'
-        self.addDraw(tWidth+size,height/2 -42 *1.5 -20,size,text,color)
-        text = 'Z : Z Axis'
-        self.addDraw(tWidth+size,height/2 -63 *1.5 -20,size,text,color)
-        text = 'C : Cap Ends Toggle'
-        self.addDraw(tWidth+size,height/2 -84 *1.5 -20,size,text,color)
-        text = 'Q : Leave as Curve Toggle'
-        self.addDraw(tWidth+size,height/2 -105 *1.5 -20,size,text,color)
+            text = getProp('mX') + ' : X Axis'
+            self.addDraw(tWidth+size,height/2 - 21 *1.5-20,size,text,color)
+            text = getProp('mY') + ' : Y Axis'
+            self.addDraw(tWidth+size,height/2 -42 *1.5 -20,size,text,color)
+            text = getProp('mZ') + ' : Z Axis'
+            self.addDraw(tWidth+size,height/2 -63 *1.5 -20,size,text,color)
+            text = getProp('mCap') + ' : Cap Ends Toggle'
+            self.addDraw(tWidth+size,height/2 -84 *1.5 -20,size,text,color)
+            text =  getProp('mKeep') +  ' : Leave as Curve Toggle'
+            self.addDraw(tWidth+size,height/2 -105 *1.5 -20,size,text,color)
 
         if self.bMove:
             text = 'Move : ' + 'X : ' + str(round(self.baseLoc[0],2)) + ',' + 'Y : ' + str(round(self.baseLoc[1],2)) + ',' + 'Z : ' + str(round(self.baseLoc[2],2))
@@ -520,11 +568,11 @@ class AQPipe_PostEdit(bpy.types.Operator):
         
     def processEvents(self,event):
         #setting tools
-        if event.type == "Q" and event.value == "PRESS" and self.bKeepSpline :
+        if event.type == getProp('mKeep') and event.value == "PRESS" and self.bKeepSpline :
             self.bKeepSpline = False
-        elif event.type == "Q" and event.value == "PRESS" and not self.bKeepSpline :
+        elif event.type == getProp('mKeep') and event.value == "PRESS" and not self.bKeepSpline :
             self.bKeepSpline = True
-        if event.type == "S" and event.value == "PRESS":
+        if event.type == getProp('mScale') and event.value == "PRESS":
             self.report({'INFO'}, 'Scale Active')
             if self.bScale == False:
                 self.getProfile().select_set(True) 
@@ -541,7 +589,7 @@ class AQPipe_PostEdit(bpy.types.Operator):
                 self.bXAxis = False
                 self.bYAxis = False
                 self.bZAxis = False
-        if event.type == "M" and event.value == "PRESS":
+        if event.type == getProp('mMove') and event.value == "PRESS":
             if self.bMove == False:
                 self.report({'INFO'}, 'Move Active')
                 #setting x-axis as default when move is active, since drag add to location is awkward with 3 axes
@@ -559,7 +607,7 @@ class AQPipe_PostEdit(bpy.types.Operator):
                 self.bXAxis = False
                 self.bYAxis = False
                 self.bZAxis = False
-        if event.type == "R" and event.value == "PRESS":
+        if event.type == getProp('mRotate') and event.value == "PRESS":
             self.report({'INFO'}, 'Rotate Active')
             if self.bRotate == False:
                 #setting x-axis as default when move is active, since drag rotate is awkward with 3 axes
@@ -575,28 +623,28 @@ class AQPipe_PostEdit(bpy.types.Operator):
                 self.bYAxis = False
                 self.bZAxis = False
         #setting axes
-        if event.type == "X" and event.value == "PRESS" and self.bXAxis==False:
+        if event.type == getProp('mX') and event.value == "PRESS" and self.bXAxis==False:
             self.report({'INFO'}, 'X Axis')
             self.bXAxis = True
             self.bYAxis = False
             self.bZAxis = False
-        elif event.type == "X" and event.value == "PRESS" and self.bXAxis==True:
+        elif event.type == getProp('mX') and event.value == "PRESS" and self.bXAxis==True:
             self.bXAxis = False
         
-        if event.type == "Y" and event.value == "PRESS" and self.bYAxis==False:
+        if event.type == getProp('mY') and event.value == "PRESS" and self.bYAxis==False:
             self.report({'INFO'}, 'Y Axis')
             self.bYAxis = True
             self.bXAxis = False
             self.bZAxis = False
-        elif event.type == "Y" and event.value == "PRESS" and self.bYAxis==True:
+        elif event.type == getProp('mY') and event.value == "PRESS" and self.bYAxis==True:
             self.bYAxis = False
 
-        if event.type == "Z" and event.value == "PRESS" and self.bZAxis==False:
+        if event.type == getProp('mZ') and event.value == "PRESS" and self.bZAxis==False:
             self.report({'INFO'}, 'Z Axis')
             self.bZAxis = True
             self.bYAxis = False
             self.bXAxis = False
-        elif event.type == "Z" and event.value == "PRESS" and self.bZAxis==True:
+        elif event.type == getProp('mZ') and event.value == "PRESS" and self.bZAxis==True:
             self.bZAxis = False
         #adding transform
         if (event.type == "WHEELUPMOUSE" or event.type == "WHEELDOWNMOUSE" or 'RIGHTMOUSE') and self.bRotate:
@@ -605,10 +653,10 @@ class AQPipe_PostEdit(bpy.types.Operator):
             self.addLocation(event.type)
         if (event.type == "WHEELUPMOUSE" or event.type == "WHEELDOWNMOUSE" or 'RIGHTMOUSE' ) and self.bScale:
             self.addScale(event.type)
-        if event.type == 'C' and event.value == 'PRESS' and self.bCap==False:
+        if event.type == getProp('mCap') and event.value == 'PRESS' and self.bCap==False:
             self.bCap=True
             self.setCap()
-        elif event.type == 'C' and event.value == 'PRESS' and self.bCap==True:
+        elif event.type == getProp('mCap') and event.value == 'PRESS' and self.bCap==True:
             self.bCap=False
             self.setCap()
             
@@ -731,11 +779,10 @@ class AQPipe_PostEdit(bpy.types.Operator):
         bpy.types.SpaceView3D.draw_handler_remove(TooltipText ["handler"],'WINDOW')
         return {'FINISHED'}
     def modal(self,context,event):
-        #TODO add keys to addon properties
         #redraw viewport       
         context.area.tag_redraw()
         self.processEvents(event)
-        kEvents = ['S','R','M','X','Y','Z','C','ESC','WHEELUPMOUSE','WHEELDOWNMOUSE','RIGHTMOUSE','SPACE']
+        kEvents = [getProp('mScale'),getProp('mRotate'),getProp('mMove'),getProp('mX'),getProp('mY'),getProp('mZ'),getProp('mCap'),getProp('mKeep'),'ESC','WHEELUPMOUSE','WHEELDOWNMOUSE','RIGHTMOUSE','SPACE']
         if event.type not in kEvents:
             return {'PASS_THROUGH'}
         if event.type =='ESC' and event.value=='PRESS' and not self.bRotate and not self.bMove and not self.bScale:
@@ -760,6 +807,8 @@ class AQPipe_PostEdit(bpy.types.Operator):
         return {'RUNNING_MODAL'}
     def invoke(self,context,event):
         TooltipText ["handler"] = bpy.types.SpaceView3D.draw_handler_add(self.drawTooltips,(context,event), 'WINDOW', 'POST_PIXEL')
+        self.bCap = getProp('bDefCap')
+        self.bKeepSpline = getProp('bDefKeep')
         self.baseScale = self.getProfile().scale
         bevelProfile = None
         self.convertPath()
