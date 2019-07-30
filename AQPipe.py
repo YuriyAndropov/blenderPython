@@ -143,21 +143,22 @@ def getCollection(name):
 #get object in collection by name
 def getObjectInCollection(name):
     if checkCollections("QPipe"):
-        for object in getCollection("QPipe").objects:
-            if object.type != None and object.name == name:
-                return object
+        for obj in getCollection("QPipe").objects:
+            if obj.type != None and obj.name == name:
+                return obj
     return None
 
 #check if there is already a collection with specified name
 def checkCollections(value):
     for collection in bpy.data.collections:
-        if collection.name == value:
-            return True
+        if collection != None:
+            if collection.name == value:
+                return True
     return False
 #check if there is already an object in collection with specified name
 def checkForObject(value):
-    for object in getCollection("QPipe").objects:
-        if object.name == value:
+    for obj in getCollection("QPipe").objects:
+        if obj.name == value:
             return True
     return False
 
@@ -175,7 +176,6 @@ def updateList(self,context):
         id+=1
     return listItems
 
-#TODO add check for None type collection
 #checking and creating proper structure for new objects
 def createCollectionAndParents():
     if checkCollections("QPipe") == False:
@@ -200,17 +200,15 @@ def createCollectionAndParents():
             collection.objects.link(tempObject)
 
 #get new object from edge selection and add it to collection
-#TODO move collection name to properies
-#TODO add object and mode check
 def objectFromPath(profileName,typeName):
     objects = bpy.context.selected_objects
     createCollectionAndParents()
     col = getCollection('QPipe')
     profObj = getObjectInCollection(typeName)
 
-    for object in objects:
-        if object.type == "MESH":
-            data = object.data
+    for obj in objects:
+        if obj.type == "MESH":
+            data = obj.data
             bm = bmesh.from_edit_mesh(data)
             nonSelected = []
             dupe = bm.copy()
@@ -222,9 +220,7 @@ def objectFromPath(profileName,typeName):
             dupe.to_mesh(newMesh)
             newObj = bpy.data.objects.new(profileName, newMesh)
             col.objects.link(newObj)
-            print(profObj)
-            print('loc')
-            newObj.location = object.location
+            newObj.location = obj.location
             newObj.parent = profObj
             bmesh.types.BMesh.free
         
@@ -239,8 +235,6 @@ def convertToCurve(typeName):
             path.parent = getObjectInCollection(typeName)
 
 #make profile from selection operator
-#TODO Add selection check
-#FIXME not working if path was created first
 class AQPipe_MakeProfile(bpy.types.Operator):
     bl_idname = "object.aqpipe_makeprofile"
     bl_label = "AQPipe Make Profile"
@@ -250,15 +244,21 @@ class AQPipe_MakeProfile(bpy.types.Operator):
 
     def dropSelection(self):
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-        for object in bpy.context.selected_objects:
-            object.select_set(False)
+        for obj in bpy.context.selected_objects:
+            obj.select_set(False)
+    
+    def getCreated(self):
+        for path in getObjectInCollection('Profiles').children:
+            if path.name == self.pName:
+                return path
+        return None
     
     def checkState(self):
-        for object in bpy.context.selected_objects:
-            if object.type != "MESH" and object.type != "CURVE":
+        for obj in bpy.context.selected_objects:
+            if obj.type != "MESH" and obj.type != "CURVE":
                 self.report({'INFO'}, 'Object should be a MESH or CURVE type')
                 return False
-            if bpy.context.mode == 'OBJECT' and object.type == "MESH":
+            if bpy.context.mode == 'OBJECT' and obj.type == "MESH":
                 self.report({'INFO'}, 'MESH should be in Edit Mode to select path')
                 return False
         return True
@@ -272,7 +272,9 @@ class AQPipe_MakeProfile(bpy.types.Operator):
     def execute(self,context):
         if self.checkState()==True:
             objectFromPath(self.pName,"Profiles")
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
             self.dropSelection()
+            self.getCreated().select_set(True)
         return {'FINISHED'}
     def invoke(self,context,event):
         return context.window_manager.invoke_props_dialog(self, width=300, height=20)
@@ -286,15 +288,21 @@ class AQPipe_MakePath(bpy.types.Operator):
     pName: bpy.props.StringProperty(name="Name :",default = "Path")
 
     def dropSelection(self):
-        for object in bpy.context.selected_objects:
-            object.select_set(False)
+        for obj in bpy.context.selected_objects:
+            obj.select_set(False)
+
+    def getCreated(self):
+        for path in getObjectInCollection('Paths').children:
+            if path.name == self.pName:
+                return path
+        return None
 
     def checkState(self):
-        for object in bpy.context.selected_objects:
-            if object.type != "MESH" and object.type != "CURVE":
+        for obj in bpy.context.selected_objects:
+            if obj.type != "MESH" and obj.type != "CURVE":
                 self.report({'INFO'}, 'Object should be a MESH or CURVE type')
                 return False
-            if bpy.context.mode == 'OBJECT' and object.type == "MESH":
+            if bpy.context.mode == 'OBJECT' and obj.type == "MESH":
                 self.report({'INFO'}, 'MESH should be in Edit Mode to select path')
                 return False
         return True
@@ -308,7 +316,9 @@ class AQPipe_MakePath(bpy.types.Operator):
     def execute(self,context):
         if self.checkState():
             objectFromPath(self.pName,"Paths")
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
             self.dropSelection()
+            self.getCreated().select_set(True)
         return {'FINISHED'}
 
     def invoke(self,context,event):
@@ -340,10 +350,14 @@ class AQPipe_SweepProfile(bpy.types.Operator):
         enumRow.prop(self,"sceneProfiles")
     
     def execute(self,context):
+        if bpy.context.mode == 'EDIT_MESH':
+            if bpy.context.scene.statistics(bpy.context.view_layer).split("|")[2].split(':')[1].split('/')[0] != '0':
+                objectFromPath('QPath','Paths')
         bpy.ops.object.aqpipe_postedit('INVOKE_DEFAULT')
         return {'INTERFACE'}
 
     def invoke(self,context,event):
+        
         if bpy.context.mode =='OBEJCT' and self.checkSelectionMode():
             objectFromPath('Path','Paths')
         if not checkCollections('QPipe'):
@@ -409,7 +423,7 @@ class AQPipe_AdditionalOptions(bpy.types.Operator):
 
     def invoke(self,context,event):
         return context.window_manager.invoke_props_dialog(self, width=300, height=20)
-#TODO add abort with profile transform reverting to original values
+
 class AQPipe_PostEdit(bpy.types.Operator):
     bl_idname = "object.aqpipe_postedit"
     bl_label = "AQPipe Post Edit Menu"
@@ -427,7 +441,6 @@ class AQPipe_PostEdit(bpy.types.Operator):
     baseScale: bpy.props.FloatVectorProperty(default=(0,0,0))
     baseLoc: bpy.props.FloatVectorProperty(default=(0.0,0.0,0.0,0.0),subtype='TRANSLATION',size=4)
     baseRotation: bpy.props.FloatVectorProperty(default=(0,0,0))
-    #TODO optimize
 
     def remap(self,value, low1, high1, low2, high2):
         return low2 + (value - low1) * (high2 - low2) / (high1 - low1)
@@ -477,6 +490,21 @@ class AQPipe_PostEdit(bpy.types.Operator):
             text = "No Operator"
         size = 15
         self.addDraw(event.mouse_x,event.mouse_y-150,size,text,color)
+        if self.bKeepSpline:
+            text = 'Result as Spline'
+        else:
+            text = 'Result as Mesh'
+
+        self.addDraw(event.mouse_x,event.mouse_y-150-30,size,text,color)
+        if self.bCap:
+            text = 'Cap On'
+        else:
+            text = 'Cap Off'
+        self.addDraw(event.mouse_x,event.mouse_y-150-60,size,text,color)
+    
+    def dropSelection(self):
+        for obj in bpy.context.selected_objects:
+            obj.select_set(False)
 
     def getPath(self):
         paths = []
@@ -492,6 +520,10 @@ class AQPipe_PostEdit(bpy.types.Operator):
         
     def processEvents(self,event):
         #setting tools
+        if event.type == "Q" and event.value == "PRESS" and self.bKeepSpline :
+            self.bKeepSpline = False
+        elif event.type == "Q" and event.value == "PRESS" and not self.bKeepSpline :
+            self.bKeepSpline = True
         if event.type == "S" and event.value == "PRESS":
             self.report({'INFO'}, 'Scale Active')
             if self.bScale == False:
@@ -681,7 +713,21 @@ class AQPipe_PostEdit(bpy.types.Operator):
             if path.type == "CURVE":
                 curves.append(path)
 
+    def cancelSweep(self):
+        for path in self.getPath():
+            if path.type == 'CURVE':
+                path.data.bevel_object = None
+                path.select_set(True) 
+                bpy.context.view_layer.objects.active = path
+                bpy.ops.object.convert('INVOKE_DEFAULT', target='MESH')
+        profile = self.getProfile()
+        if profile.type == 'CURVE':
+            profile.select_set(True) 
+            bpy.context.view_layer.objects.active = path
+            bpy.ops.object.convert('INVOKE_DEFAULT', target='MESH')
+
     def execute(self,context):
+        
         bpy.types.SpaceView3D.draw_handler_remove(TooltipText ["handler"],'WINDOW')
         return {'FINISHED'}
     def modal(self,context,event):
@@ -695,9 +741,19 @@ class AQPipe_PostEdit(bpy.types.Operator):
         if event.type =='ESC' and event.value=='PRESS' and not self.bRotate and not self.bMove and not self.bScale:
             self.report({'INFO'}, 'Cancelled')
             bpy.types.SpaceView3D.draw_handler_remove(TooltipText ["handler"],'WINDOW')
+            self.cancelSweep()
             return {'CANCELLED'}
         if event.type == "SPACE":
             self.report({'INFO'}, 'Finished')
+            self.dropSelection()
+            if not self.bKeepSpline:
+                for path in self.getPath():
+                    if path.type == 'CURVE':
+                        path.select_set(True) 
+                        bpy.context.view_layer.objects.active = path
+                        bpy.ops.object.convert('INVOKE_DEFAULT', target='MESH')
+            for mesh in getObjectInCollection('Paths').children:
+                mesh.select_set(True)
             bpy.types.SpaceView3D.draw_handler_remove(TooltipText ["handler"],'WINDOW')
             return {'FINISHED'}
 
@@ -717,7 +773,6 @@ class AQPipe_PostEdit(bpy.types.Operator):
                     bevelProfile = profile
             for path in getObjectInCollection('Paths').children:
                 path.data.bevel_object = bevelProfile
-                print(path.data.bevel_object)
             context.window_manager.modal_handler_add(self) 
         return {'RUNNING_MODAL'}
 
