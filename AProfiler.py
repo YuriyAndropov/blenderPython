@@ -43,7 +43,7 @@ TooltipText = {
     "font_id": 0,
     "handler": None,
 }
-class AQPipePreferences(bpy.types.AddonPreferences):
+class AProfilerPreferences(bpy.types.AddonPreferences):
     bl_idname = __name__
     keyList = (('NONE','None','NONE'),("A", "A", "A"),("B", "B", "B"),("C", "C", "C"),
     ("D", "D", "D"),("E", "E", "E"),("F", "F", "F"),("G", "G", "G"),
@@ -52,52 +52,6 @@ class AQPipePreferences(bpy.types.AddonPreferences):
     ("P", "P", "P"),("Q", "Q", "Q"),("R", "R", "R"),("S", "S", "S"),
     ("T", "T", "T"),("U", "U", "U"),("V", "V", "V"),("W", "W", "W"),
     ("X", "X", "X"),("Y", "Y", "Y"),("Z", "Z", "Z"))
-
-    def updateKeys(self,context):
-        for km, kmi in addon_keymaps:
-            km.keymap_items.remove(kmi)
-            addon_keymaps.clear()
-        wm = bpy.context.window_manager
-        if getProp('profKey')[0] != 'NONE':
-            kmi = km.keymap_items.new("object.amaas_menu",getProp("profKey")[0],value="PRESS",any=False,alt=getProp("profAlt"),ctrl=getProp("profCtrl"),shift=getProp("profShift"),head=True)
-            km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-            addon_keymaps.append((km, kmi))
-        if getProp('pathKey')[0] != 'NONE':
-            kmi = km.keymap_items.new("object.amaas_menu",getProp("pathKey")[0],value="PRESS",any=False,alt=getProp("pathAlt"),ctrl=getProp("pathCtrl"),shift=getProp("pathShift"),head=True)
-            km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-            addon_keymaps.append((km, kmi))
-        if getProp('sweepKey')[0] != 'NONE':
-            kmi = km.keymap_items.new("object.amaas_menu",getProp("sweepKey")[0],value="PRESS",any=False,alt=getProp("sweepAlt"),ctrl=getProp("sweepCtrl"),shift=getProp("sweepShift"),head=True)
-            km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-            addon_keymaps.append((km, kmi))
-        if getProp('aOptKey')[0] != 'NONE':
-            kmi = km.keymap_items.new("object.amaas_menu",getProp("aOptKey")[0],value="PRESS",any=False,alt=getProp("aOptAlt"),ctrl=getProp("aOptCtrl"),shift=getProp("aOptShift"),head=True)
-            km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-            addon_keymaps.append((km, kmi))
-        #kmi = km.keymap_items.new("object.amaas_menu",getProp("key")[0],value="PRESS",any=False,alt=getProp("alt"),ctrl=getProp("ctrl"),shift=getProp("shift"),head=True)
-        #km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        #addon_keymaps.append((km, kmi))
-        return None
-
-    profKey:bpy.props.EnumProperty(name="Make Profile",items=keyList,default="NONE",update=updateKeys)
-    profAlt:bpy.props.BoolProperty(name="Alt",description="Alt modifier",default=False,update=updateKeys)
-    profCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=False,update=updateKeys)
-    profShift:bpy.props.BoolProperty(name="Shift",description="Shift modifier",default=False,update=updateKeys)
-
-    pathKey:bpy.props.EnumProperty(name="Make Path",items=keyList,default="NONE",update=updateKeys)
-    pathAlt:bpy.props.BoolProperty(name="Alt",description="Alt modifier",default=False,update=updateKeys)
-    pathCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=False,update=updateKeys)
-    pathShift:bpy.props.BoolProperty(name="Shift",description="Shift modifier",default=False,update=updateKeys)
-
-    sweepKey:bpy.props.EnumProperty(name='Sweep Profile',items=keyList,default="NONE",update=updateKeys)
-    sweepAlt:bpy.props.BoolProperty(name="Alt",description="Alt modifier",default=False,update=updateKeys)
-    sweepCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=False,update=updateKeys)
-    sweepShift:bpy.props.BoolProperty(name="Shift",description="Shift modifier",default=False,update=updateKeys)
-
-    aOptKey:bpy.props.EnumProperty(name='Additional Options',items=keyList,default="NONE",update=updateKeys)
-    aOptAlt:bpy.props.BoolProperty(name="Alt",description="Alt modifier",default=False,update=updateKeys)
-    aOptCtrl:bpy.props.BoolProperty(name="Ctrl",description="Ctrl modifier",default=False,update=updateKeys)
-    aOptShift:bpy.props.BoolProperty(name="Shift",description="Shift modifier",default=False,update=updateKeys)
 
     mMove:bpy.props.EnumProperty(name='Move',items=keyList,default="M")
     mRotate:bpy.props.EnumProperty(name='Rotate',items=keyList,default="R")
@@ -125,31 +79,6 @@ class AQPipePreferences(bpy.types.AddonPreferences):
         optBox.label(text='Addon Default Settings')
         modalBox = layout.box()
         modalBox.label(text="Modal Hotkeys")
-        mainBox = layout.box()
-        mainBox.label(text='Optional Hotkeys. They are not set. Addon was designed with menus in mind')
-        profBox = mainBox.box()
-        profBox.label(text="Make Profile Hotkey")
-        profRow = profBox.row(align=True)
-        profRow.prop(self,"profKey")
-        profRow.prop(self,"profAlt")
-        profRow.prop(self,"profCtrl")
-        profRow.prop(self,"profShift")
-
-        pathBox = mainBox.box()
-        pathBox.label(text="Make Path Hotkey")
-        pathRow = pathBox.row(align=True)
-        pathRow.prop(self,"pathKey")
-        pathRow.prop(self,"pathAlt")
-        pathRow.prop(self,"pathCtrl")
-        pathRow.prop(self,"pathShift")
-
-        sweepBox = mainBox.box()
-        sweepBox.label(text="Sweep Profile Hotkey")
-        sweepRow = sweepBox.row(align=True)
-        sweepRow.prop(self,"sweepKey")
-        sweepRow.prop(self,"sweepAlt")
-        sweepRow.prop(self,"sweepCtrl")
-        sweepRow.prop(self,"sweepShift")
 
         toolBox = modalBox.box()
         toolBox.label(text='Tool hotkeys in modal')
@@ -285,9 +214,9 @@ def convertToCurve(typeName):
             path.parent = getObjectInCollection(typeName)
 
 #make profile from selection operator
-class AQPipe_MakeProfile(bpy.types.Operator):
-    bl_idname = "object.aqpipe_makeprofile"
-    bl_label = "AQPipe Make Profile"
+class AProfiler_MakeProfile(bpy.types.Operator):
+    bl_idname = "object.aprofiler_makeprofile"
+    bl_label = "A*Profiler Make Profile"
     bl_options = {'REGISTER'}
 
     pName: bpy.props.StringProperty(name="Name :",default = "Profile")
@@ -330,9 +259,9 @@ class AQPipe_MakeProfile(bpy.types.Operator):
         return context.window_manager.invoke_props_dialog(self, width=300, height=20)
 
 #make path from selection operator
-class AQPipe_MakePath(bpy.types.Operator):
-    bl_idname = "object.aqpipe_makepath"
-    bl_label = "AQPipe Make Path"
+class AProfiler_MakePath(bpy.types.Operator):
+    bl_idname = "object.aprofiler_makepath"
+    bl_label = "A*Profiler Make Path"
     bl_options = {'REGISTER'}
 
     pName: bpy.props.StringProperty(name="Name :",default = "Path")
@@ -375,9 +304,9 @@ class AQPipe_MakePath(bpy.types.Operator):
         return context.window_manager.invoke_props_dialog(self, width=300, height=20)
 
 #profile selection operator
-class AQPipe_SweepProfile(bpy.types.Operator):
-    bl_idname = "object.aqpipe_sweepprofile"
-    bl_label = "AQPipe Sweep Profile"
+class AProfiler_SweepProfile(bpy.types.Operator):
+    bl_idname = "object.aprofiler_sweepprofile"
+    bl_label = "A*Profiler Sweep Profile"
     bl_options = {'REGISTER', 'UNDO'}
 
     def profileUpdate(self,context):
@@ -403,7 +332,7 @@ class AQPipe_SweepProfile(bpy.types.Operator):
         if bpy.context.mode == 'EDIT_MESH':
             if bpy.context.scene.statistics(bpy.context.view_layer).split("|")[2].split(':')[1].split('/')[0] != '0':
                 objectFromPath('QPath','Paths')
-        bpy.ops.object.aqpipe_postedit('INVOKE_DEFAULT')
+        bpy.ops.object.aprofiler_postedit('INVOKE_DEFAULT')
         return {'INTERFACE'}
 
     def invoke(self,context,event):
@@ -423,9 +352,9 @@ class AQPipe_SweepProfile(bpy.types.Operator):
         return context.window_manager.invoke_props_dialog(self, width=300, height=40)
 
 #additional options 
-class AQPipe_CleanUp(bpy.types.Operator):
-    bl_idname = "object.aqpipe_cleanup"
-    bl_label = "AQPipe Clean Stuff"
+class AProfiler_CleanUp(bpy.types.Operator):
+    bl_idname = "object.aprofiler_cleanup"
+    bl_label = "A*Profiler Clean Stuff"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self,context):
@@ -434,9 +363,9 @@ class AQPipe_CleanUp(bpy.types.Operator):
         bpy.data.collections.remove(getCollection('QPipe'))
         return {'FINISHED'}
 
-class AQPipe_FlushPaths(bpy.types.Operator):
-    bl_idname = "object.aqpipe_flushpaths"
-    bl_label = "AQPipe Flush Paths"
+class AProfiler_FlushPaths(bpy.types.Operator):
+    bl_idname = "object.aprofiler_flushpaths"
+    bl_label = "A*Profiler Flush Paths"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self,context):
@@ -444,9 +373,9 @@ class AQPipe_FlushPaths(bpy.types.Operator):
             bpy.data.objects.remove(path,do_unlink=True,do_id_user=True,do_ui_user=True)
         return {'FINISHED'}
 
-class AQPipe_FlushProfiles(bpy.types.Operator):
-    bl_idname = "object.aqpipe_flushprofiles"
-    bl_label = "AQPipe Flush Profiles"
+class AProfiler_FlushProfiles(bpy.types.Operator):
+    bl_idname = "object.aprofiler_flushprofiles"
+    bl_label = "A*Profiler Flush Profiles"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self,context):
@@ -454,9 +383,9 @@ class AQPipe_FlushProfiles(bpy.types.Operator):
             bpy.data.objects.remove(profile,do_unlink=True,do_id_user=True,do_ui_user=True)
         return {'FINISHED'}
 
-class AQPipe_AdditionalOptions(bpy.types.Operator):
-    bl_idname = "object.aqpipe_addoptions"
-    bl_label = "AQPipe Additional Options"
+class AProfiler_AdditionalOptions(bpy.types.Operator):
+    bl_idname = "object.aprofiler_addoptions"
+    bl_label = "A*Profiler Additional Options"
     bl_options = {'REGISTER', 'UNDO'}
 
     def draw(self,context):
@@ -465,18 +394,18 @@ class AQPipe_AdditionalOptions(bpy.types.Operator):
         fPath = optionBox.row()
         fProf = optionBox.row()
         cleanUp = optionBox.row()
-        fPath.operator("object.aqpipe_flushpaths")
-        fProf.operator("object.aqpipe_flushprofiles")
-        cleanUp.operator("object.aqpipe_cleanup")
+        fPath.operator("object.aprofiler_flushpaths")
+        fProf.operator("object.aprofiler_flushprofiles")
+        cleanUp.operator("object.aprofiler_cleanup")
     def execute(self,context):
         return {'FINISHED'}
 
     def invoke(self,context,event):
         return context.window_manager.invoke_props_dialog(self, width=300, height=20)
 
-class AQPipe_PostEdit(bpy.types.Operator):
-    bl_idname = "object.aqpipe_postedit"
-    bl_label = "AQPipe Post Edit Menu"
+class AProfiler_PostEdit(bpy.types.Operator):
+    bl_idname = "object.aprofiler_postedit"
+    bl_label = "A*Profiler Post Edit Menu"
     bl_options = {'REGISTER', 'UNDO'}
     #switches
     bKeepSpline: bpy.props.BoolProperty(default=False)
@@ -854,6 +783,11 @@ class AQPipe_PostEdit(bpy.types.Operator):
                         path.select_set(True) 
                         bpy.context.view_layer.objects.active = path
                         bpy.ops.object.convert('INVOKE_DEFAULT', target='MESH')
+                    #moving object to default collection
+                    for col in bpy.data.collections:
+                        if col.name == 'QPiop':
+                            col.objects.unlink(path)
+                    bpy.data.collections[0].objects.link(path)
             for mesh in getObjectInCollection('Paths').children:
                 mesh.select_set(True)
             bpy.types.SpaceView3D.draw_handler_remove(TooltipText ["handler"],'WINDOW')
@@ -880,7 +814,7 @@ class AQPipe_PostEdit(bpy.types.Operator):
             context.window_manager.modal_handler_add(self) 
         return {'RUNNING_MODAL'}
 
-class AQPipe_Menu(bpy.types.Menu):
+class AProfiler_Menu(bpy.types.Menu):
     bl_label = "Profiler"
     bl_idname = "VIEW3D_MT_Profiler"
     bl_space_type = 'VIEW_3D'
@@ -890,12 +824,12 @@ class AQPipe_Menu(bpy.types.Menu):
         layout = self.layout
         cColumn = layout.column()
         if context.mode == 'EDIT_MESH':
-            cColumn.operator('object.aqpipe_makeprofile')
-            cColumn.operator('object.aqpipe_makepath')
+            cColumn.operator('object.aprofiler_makeprofile')
+            cColumn.operator('object.aprofiler_makepath')
         cColumn.separator(factor=1.0)
-        cColumn.operator('object.aqpipe_sweepprofile')
+        cColumn.operator('object.aprofiler_sweepprofile')
         cColumn.separator(factor=1.0)
-        cColumn.operator('object.aqpipe_addoptions')
+        cColumn.operator('object.aprofiler_addoptions')
         
 
 def rmbMenu(self,context):
@@ -904,33 +838,33 @@ def rmbMenu(self,context):
     layout.menu('VIEW3D_MT_Profiler',text='A*Profiler')
 
 def register():
-    bpy.utils.register_class(AQPipe_Menu)
+    bpy.utils.register_class(AProfiler_Menu)
     bpy.types.Scene.AQPipe_bevelProfile = bpy.props.StringProperty(default="None")
     bpy.types.VIEW3D_MT_edit_mesh_context_menu.append(rmbMenu)
     bpy.types.VIEW3D_MT_object_context_menu.append(rmbMenu)
-    bpy.utils.register_class(AQPipePreferences)
-    bpy.utils.register_class(AQPipe_MakeProfile)
-    bpy.utils.register_class(AQPipe_MakePath)
-    bpy.utils.register_class(AQPipe_SweepProfile)
-    bpy.utils.register_class(AQPipe_AdditionalOptions)
-    bpy.utils.register_class(AQPipe_FlushProfiles)
-    bpy.utils.register_class(AQPipe_FlushPaths)
-    bpy.utils.register_class(AQPipe_CleanUp)
-    bpy.utils.register_class(AQPipe_PostEdit)
+    bpy.utils.register_class(AProfilerPreferences)
+    bpy.utils.register_class(AProfiler_MakeProfile)
+    bpy.utils.register_class(AProfiler_MakePath)
+    bpy.utils.register_class(AProfiler_SweepProfile)
+    bpy.utils.register_class(AProfiler_AdditionalOptions)
+    bpy.utils.register_class(AProfiler_FlushProfiles)
+    bpy.utils.register_class(AProfiler_FlushPaths)
+    bpy.utils.register_class(AProfiler_CleanUp)
+    bpy.utils.register_class(AProfiler_PostEdit)
     
     
 def unregister():
     del bpy.types.Scene.AQPipe_bevelProfile
-    bpy.utils.unregister_class(AQPipe_Menu)
+    bpy.utils.unregister_class(AProfiler_Menu)
     bpy.types.VIEW3D_MT_edit_mesh_context_menu.remove(rmbMenu)
     bpy.types.VIEW3D_MT_object_context_menu.remove(rmbMenu)
-    bpy.utils.unregister_class(AQPipePreferences)
-    bpy.utils.unregister_class(AQPipe_MakeProfile)
-    bpy.utils.unregister_class(AQPipe_MakePath)
-    bpy.utils.unregister_class(AQPipe_SweepProfile)
-    bpy.utils.unregister_class(AQPipe_AdditionalOptions)
-    bpy.utils.unregister_class(AQPipe_FlushProfiles)
-    bpy.utils.unregister_class(AQPipe_FlushPaths)
-    bpy.utils.unregister_class(AQPipe_CleanUp)
-    bpy.utils.unregister_class(AQPipe_PostEdit)
+    bpy.utils.unregister_class(AProfilerPreferences)
+    bpy.utils.unregister_class(AProfiler_MakeProfile)
+    bpy.utils.unregister_class(AProfiler_MakePath)
+    bpy.utils.unregister_class(AProfiler_SweepProfile)
+    bpy.utils.unregister_class(AProfiler_AdditionalOptions)
+    bpy.utils.unregister_class(AProfiler_FlushProfiles)
+    bpy.utils.unregister_class(AProfiler_FlushPaths)
+    bpy.utils.unregister_class(AProfiler_CleanUp)
+    bpy.utils.unregister_class(AProfiler_PostEdit)
     
