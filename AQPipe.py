@@ -108,7 +108,7 @@ class AQPipePreferences(bpy.types.AddonPreferences):
     mZ:bpy.props.EnumProperty(name='Z',items=keyList,default="Z")
 
     mCap:bpy.props.EnumProperty(name='Cap',items=keyList,default="C")
-    mKeep:bpy.props.EnumProperty(name='KeepSpline',items=keyList,default="Q")
+    mKeep:bpy.props.EnumProperty(name='KeepSpline',items=keyList,default="V")
 
 
     cursorColor:bpy.props.FloatVectorProperty(name="Main Color",description="Color", default=(1.0,1.0,1.0),subtype='COLOR')
@@ -116,6 +116,8 @@ class AQPipePreferences(bpy.types.AddonPreferences):
     bTips:bpy.props.BoolProperty(name='Show KeyTips',default=True)
     bDefCap:bpy.props.BoolProperty(name='Fill Caps',default=True)
     bDefKeep:bpy.props.BoolProperty(name='Keep as Spline',default=False)
+    fontSize:bpy.props.IntProperty(name='FontSize',default=15)
+    tFontSize:bpy.props.IntProperty(name='FontSize',default=25)
 
     def draw(self,context):
         layout = self.layout
@@ -171,6 +173,8 @@ class AQPipePreferences(bpy.types.AddonPreferences):
         sRow.prop(self,'bTips')
         sRow.prop(self,'bDefCap')
         sRow.prop(self,'bDefKeep')
+        sRow.prop(self,'fontSize')
+        sRow.prop(self,'tFontSize')
         cRow = optBox.row()
         cRow.prop(self,'cursorColor')
         cRow.prop(self,'highlightColor')
@@ -503,46 +507,97 @@ class AQPipe_PostEdit(bpy.types.Operator):
         width = context.area.width
         height = context.area.height
         color = getProp('cursorColor')
-        size = 25
+        size = getProp('tFontSize')
         text = 'Sweep Profile Mode'
-        self.addDraw((width-tWidth-nWidth)/2 - len(text)/2,height-50,size,text,color)
+        self.addDraw((width-tWidth-nWidth)/2 - len(text)*size*0.1,height-50,size,text,color)
         if getProp('bTips'):
             text = 'Hotkeys :'
-            self.addDraw(tWidth,height/2+63*2,size,text,color)
-            size = 21
+            shift = size * 6
+            self.addDraw(tWidth,height/2+shift,size,text,color)
+            shift -= size * 1.5
             text = getProp('mMove') +  ' : Move'
-            self.addDraw(tWidth+size,height/2+42*1.5,size,text,color)
+            self.addDraw(tWidth+size,height/2 + shift,size,text,color)
+            shift -= size * 1.5
             text = getProp('mRotate') +  ' : Rotate'
-            self.addDraw(tWidth+size,height/2+21*1.5,size,text,color)
+            self.addDraw(tWidth+size,height/2+shift,size,text,color)
+            shift -= size * 1.5
             text = getProp('mScale') + ' : Scale'
-            self.addDraw(tWidth+size,height/2,size,text,color)
-        
+            self.addDraw(tWidth+size,height/2+shift,size,text,color)
+            shift -= size * 3
             text = getProp('mX') + ' : X Axis'
-            self.addDraw(tWidth+size,height/2 - 21 *1.5-20,size,text,color)
+            self.addDraw(tWidth+size,height/2 + shift,size,text,color)
+            shift -= size * 1.5
             text = getProp('mY') + ' : Y Axis'
-            self.addDraw(tWidth+size,height/2 -42 *1.5 -20,size,text,color)
+            self.addDraw(tWidth+size,height/2 + shift,size,text,color)
+            shift -= size * 1.5
             text = getProp('mZ') + ' : Z Axis'
-            self.addDraw(tWidth+size,height/2 -63 *1.5 -20,size,text,color)
+            self.addDraw(tWidth+size,height/2 + shift,size,text,color)
+            shift -= size * 3
             text = getProp('mCap') + ' : Cap Ends Toggle'
-            self.addDraw(tWidth+size,height/2 -84 *1.5 -20,size,text,color)
+            self.addDraw(tWidth+size,height/2 +shift,size,text,color)
+            shift -= size * 1.5
             text =  getProp('mKeep') +  ' : Leave as Curve Toggle'
-            self.addDraw(tWidth+size,height/2 -105 *1.5 -20,size,text,color)
-
+            self.addDraw(tWidth+size,height/2 + shift,size,text,color)
         if self.bMove:
-            text = 'Move : ' + 'X : ' + str(round(self.baseLoc[0],2)) + ',' + 'Y : ' + str(round(self.baseLoc[1],2)) + ',' + 'Z : ' + str(round(self.baseLoc[2],2))
+            text = 'Move   : '
         elif self.bScale:
-            text = "Scale : " + 'X : ' + str(round(self.getProfile().scale[0],2)) + ',' + 'Y : '+ str(round(self.getProfile().scale[1],2)) + ',' + 'Z' + str(round(self.getProfile().scale[2],2))     
+            text = 'Scale  : '       
         elif self.bRotate:
-            text = 'Rotate : ' + 'X : ' + str(round(math.degrees(self.baseRotation[0]),0)) + ',' + 'Y : ' + str(round(math.degrees(self.baseRotation[1]),0)) + ',' + 'Z : ' + str(round(math.degrees(self.baseRotation[2]),0))
+            text = 'Rotate : '
         else:
-            text = "No Operator"
-        size = 15
-        self.addDraw(event.mouse_x,event.mouse_y-150,size,text,color)
+            text = ""
+        size = getProp('fontSize')
+        shift = size * len(text) * 0.5
+        if self.bMove or self.bScale or self.bRotate:
+            self.addDraw(event.mouse_x,event.mouse_y-150,size,text,color)
+            if self.bXAxis:
+                color = getProp('highlightColor')
+            else:
+                color = getProp('cursorColor')
+            text = 'X :'
+            self.addDraw(event.mouse_x + shift,event.mouse_y-150,size,text,color)
+            shift += size * len(text) * 0.5
+            if self.bMove:
+                text = str(round(self.baseLoc[0],2))
+            if self.bScale:
+                text = str(round(self.getProfile().scale[0],2))
+            if self.bRotate:
+                text = str(round(math.degrees(self.baseRotation[0]),0))
+            self.addDraw(event.mouse_x + shift,event.mouse_y-150 ,size,text,color)
+            shift += size * len(text) * 0.75
+            if self.bYAxis:
+                color = getProp('highlightColor')
+            else:
+                color = getProp('cursorColor')
+            text = 'Y :'
+            self.addDraw(event.mouse_x + shift,event.mouse_y-150 ,size,text,color)
+            shift += size * len(text) * 0.5
+            if self.bMove:
+                text = str(round(self.baseLoc[1],2))
+            if self.bScale:
+                text = str(round(self.getProfile().scale[1],2))
+            if self.bRotate:
+                text = str(round(math.degrees(self.baseRotation[1]),0))
+            self.addDraw(event.mouse_x + shift,event.mouse_y-150 ,size,text,color)
+            shift += size * len(text) * 0.75
+            if self.bZAxis:
+                color = getProp('highlightColor')
+            else:
+                color = getProp('cursorColor')
+            text = 'Z :'
+            self.addDraw(event.mouse_x + shift,event.mouse_y-150 ,size,text,color)
+            shift += size * len(text) * 0.5
+            if self.bMove:
+                text = str(round(self.baseLoc[2],2))
+            if self.bScale:
+                text = str(round(self.getProfile().scale[2],2))
+            if self.bRotate:
+                text = str(round(math.degrees(self.baseRotation[2]),0))
+            self.addDraw(event.mouse_x + shift,event.mouse_y-150 ,size,text,color)
         if self.bKeepSpline:
             text = 'Result as Spline'
         else:
             text = 'Result as Mesh'
-
         self.addDraw(event.mouse_x,event.mouse_y-150-30,size,text,color)
         if self.bCap:
             text = 'Cap On'
