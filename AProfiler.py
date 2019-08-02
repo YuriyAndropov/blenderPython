@@ -121,8 +121,8 @@ def getCollection(name):
 
 #get object in collection by name
 def getObjectInCollection(name):
-    if checkCollections("QPipe"):
-        for obj in getCollection("QPipe").objects:
+    if checkCollections("AProfiler"):
+        for obj in getCollection("AProfiler").objects:
             if obj.type != None and obj.name == name:
                 return obj
     return None
@@ -136,7 +136,7 @@ def checkCollections(value):
     return False
 #check if there is already an object in collection with specified name
 def checkForObject(value):
-    for obj in getCollection("QPipe").objects:
+    for obj in getCollection("AProfiler").objects:
         if obj.name == value:
             return True
     return False
@@ -157,8 +157,8 @@ def updateList(self,context):
 
 #checking and creating proper structure for new objects
 def createCollectionAndParents():
-    if checkCollections("QPipe") == False:
-        newCol = bpy.data.collections.new("QPipe")
+    if checkCollections("AProfiler") == False:
+        newCol = bpy.data.collections.new("AProfiler")
         bpy.context.scene.collection.children.link(newCol)
         profObject = bpy.data.objects.new("Profiles",None)
         newCol.objects.link(profObject)
@@ -167,7 +167,7 @@ def createCollectionAndParents():
         tempObject = bpy.data.objects.new("Temp",None)
         newCol.objects.link(tempObject)
     else:
-        collection = getCollection("QPipe")
+        collection = getCollection("AProfiler")
         if checkForObject("Profiles") == False:
             profObject = bpy.data.objects.new("Profiles",None)
             collection.objects.link(profObject)
@@ -182,7 +182,7 @@ def createCollectionAndParents():
 def objectFromPath(profileName,typeName):
     objects = bpy.context.selected_objects
     createCollectionAndParents()
-    col = getCollection('QPipe')
+    col = getCollection("AProfiler")
     profObj = getObjectInCollection(typeName)
 
     for obj in objects:
@@ -339,7 +339,7 @@ class AProfiler_SweepProfile(bpy.types.Operator):
         
         if bpy.context.mode =='OBEJCT' and self.checkSelectionMode():
             objectFromPath('Path','Paths')
-        if not checkCollections('QPipe'):
+        if not checkCollections("AProfiler"):
             self.report({'WARNING'},'No profiles and paths data in the scene')
             return {'CANCELED'}
         if len(getObjectInCollection('Profiles').children) == 0:
@@ -358,9 +358,9 @@ class AProfiler_CleanUp(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self,context):
-        for object in getCollection("QPipe").objects:
+        for object in getCollection("AProfiler").objects:
             bpy.data.objects.remove(object,do_unlink=True,do_id_user=True,do_ui_user=True)
-        bpy.data.collections.remove(getCollection('QPipe'))
+        bpy.data.collections.remove(getCollection("AProfiler"))
         return {'FINISHED'}
 
 class AProfiler_FlushPaths(bpy.types.Operator):
@@ -787,7 +787,7 @@ class AProfiler_PostEdit(bpy.types.Operator):
                         path.parent = None
                     #moving object to default collection
                     for col in path.users_collection:
-                        if col.name == 'QPipe':
+                        if col.name == "AProfiler":
                             col.objects.unlink(path)
                     bpy.context.collection.objects.link(path)
             #for mesh in getObjectInCollection('Paths').children:
