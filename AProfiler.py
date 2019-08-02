@@ -775,6 +775,7 @@ class AProfiler_PostEdit(bpy.types.Operator):
             self.cancelSweep()
             return {'CANCELLED'}
         if event.type == "SPACE":
+            
             self.report({'INFO'}, 'Finished')
             self.dropSelection()
             if not self.bKeepSpline:
@@ -783,13 +784,14 @@ class AProfiler_PostEdit(bpy.types.Operator):
                         path.select_set(True) 
                         bpy.context.view_layer.objects.active = path
                         bpy.ops.object.convert('INVOKE_DEFAULT', target='MESH')
+                        path.parent = None
                     #moving object to default collection
-                    for col in bpy.data.collections:
-                        if col.name == 'QPiop':
+                    for col in path.users_collection:
+                        if col.name == 'QPipe':
                             col.objects.unlink(path)
-                    bpy.data.collections[0].objects.link(path)
-            for mesh in getObjectInCollection('Paths').children:
-                mesh.select_set(True)
+                    bpy.context.collection.objects.link(path)
+            #for mesh in getObjectInCollection('Paths').children:
+                #mesh.select_set(True)
             bpy.types.SpaceView3D.draw_handler_remove(TooltipText ["handler"],'WINDOW')
             return {'FINISHED'}
 
