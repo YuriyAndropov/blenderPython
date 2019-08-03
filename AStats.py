@@ -208,15 +208,9 @@ def getTriCount(object):
     tris = 0
     notSelected = []
     object.update_from_editmode()
-    bm = bmesh.new()
-    mesh = object.data
-    bm.from_mesh(mesh)
-    for poly in bm.faces:
-        if not poly.select:
-            notSelected.append(poly)
-    bmesh.ops.delete(bm,geom=notSelected,context='FACES')
-    tris += len(bm.calc_loop_triangles())
-    bm.free()
+    for poly in object.data.polygons:
+        if poly.select:
+            tris += 1 + (poly.loop_total - 3)
     return tris
 
 def getDataFromSelectedObjects():
