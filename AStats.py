@@ -207,6 +207,7 @@ def getGlobalStates():
 def getTriCount(object):
     tris = 0
     notSelected = []
+    object.update_from_editmode()
     bm = bmesh.new()
     mesh = object.data
     bm.from_mesh(mesh)
@@ -220,11 +221,11 @@ def getTriCount(object):
 
 def getDataFromSelectedObjects():
     sum = [0,0,0,0]
-    for object in bpy.context.selected_objects:
-        if object.type == "MESH":
-            data = object.data
+    for obj in bpy.context.selected_objects:
+        if obj.type == "MESH":
+            data = obj.data
             bm = bmesh.new()
-            bm.from_mesh(object.data)
+            bm.from_mesh(obj.data)
             sum[3]+=len(bm.calc_loop_triangles())
             bmesh.types.BMesh.free
             sum[2]+=len(data.polygons)
@@ -247,9 +248,10 @@ def getSelectionStats():
     if bpy.context.scene.tool_settings.mesh_select_mode[2] == True:
         if bpy.context.mode == "EDIT_MESH":
             faces = bStat[3].split(':')[1].split("/")[0]
-            for object in bpy.context.selected_objects:
-                if object.type == "MESH" and bpy.context.mode == "EDIT_MESH":
-                    tris += getTriCount(object)
+            if getValue('bDrawTris'):
+                for obj in bpy.context.selected_objects:
+                    if obj.type == "MESH" and bpy.context.mode == "EDIT_MESH":
+                        tris += getTriCount(obj)
     return [verts,edges,faces,tris]
 
 def getGlobalStats():
@@ -274,10 +276,10 @@ def getGlobalStats():
 def getMaterialsFromSelection():
     mats = []
     text = ''
-    for object in bpy.context.selected_objects:
-        if object.type == "MESH":
-            object.update_from_editmode()
-            data = object.data
+    for obj in bpy.context.selected_objects:
+        if obj.type == "MESH":
+            obj.update_from_editmode()
+            data = obj.data
             if bpy.context.mode == "EDIT_MESH":
                 if len(data.materials)>0:
                     for polygon in data.polygons:
