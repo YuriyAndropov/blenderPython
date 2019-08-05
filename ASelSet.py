@@ -153,14 +153,14 @@ class ASel_Get(bpy.types.Operator):
     
     def updateAdd(self,context):
         if self.bAdd :
-            self.bSet = False
+            self.bGet = False
             self.bSub = False
         return None
 
     def updateSub(self,context):
         if self.bSub:
             self.bAdd = False
-            self.bSet = False
+            self.bGet = False
         return None
     
     def updateList(self,context):
