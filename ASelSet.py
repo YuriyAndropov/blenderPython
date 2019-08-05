@@ -27,7 +27,7 @@ bl_info = {
     "blender": (2, 80, 0),
     "location": "View3D",
     "wiki_url": '',
-    "category": "3D View"
+    "category": "Mesh"
 }
 
 import bpy
