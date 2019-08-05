@@ -34,7 +34,7 @@ import bpy
 
 class ASel_Set(bpy.types.Operator):
     bl_idname = "object.asel_set"
-    bl_label = "ASelSet Set"
+    bl_label = "Set Selection"
     bl_options = {'REGISTER', 'UNDO'}
 
     def updateSet(self,context):
@@ -142,7 +142,7 @@ class ASel_Set(bpy.types.Operator):
 
 class ASel_Get(bpy.types.Operator):
     bl_idname = "object.asel_get"
-    bl_label = "ASelSet Get"
+    bl_label = "Get Selection"
     bl_options = {'REGISTER', 'UNDO'}
 
     def updateGet(self,context):
@@ -189,7 +189,6 @@ class ASel_Get(bpy.types.Operator):
         bRow = setBox.row(align=True)
 
         sRow.prop(self,"objSets")
-        #nRow.prop(self,'newSet')
         bRow.prop(self,"bGet")
         bRow.prop(self,"bAdd")
         bRow.prop(self,"bSub")
@@ -207,46 +206,33 @@ class ASel_Get(bpy.types.Operator):
                 name = item[1]
         
         for obj in bpy.context.selected_objects:
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
             data = obj.data
             vGroup = None
             for vgroup in obj.vertex_groups:
-                #print(vgroup)
-                #print(self.objSets)
                 if vgroup.name == name:
                     vGroup = vgroup
-            #print(vGroup.index)
             if self.bGet and vGroup!=None:
-                #print(vGroup)
                 for vert in data.vertices:
-                    #print(vert.groups[0])
                     for group in vert.groups:
-                        if group == vGroup.index:
-                            print(vert)
+                        if group.group == vGroup.index:
                             vert.select = True
-            if self.bAdd:
-                for group in obj.vertex_groups:
-                    if group.name == name:
-                        vGroup = group
-                        break
-                if vGroup != None:
-                    for vert in data.vertices:
-                        for group in vert.groups:
-                            if group.group == vGroup.index:
-                                vert.select = True 
-            if self.bSub:
-                vGroup = None
-                for group in obj.vertex_groups:
-                    if group.name == name:
-                        vGroup = group
-                        break
-                if vGroup != None:
-                    for vert in data.vertices:
-                        for group in vert.groups:
-                            if group.group == vGroup.index:
-                                vert.select = False 
+                        else:
+                            vert.select = False
+                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+            if self.bAdd and vGroup!=None:
+                for vert in data.vertices:
+                    for group in vert.groups:
+                        if group.group == vGroup.index:
+                            vert.select = True
+                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+            if self.bSub and vGroup!=None:
+                for vert in data.vertices:
+                    for group in vert.groups:
+                        if group.group == vGroup.index and vert.select:
+                            vert.select = False
+                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
         return {'FINISHED'}
-
-
 
 class ASelSet_Menu(bpy.types.Menu):
     bl_label = "A* Selection Sets"
