@@ -120,7 +120,9 @@ class ASelection_Ray(bpy.types.Operator):
     bl_idname = "object.aselection_ray"
     bl_label = "A*Selection Ray"
     bl_options = {'REGISTER', 'UNDO'}
-
+    extend = False
+    deselect = False
+    toggle = True
     def t(self,l1,l2,p):
         x = l1-l2
         return numpy.dot(p-l2,x)/numpy.dot(x,x)
@@ -143,12 +145,18 @@ class ASelection_Ray(bpy.types.Operator):
                     tolerance =  0.1
                     dist = numpy.linalg.norm(hitResult[1] - wCo)
                     if dist<tolerance:
-                        hitResult[4].data.vertices[vIndex].select = True
+                        if self.deselect:
+                            hitResult[4].data.vertices[vIndex].select = False
+                        else:
+                            hitResult[4].data.vertices[vIndex].select = True
                 bpy.ops.object.mode_set(mode='EDIT', toggle=False)
             #face raycast
             elif hitResult[0] and hitResult[4].select_get() and bpy.context.scene.tool_settings.mesh_select_mode[2]:
                 bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-                hitResult[4].data.polygons[hitResult[3]].select = True
+                if self.deselect:
+                    hitResult[4].data.polygons[hitResult[3]].select = False
+                else:
+                    hitResult[4].data.polygons[hitResult[3]].select = True
                 bpy.ops.object.mode_set(mode='EDIT', toggle=False)
             #edge raycast
             elif hitResult[0] and hitResult[4].select_get() and bpy.context.scene.tool_settings.mesh_select_mode[1]:
@@ -161,7 +169,10 @@ class ASelection_Ray(bpy.types.Operator):
                     tolerance = 0.1
                     if self.dist(l1,l2,p)<tolerance:
                         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-                        hitResult[4].data.edges[hitResult[4].data.loops[loop].edge_index].select = True
+                        if self.deselect:
+                            hitResult[4].data.edges[hitResult[4].data.loops[loop].edge_index].select = False
+                        else:
+                            hitResult[4].data.edges[hitResult[4].data.loops[loop].edge_index].select = False
                         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
         if event.value == 'RELEASE': 
             return {'FINISHED'}
@@ -177,7 +188,19 @@ class ASelection_Ray(bpy.types.Operator):
                 return bpy.ops.wm.call_menu(name='VIEW3D_MT_object_context_menu')
             elif bpy.context.mode == 'EDIT_MESH':
                 return bpy.ops.wm.call_menu(name='VIEW3D_MT_edit_mesh_context_menu')
-            
+        if event.ctrl:
+            self.deselect = True
+        elif not event.ctrl:
+            self.deselect = False
+        if event.shift:
+            self.extend = True
+        elif not event.shift:
+            self.extend = False
+        if not event.ctrl and not event.shift and bpy.context.mode == 'EDIT_MESH':
+            self.toggle = True
+            bpy.ops.mesh.select_all(action='DESELECT')
+        else:
+            self.toggle = False    
         context.window_manager.modal_handler_add(self)
         return {'RUNNING_MODAL'}
         
