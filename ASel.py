@@ -32,7 +32,7 @@ bl_info = {
 import bpy
 from bpy_extras import view3d_utils
 import mathutils
-
+import numpy
 
 def ray(coords):
     view_layer = bpy.context.view_layer
@@ -120,6 +120,13 @@ class ASelection_Ray(bpy.types.Operator):
     bl_idname = "object.aselection_ray"
     bl_label = "A*Selection Ray"
     bl_options = {'REGISTER', 'UNDO'}
+
+    def t(self,l1,l2,p):
+        x = l1-l2
+        return numpy.dot(p-l2,x)/numpy.dot(x,x)
+
+    def dist(self,l1,l2,p):
+        return numpy.linalg.norm(self.t(l1,l2,p)*(l1-l2)+l2-p)
     
     coords = [0,0]
     def modal(self, context, event):
@@ -131,12 +138,11 @@ class ASelection_Ray(bpy.types.Operator):
             if hitResult[0] and hitResult[4].select_get() and bpy.context.scene.tool_settings.mesh_select_mode[0]:
                 bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
                 for vIndex in hitResult[4].data.polygons[hitResult[3]].vertices:
-                    wMat = hitResult[4].matrix_world @ hitResult[4].data.vertices[vIndex].co
-                    tolerance =  mathutils.Vector((0.005,0.005,0.005))
-                    #TODO change max and min to distance 
-                    max = wMat + tolerance
-                    min = wMat - tolerance
-                    if hitResult[1]<max and hitResult[1]>min:
+                    wCo = hitResult[4].matrix_world @ hitResult[4].data.vertices[vIndex].co
+                    #TODO move tolerance to preferences
+                    tolerance =  0.1
+                    dist = numpy.linalg.norm(hitResult[1] - wCo)
+                    if dist<tolerance:
                         hitResult[4].data.vertices[vIndex].select = True
                 bpy.ops.object.mode_set(mode='EDIT', toggle=False)
             #face raycast
@@ -144,6 +150,19 @@ class ASelection_Ray(bpy.types.Operator):
                 bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
                 hitResult[4].data.polygons[hitResult[3]].select = True
                 bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+            #edge raycast
+            elif hitResult[0] and hitResult[4].select_get() and bpy.context.scene.tool_settings.mesh_select_mode[1]:
+                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                for loop in hitResult[4].data.polygons[hitResult[3]].loop_indices:
+                    edge = hitResult[4].data.edges[hitResult[4].data.loops[loop].edge_index]
+                    l1 = numpy.array(hitResult[4].matrix_world @ hitResult[4].data.vertices[edge.vertices[0]].co)
+                    l2 = numpy.array(hitResult[4].matrix_world @ hitResult[4].data.vertices[edge.vertices[1]].co)
+                    p = numpy.array(hitResult[1])
+                    tolerance = 0.1
+                    if self.dist(l1,l2,p)<tolerance:
+                        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+                        hitResult[4].data.edges[hitResult[4].data.loops[loop].edge_index].select = True
+                        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
         if event.value == 'RELEASE': 
             return {'FINISHED'}
 
