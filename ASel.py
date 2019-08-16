@@ -34,6 +34,30 @@ from bpy_extras import view3d_utils
 import mathutils
 import numpy
 
+
+class AddonPreferences(bpy.types.AddonPreferences):
+    bl_idname = __name__
+
+    vRayTolerance:bpy.props.FloatProperty(name='Vertex Raycast Tolerance',default=0.1)
+    eRayTolerance:bpy.props.FloatProperty(name='Edge Raycat Tolerance',default=0.1)
+    vLinkTolerance:bpy.props.FloatProperty(name='Vertex Linked Tolerance',default=0.2)
+    eLinkTolerance:bpy.props.FloatProperty(name='Edge Linked Tolerance',default=0.2)
+
+    def draw(self, context):
+        layout = self.layout
+        vRayRow = layout.row()
+        eRayRow = layout.row()
+        vLinkRow = layout.row()
+        eLinkRow = layout.row()
+
+        vRayRow.prop(self,'vRayTolerance')
+        eRayRow.prop(self,'eRayTolerance')
+        vLinkRow.prop(self,'vLinkTolerance')
+        eLinkRow.prop(self,'eLinkTolerance')
+
+def getValue(name):
+    return getattr(bpy.context.preferences.addons[__name__].preferences,name)
+
 def ray(coords):
     view_layer = bpy.context.view_layer
     region = bpy.context.region
@@ -41,6 +65,23 @@ def ray(coords):
     origin = view3d_utils.region_2d_to_origin_3d(region,region3d,coords )
     direction = view3d_utils.region_2d_to_vector_3d(region,region3d,coords)
     return bpy.context.scene.ray_cast(view_layer,origin,direction)
+
+def traceEdge(hitResult,tolerance):
+    for loop in hitResult[4].data.polygons[hitResult[3]].loop_indices:
+        edge = hitResult[4].data.edges[hitResult[4].data.loops[loop].edge_index]
+        l1 = numpy.array(hitResult[4].matrix_world @ hitResult[4].data.vertices[edge.vertices[0]].co)
+        l2 = numpy.array(hitResult[4].matrix_world @ hitResult[4].data.vertices[edge.vertices[1]].co)
+        p = numpy.array(hitResult[1])
+        if distToLine(l1,l2,p) < getValue(tolerance):
+            return edge
+    return None
+
+def t(l1,l2,p):
+        x = l1-l2
+        return numpy.dot(p-l2,x)/numpy.dot(x,x)
+
+def distToLine(l1,l2,p):
+    return numpy.linalg.norm(t(l1,l2,p)*(l1-l2)+l2-p)
 
 class ASelection_Conn(bpy.types.Operator):
     bl_idname = "object.aselection_conn"
@@ -61,43 +102,83 @@ class ASelection_Conn(bpy.types.Operator):
                     if obj.type == hitResult[4].type :
                         obj.select_set(True)
         if bpy.context.mode == 'EDIT_MESH':
-            if hitResult[0]:
-                if self.toggle:
-                    if bpy.context.scene.tool_settings.mesh_select_mode[2] :
+            if hitResult[0] and hitResult[4].select_get():
+                #face link
+                if bpy.context.scene.tool_settings.mesh_select_mode[2] :
+                    if self.toggle:
                         bpy.ops.mesh.select_all(action='DESELECT')
-                        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)    
-                        hitResult[4].data.polygons[hitResult[3]].select = True
-                        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-                        if not self.alt:
-                            
-                            bpy.ops.mesh.select_linked(delimit={'SEAM'})
-                        else:
-                            bpy.ops.mesh.loop_select('INVOKE_DEFAULT',extend=False, deselect=False, toggle=False, ring=True)
-                elif self.extend:
-                    if bpy.context.scene.tool_settings.mesh_select_mode[2] :
-                        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)    
-                        hitResult[4].data.polygons[hitResult[3]].select = True
-                        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-                        if not self.alt:
-                            bpy.ops.mesh.select_linked(delimit={'SEAM'})
-                        else:
-                            bpy.ops.mesh.loop_select('INVOKE_DEFAULT',extend=True, deselect=False, toggle=False, ring=True)
-                elif self.deselect:
-                    if bpy.context.scene.tool_settings.mesh_select_mode[2] :
-                        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)   
-                        hitResult[4].data.polygons[hitResult[3]].select = False
-                        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-                        if not self.alt:
-                            bpy.ops.mesh.select_all(action='INVERT')
-                            bpy.ops.mesh.select_linked(delimit={'SEAM'})
-                            bpy.ops.mesh.select_all(action='INVERT')
-                        else:
+                    if self.deselect:
+                        if self.alt:
                             bpy.ops.mesh.loop_select('INVOKE_DEFAULT',extend=False, deselect=True, toggle=False, ring=True)
-                
+                        else:
+                            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+                            hitResult[4].data.polygons[hitResult[3]].select = False
+                            bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                            bpy.ops.mesh.select_all(action='INVERT')
+                            bpy.ops.mesh.select_linked(delimit={'SEAM'})
+                            bpy.ops.mesh.select_all(action='INVERT')
+                    else:
+                        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+                        hitResult[4].data.polygons[hitResult[3]].select = True
+                        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                        if self.alt:
+                            bpy.ops.mesh.loop_select('INVOKE_DEFAULT',extend=True, deselect=False, toggle=False, ring=True)
+                        else:
+                            bpy.ops.mesh.select_linked(delimit={'SEAM'})
+                #vert link
+                elif bpy.context.scene.tool_settings.mesh_select_mode[0]:
+                    if self.toggle:
+                        bpy.ops.mesh.select_all(action='DESELECT')
+                    for loop in hitResult[4].data.polygons[hitResult[3]].loop_indices:
+                        wCo = hitResult[4].matrix_world @ hitResult[4].data.vertices[hitResult[4].data.loops[loop].vertex_index].co
+                        dist = numpy.linalg.norm(hitResult[1] - wCo)
+                        if dist < getValue('vLinkTolerance'):
+                            if self.deselect:
+                                if self.alt:
+                                    bpy.ops.mesh.loop_select('INVOKE_DEFAULT',extend=False, deselect=True, toggle=False, ring=False)
+                                else:
+                                    bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+                                    hitResult[4].data.vertices[hitResult[4].data.loops[loop].vertex_index].select = False
+                                    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                                    bpy.ops.mesh.select_all(action='INVERT')
+                                    bpy.ops.mesh.select_linked(delimit={'SEAM'})
+                                    bpy.ops.mesh.select_all(action='INVERT')
+                            else:
+                                bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+                                hitResult[4].data.vertices[hitResult[4].data.loops[loop].vertex_index].select = True
+                                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                                if self.alt:
+                                    bpy.ops.mesh.loop_select('INVOKE_DEFAULT',extend=True, deselect=False, toggle=False, ring=False)
+                                else:
+                                    bpy.ops.mesh.select_linked(delimit={'SEAM'})
+                            break
+                #edge link
+                elif bpy.context.scene.tool_settings.mesh_select_mode[1]:
+                    if self.toggle:
+                        bpy.ops.mesh.select_all(action='DESELECT')
+                    for loop in hitResult[4].data.polygons[hitResult[3]].loop_indices:
+                        edge = hitResult[4].data.edges[hitResult[4].data.loops[loop].edge_index]
+                        l1 = numpy.array(hitResult[4].matrix_world @ hitResult[4].data.vertices[edge.vertices[0]].co)
+                        l2 = numpy.array(hitResult[4].matrix_world @ hitResult[4].data.vertices[edge.vertices[1]].co)
+                        p = numpy.array(hitResult[1])
+                        if distToLine(l1,l2,p) < getValue('eLinkTolerance'):
+                            if self.deselect:
+                                if self.alt:
+                                    bpy.ops.mesh.loop_select('INVOKE_DEFAULT',extend=False, deselect=True, toggle=False, ring=True)
+                                else:
+                                    bpy.ops.mesh.loop_select('INVOKE_DEFAULT',extend=False, deselect=True, toggle=False, ring=False)
+                            else:
+                                bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+                                edge.select = True
+                                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                                if not self.alt:
+                                    bpy.ops.mesh.loop_select('INVOKE_DEFAULT',extend=True, deselect=False, toggle=False, ring=False)
+                                else:
+                                    bpy.ops.mesh.loop_select('INVOKE_DEFAULT',extend=True, deselect=False, toggle=False, ring=True)
+                            break
         return {'FINISHED'}
     def invoke(self,context,event):
         self.coords = [event.mouse_region_x,event.mouse_region_y]
-        
         if event.ctrl:
             self.deselect = True
         elif not event.ctrl:
@@ -123,12 +204,6 @@ class ASelection_Ray(bpy.types.Operator):
     extend = False
     deselect = False
     toggle = True
-    def t(self,l1,l2,p):
-        x = l1-l2
-        return numpy.dot(p-l2,x)/numpy.dot(x,x)
-
-    def dist(self,l1,l2,p):
-        return numpy.linalg.norm(self.t(l1,l2,p)*(l1-l2)+l2-p)
     
     coords = [0,0]
     def modal(self, context, event):
@@ -138,42 +213,52 @@ class ASelection_Ray(bpy.types.Operator):
             hitResult = ray(self.coords)
             #vert raycast
             if hitResult[0] and hitResult[4].select_get() and bpy.context.scene.tool_settings.mesh_select_mode[0]:
-                bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-                for vIndex in hitResult[4].data.polygons[hitResult[3]].vertices:
-                    wCo = hitResult[4].matrix_world @ hitResult[4].data.vertices[vIndex].co
-                    #TODO move tolerance to preferences
-                    tolerance =  0.1
-                    dist = numpy.linalg.norm(hitResult[1] - wCo)
-                    if dist<tolerance:
-                        if self.deselect:
-                            hitResult[4].data.vertices[vIndex].select = False
-                        else:
-                            hitResult[4].data.vertices[vIndex].select = True
                 bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                for loop in hitResult[4].data.polygons[hitResult[3]].loop_indices:
+                    wCo = hitResult[4].matrix_world @ hitResult[4].data.vertices[hitResult[4].data.loops[loop].vertex_index].co
+                    dist = numpy.linalg.norm(hitResult[1] - wCo)
+                    if dist < getValue('vRayTolerance'):
+                        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+                        if self.deselect:
+                            hitResult[4].data.edges[hitResult[4].data.loops[loop].edge_index].select = False
+                            hitResult[4].data.vertices[hitResult[4].data.loops[loop].vertex_index].select = False
+                            hitResult[4].data.polygons[hitResult[3]].select = False
+                        else:
+                            hitResult[4].data.vertices[hitResult[4].data.loops[loop].vertex_index].select = True
+                        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                        break
+
             #face raycast
             elif hitResult[0] and hitResult[4].select_get() and bpy.context.scene.tool_settings.mesh_select_mode[2]:
                 bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
                 if self.deselect:
                     hitResult[4].data.polygons[hitResult[3]].select = False
+                    for loop in hitResult[4].data.polygons[hitResult[3]].loop_indices:
+                        hitResult[4].data.edges[hitResult[4].data.loops[loop].edge_index].select = False
+                        hitResult[4].data.vertices[hitResult[4].data.loops[loop].vertex_index].select = False
                 else:
                     hitResult[4].data.polygons[hitResult[3]].select = True
                 bpy.ops.object.mode_set(mode='EDIT', toggle=False)
             #edge raycast
             elif hitResult[0] and hitResult[4].select_get() and bpy.context.scene.tool_settings.mesh_select_mode[1]:
                 bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                edge = traceEdge(hitResult,'eRayTolerance')
                 for loop in hitResult[4].data.polygons[hitResult[3]].loop_indices:
                     edge = hitResult[4].data.edges[hitResult[4].data.loops[loop].edge_index]
                     l1 = numpy.array(hitResult[4].matrix_world @ hitResult[4].data.vertices[edge.vertices[0]].co)
                     l2 = numpy.array(hitResult[4].matrix_world @ hitResult[4].data.vertices[edge.vertices[1]].co)
                     p = numpy.array(hitResult[1])
-                    tolerance = 0.1
-                    if self.dist(l1,l2,p)<tolerance:
+                    if distToLine(l1,l2,p) < getValue('eRayTolerance'):
                         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
                         if self.deselect:
                             hitResult[4].data.edges[hitResult[4].data.loops[loop].edge_index].select = False
+                            hitResult[4].data.vertices[hitResult[4].data.loops[loop].vertex_index].select = False
+                            hitResult[4].data.polygons[hitResult[3]].select = False
                         else:
-                            hitResult[4].data.edges[hitResult[4].data.loops[loop].edge_index].select = False
+                            hitResult[4].data.edges[hitResult[4].data.loops[loop].edge_index].select = True
                         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                        break
+                    
         if event.value == 'RELEASE': 
             return {'FINISHED'}
 
@@ -210,12 +295,14 @@ class ASelection_Ray(bpy.types.Operator):
 
 
 def register():
+    bpy.utils.register_class(AddonPreferences)
     bpy.utils.register_class(ASelection_Conn)
     bpy.utils.register_class(ASelection_Ray)
         
         
         
 def unregister():
+    bpy.utils.unregister_class(AddonPreferences)
     bpy.utils.unregister_class(ASelection_Conn)
     bpy.utils.unregister_class(ASelection_Ray)
         
