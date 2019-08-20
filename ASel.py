@@ -132,7 +132,9 @@ class ASelection_Conn(bpy.types.Operator):
                     
                     for loop in hitResult[4].data.polygons[hitResult[3]].loop_indices:
                         wCo = hitResult[4].matrix_world @ hitResult[4].data.vertices[hitResult[4].data.loops[loop].vertex_index].co
-                        dist = numpy.linalg.norm(hitResult[1] - wCo)
+                        l1 = numpy.array(wCo)
+                        l2 = numpy.array(hitResult[1])
+                        dist = numpy.linalg.norm(l1 - l2)
                         
                         if dist < getValue('vLinkTolerance'):
                             if self.deselect:
@@ -220,24 +222,22 @@ class ASelection_Ray(bpy.types.Operator):
             hitResult = ray(self.coords)
             #vert raycast
             if hitResult[0] and hitResult[4].select_get() and bpy.context.scene.tool_settings.mesh_select_mode[0]:
-                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
                 for loop in hitResult[4].data.polygons[hitResult[3]].loop_indices:
                     wCo = hitResult[4].matrix_world @ hitResult[4].data.vertices[hitResult[4].data.loops[loop].vertex_index].co
-                    dist = numpy.linalg.norm(hitResult[1] - wCo)
+                    l1 = numpy.array(wCo)
+                    l2 = numpy.array(hitResult[1])
+                    dist = numpy.linalg.norm(l1 - l2)
                     if dist < getValue('vRayTolerance'):
                         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
                         if self.deselect:
+                            for pLoop in hitResult[4].data.polygons[hitResult[3]].loop_indices:
+                                hitResult[4].data.edges[hitResult[4].data.loops[pLoop].edge_index].select = False
                             hitResult[4].data.polygons[hitResult[3]].select = False
-                            hitResult[4].data.edges[hitResult[4].data.loops[loop].edge_index].select = False
-                            for index in hitResult[4].data.edges[hitResult[4].data.loops[loop].edge_index].vertices:
-                                hitResult[4].data.vertices[index].select = False    
                             hitResult[4].data.vertices[hitResult[4].data.loops[loop].vertex_index].select = False
-                            
                         else:
                             hitResult[4].data.vertices[hitResult[4].data.loops[loop].vertex_index].select = True
                         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-                        #break
-
+                        break
             #face raycast
             elif hitResult[0] and hitResult[4].select_get() and bpy.context.scene.tool_settings.mesh_select_mode[2]:
                 bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -268,7 +268,7 @@ class ASelection_Ray(bpy.types.Operator):
                         else:
                             hitResult[4].data.edges[hitResult[4].data.loops[loop].edge_index].select = True
                         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-                        #break
+                        break
                     
         if event.value == 'RELEASE': 
             return {'FINISHED'}
