@@ -298,32 +298,48 @@ def register():
     wm = bpy.context.window_manager
     #mesh keys
     km = wm.keyconfigs.addon.keymaps.new(name='Mesh', space_type='EMPTY')
+    #click
     kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=False,ctrl=False,shift=False,head=True)
     addon_keymaps.append((km, kmi))
+    #alt click
     kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=True,ctrl=False,shift=False,head=True)
     addon_keymaps.append((km, kmi))
+    #ctrl click
     kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=False,ctrl=True,shift=False,head=True)
     addon_keymaps.append((km, kmi))
+    #shift click
     kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=False,ctrl=False,shift=True,head=True)
     addon_keymaps.append((km, kmi))
+    #ctrl shift click
     kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=False,ctrl=True,shift=True,head=True)
     addon_keymaps.append((km, kmi))
-    kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=True,ctrl=True,shift=True,head=True)
+    #alt shift click
+    kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=True,ctrl=False,shift=True,head=True)
     addon_keymaps.append((km, kmi))
+    #alt ctrl click
+    kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=True,ctrl=True,shift=False,head=True)
+    addon_keymaps.append((km, kmi))
+    #press
     kmi = km.keymap_items.new("object.aselection_ray",'RIGHTMOUSE',value='PRESS',any=False,alt=False,ctrl=False,shift=False,head=True)
     addon_keymaps.append((km, kmi))
+    #ctrl press
     kmi = km.keymap_items.new("object.aselection_ray",'RIGHTMOUSE',value='PRESS',any=False,alt=False,ctrl=True,shift=False,head=True)
     addon_keymaps.append((km, kmi))
+    #shift press
     kmi = km.keymap_items.new("object.aselection_ray",'RIGHTMOUSE',value='PRESS',any=False,alt=False,ctrl=False,shift=True,head=True)
     addon_keymaps.append((km, kmi)) 
     #obj keys
     km = wm.keyconfigs.addon.keymaps.new(name='Object Mode', space_type='EMPTY')
+    #click
     kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=False,ctrl=False,shift=False,head=True)
     addon_keymaps.append((km, kmi)) 
+    #press
     kmi = km.keymap_items.new("object.aselection_ray",'RIGHTMOUSE',value='PRESS',any=False,alt=False,ctrl=False,shift=False,head=True)
     addon_keymaps.append((km, kmi))
+    #shift press
     kmi = km.keymap_items.new("object.aselection_ray",'RIGHTMOUSE',value='PRESS',any=False,alt=False,ctrl=False,shift=True,head=True)
-    addon_keymaps.append((km, kmi)) 
+    addon_keymaps.append((km, kmi))
+    #ctrl press
     kmi = km.keymap_items.new("object.aselection_ray",'RIGHTMOUSE',value='PRESS',any=False,alt=False,ctrl=True,shift=False,head=True)
     addon_keymaps.append((km, kmi))      
         
