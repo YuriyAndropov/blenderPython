@@ -34,7 +34,7 @@ import bpy
 
 class ASel_Set(bpy.types.Operator):
     bl_idname = "object.asel_set"
-    bl_label = "Set Selection"
+    bl_label = "A* Add To Selection Set"
     bl_options = {'REGISTER', 'UNDO'}
 
     def updateSet(self,context):
@@ -76,8 +76,8 @@ class ASel_Set(bpy.types.Operator):
     bAdd: bpy.props.BoolProperty(default=False,name='Add',update=updateAdd)
     bSub: bpy.props.BoolProperty(default=False,name='Sub',update=updateSub)
     objSets:bpy.props.EnumProperty(name="Objects Sets",items=updateList)
-    newSet: bpy.props.StringProperty(default='set')
-    newWeight: bpy.props.FloatProperty(default=1.0)
+    newSet: bpy.props.StringProperty(default='NewSet')
+    
 
     def draw(self,context):
         layout = self.layout
@@ -142,7 +142,7 @@ class ASel_Set(bpy.types.Operator):
 
 class ASel_Get(bpy.types.Operator):
     bl_idname = "object.asel_get"
-    bl_label = "Get Selection"
+    bl_label = "A* Recall Selection Set"
     bl_options = {'REGISTER', 'UNDO'}
 
     def updateGet(self,context):
@@ -212,7 +212,12 @@ class ASel_Get(bpy.types.Operator):
             for vgroup in obj.vertex_groups:
                 if vgroup.name == name:
                     vGroup = vgroup
+            if vGroup != None:
+                obj.vertex_groups.active_index = vGroup.index
             if self.bGet and vGroup!=None:
+                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                bpy.ops.mesh.select_all(action='DESELECT')
+                bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
                 for vert in data.vertices:
                     for group in vert.groups:
                         if group.group == vGroup.index:
@@ -227,40 +232,27 @@ class ASel_Get(bpy.types.Operator):
                             vert.select = True
                 bpy.ops.object.mode_set(mode='EDIT', toggle=False)
             if self.bSub and vGroup!=None:
-                for vert in data.vertices:
-                    for group in vert.groups:
-                        if group.group == vGroup.index and vert.select:
-                            vert.select = False
                 bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                bpy.ops.object.vertex_group_deselect()
         return {'FINISHED'}
-
-class ASelSet_Menu(bpy.types.Menu):
-    bl_label = "A* Selection Sets"
-    bl_idname = "VIEW3D_MT_ASelSet"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'WINDOW'
-
-    def draw(self,context):
-        layout = self.layout
-        cColumn = layout.column()
-        cColumn.operator('object.asel_set')
-        cColumn.operator('object.asel_get')   
 
 def contMenu(self,context):
     layout = self.layout
-
-    layout.menu('VIEW3D_MT_ASelSet',text='A*Selection Sets')
+    layout.separator()
+    sColumn = layout.column()
+    layout.separator()
+    layout.operator_context = 'INVOKE_DEFAULT'
+    sColumn.operator('object.asel_set',icon='GROUP_VERTEX')
+    sColumn.operator('object.asel_get',icon = 'GROUP_VERTEX')
 
 
 def register():
     bpy.utils.register_class(ASel_Set)
     bpy.utils.register_class(ASel_Get)
-    bpy.utils.register_class(ASelSet_Menu)
     bpy.types.VIEW3D_MT_edit_mesh_context_menu.append(contMenu)
     
 def unregister():
     bpy.types.VIEW3D_MT_edit_mesh_context_menu.remove(contMenu)
-    bpy.utils.unregister_class(ASelSet_Menu)
     bpy.utils.unregister_class(ASel_Set)
     bpy.utils.unregister_class(ASel_Get)
     
