@@ -63,12 +63,13 @@ class AProfilerPreferences(bpy.types.AddonPreferences):
 
     mCap:bpy.props.EnumProperty(name='Cap',items=keyList,default="C")
     mKeep:bpy.props.EnumProperty(name='KeepSpline',items=keyList,default="V")
+    m2D:bpy.props.EnumProperty(name='2DSpline',items=keyList,default="B")
 
 
     cursorColor:bpy.props.FloatVectorProperty(name="Main Color",description="Color", default=(1.0,1.0,1.0),subtype='COLOR')
     highlightColor:bpy.props.FloatVectorProperty(name="Highlight Color",description="Color", default=(0.0,1.0,0.0),subtype='COLOR')
     bTips:bpy.props.BoolProperty(name='Show KeyTips',default=True)
-    bDefCap:bpy.props.BoolProperty(name='Fill Caps',default=True)
+    bDefCap:bpy.props.BoolProperty(name='Fill Caps',default=False)
     bDefKeep:bpy.props.BoolProperty(name='Keep as Spline',default=False)
     fontSize:bpy.props.IntProperty(name='FontSize',default=15)
     tFontSize:bpy.props.IntProperty(name='FontSize',default=25)
@@ -89,6 +90,7 @@ class AProfilerPreferences(bpy.types.AddonPreferences):
         addRow = toolBox.row(align=True)
         addRow.prop(self,'mCap')
         addRow.prop(self,'mKeep')
+        addRow.prop(self,'m2D')
         
 
         axisBox = modalBox.box()
@@ -217,7 +219,7 @@ def convertToCurve(typeName):
 class AProfiler_MakeProfile(bpy.types.Operator):
     bl_idname = "object.aprofiler_makeprofile"
     bl_label = "A*Profiler Make Profile"
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER','UNDO'}
 
     pName: bpy.props.StringProperty(name="Name :",default = "Profile")
 
@@ -254,6 +256,7 @@ class AProfiler_MakeProfile(bpy.types.Operator):
             bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
             self.dropSelection()
             self.getCreated().select_set(True)
+            bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='MEDIAN')
         return {'FINISHED'}
     def invoke(self,context,event):
         return context.window_manager.invoke_props_dialog(self, width=300, height=20)
@@ -262,7 +265,7 @@ class AProfiler_MakeProfile(bpy.types.Operator):
 class AProfiler_MakePath(bpy.types.Operator):
     bl_idname = "object.aprofiler_makepath"
     bl_label = "A*Profiler Make Path"
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER','UNDO'}
 
     pName: bpy.props.StringProperty(name="Name :",default = "Path")
 
@@ -298,6 +301,7 @@ class AProfiler_MakePath(bpy.types.Operator):
             bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
             self.dropSelection()
             self.getCreated().select_set(True)
+            bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='MEDIAN')
         return {'FINISHED'}
 
     def invoke(self,context,event):
@@ -408,6 +412,7 @@ class AProfiler_PostEdit(bpy.types.Operator):
     bl_label = "A*Profiler Post Edit Menu"
     bl_options = {'REGISTER', 'UNDO'}
     #switches
+    b2D: bpy.props.BoolProperty(default = False)
     bKeepSpline: bpy.props.BoolProperty(default=False)
     bCap: bpy.props.BoolProperty(default=False)
     bScale: bpy.props.BoolProperty(name='Scale',default=False)
@@ -467,6 +472,9 @@ class AProfiler_PostEdit(bpy.types.Operator):
             shift -= size * 1.5
             text =  getProp('mKeep') +  ' : Leave as Curve Toggle'
             self.addDraw(tWidth+size,height/2 + shift,size,text,color)
+            shift -= size * 1.5
+            text =  getProp('m2D') +  ' : Switch to 2D Spline : Destructive !'
+            self.addDraw(tWidth+size,height/2 + shift,size,text,color)
         if self.bMove:
             text = 'Move   : '
         elif self.bScale:
@@ -523,6 +531,7 @@ class AProfiler_PostEdit(bpy.types.Operator):
             if self.bRotate:
                 text = str(round(math.degrees(self.baseRotation[2]),0))
             self.addDraw(event.mouse_x + shift,event.mouse_y-150 ,size,text,color)
+        color = getProp('cursorColor')
         if self.bKeepSpline:
             text = 'Result as Spline'
         else:
@@ -533,6 +542,11 @@ class AProfiler_PostEdit(bpy.types.Operator):
         else:
             text = 'Cap Off'
         self.addDraw(event.mouse_x,event.mouse_y-150-60,size,text,color)
+        if self.b2D:
+            text = '3D Spline'
+        else:
+            text = '2D Spline'
+        self.addDraw(event.mouse_x,event.mouse_y-150-90,size,text,color)
     
     def dropSelection(self):
         for obj in bpy.context.selected_objects:
@@ -643,6 +657,12 @@ class AProfiler_PostEdit(bpy.types.Operator):
         elif event.type == getProp('mCap') and event.value == 'PRESS' and self.bCap==True:
             self.bCap=False
             self.setCap()
+        if event.type == getProp('m2D') and event.value == 'PRESS' and self.b2D==False:
+            self.b2D = True
+            self.set2D()
+        elif event.type == getProp('m2D') and event.value == 'PRESS' and self.b2D==True:
+            self.b2D = False
+            self.set2D()
             
     def addScale(self,event):
         if self.bScale:
@@ -734,6 +754,16 @@ class AProfiler_PostEdit(bpy.types.Operator):
                 path.data.use_fill_caps = False
             self.report({'INFO'},'Fill Caps Off')
     
+    def set2D(self):
+        if self.b2D == True:
+            for path in self.getPath():
+                path.data.dimensions = '2D'
+            self.report({'INFO'},'2D Spline')
+        if self.b2D==False:
+            for path in self.getPath():
+                path.data.dimensions = '3D'
+            self.report({'INFO'},'3D Spline')
+    
     def convertPath(self):
         curves = [] 
         for path in  self.getPath():
@@ -766,7 +796,7 @@ class AProfiler_PostEdit(bpy.types.Operator):
         #redraw viewport       
         context.area.tag_redraw()
         self.processEvents(event)
-        kEvents = [getProp('mScale'),getProp('mRotate'),getProp('mMove'),getProp('mX'),getProp('mY'),getProp('mZ'),getProp('mCap'),getProp('mKeep'),'ESC','WHEELUPMOUSE','WHEELDOWNMOUSE','RIGHTMOUSE','SPACE']
+        kEvents = [getProp('mScale'),getProp('mRotate'),getProp('mMove'),getProp('mX'),getProp('mY'),getProp('mZ'),getProp('mCap'),getProp('mKeep'),'ESC','WHEELUPMOUSE','WHEELDOWNMOUSE','RIGHTMOUSE','SPACE',getProp('m2D')]
         if event.type not in kEvents:
             return {'PASS_THROUGH'}
         if event.type =='ESC' and event.value=='PRESS' and not self.bRotate and not self.bMove and not self.bScale:
@@ -790,8 +820,7 @@ class AProfiler_PostEdit(bpy.types.Operator):
                         if col.name == "AProfiler":
                             col.objects.unlink(path)
                     bpy.context.collection.objects.link(path)
-            #for mesh in getObjectInCollection('Paths').children:
-                #mesh.select_set(True)
+            
             bpy.types.SpaceView3D.draw_handler_remove(TooltipText ["handler"],'WINDOW')
             return {'FINISHED'}
 
@@ -829,15 +858,18 @@ class AProfiler_Menu(bpy.types.Menu):
             cColumn.operator('object.aprofiler_makeprofile')
             cColumn.operator('object.aprofiler_makepath')
         cColumn.separator(factor=1.0)
-        cColumn.operator('object.aprofiler_sweepprofile')
-        cColumn.separator(factor=1.0)
+        if len(getObjectInCollection('Profiles').children)>0 and len(getObjectInCollection('Paths').children)>0 and context.mode == 'OBJECT':
+            cColumn.operator('object.aprofiler_sweepprofile')
+            cColumn.separator(factor=1.0)
+        elif len(getObjectInCollection('Profiles').children)>0 and (len(getObjectInCollection('Paths').children)>0 or bpy.context.scene.statistics(bpy.context.view_layer).split("|")[2].split(':')[1].split('/')[0] != '0' and context.mode == 'EDIT_MESH' ):
+            cColumn.operator('object.aprofiler_sweepprofile')
+            cColumn.separator(factor=1.0)
         cColumn.operator('object.aprofiler_addoptions')
-        
 
 def rmbMenu(self,context):
     layout = self.layout
-
-    layout.menu('VIEW3D_MT_Profiler',text='A*Profiler')
+    sColumn = layout.column()
+    sColumn.menu('VIEW3D_MT_Profiler',text='A*Profiler',icon='MOD_REMESH')
 
 def register():
     bpy.utils.register_class(AProfiler_Menu)
