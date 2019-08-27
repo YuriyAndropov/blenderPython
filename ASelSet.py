@@ -242,8 +242,8 @@ def contMenu(self,context):
     sColumn = layout.column()
     layout.separator()
     layout.operator_context = 'INVOKE_DEFAULT'
-    sColumn.operator('object.asel_set',icon='GROUP_VERTEX')
-    sColumn.operator('object.asel_get',icon = 'GROUP_VERTEX')
+    sColumn.operator('object.asel_set',text='Add To Selection Set')
+    sColumn.operator('object.asel_get',text='Recall Selection Set')
 
 
 def register():
