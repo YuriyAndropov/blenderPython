@@ -118,7 +118,9 @@ class ASelection_Linked(bpy.types.Operator):
                 #vert link
                 elif bpy.context.scene.tool_settings.mesh_select_mode[0]:
                     if self.toggle:
+                        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
                         bpy.ops.mesh.select_all(action='DESELECT')
+                        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
                     for loop in hitResult[4].data.polygons[hitResult[3]].loop_indices:
                         wCo = hitResult[4].matrix_world @ hitResult[4].data.vertices[hitResult[4].data.loops[loop].vertex_index].co
                         l1 = numpy.array(wCo)
