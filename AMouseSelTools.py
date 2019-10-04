@@ -96,7 +96,6 @@ class ASelection_Linked(bpy.types.Operator):
             if hitResult[0] and hitResult[4].select_get():
                 if self.toggle:
                     bpy.ops.mesh.select_all(action='DESELECT')
-                bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
                 distances = []
                 #face link
                 if bpy.context.scene.tool_settings.mesh_select_mode[2] :
@@ -105,12 +104,14 @@ class ASelection_Linked(bpy.types.Operator):
                             bpy.ops.object.mode_set(mode='EDIT', toggle=False)
                             bpy.ops.mesh.loop_select('INVOKE_DEFAULT',extend=False, deselect=True, toggle=False, ring=True)
                         else:
+                            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
                             hitResult[4].data.polygons[hitResult[3]].select = False
                             bpy.ops.object.mode_set(mode='EDIT', toggle=False)
                             bpy.ops.mesh.select_all(action='INVERT')
                             bpy.ops.mesh.select_linked(delimit={'SEAM'})
                             bpy.ops.mesh.select_all(action='INVERT')
                     else:
+                        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
                         hitResult[4].data.polygons[hitResult[3]].select = True
                         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
                         if self.alt:
@@ -120,9 +121,8 @@ class ASelection_Linked(bpy.types.Operator):
                 #vert link
                 elif bpy.context.scene.tool_settings.mesh_select_mode[0]:
                     if self.toggle:
-                        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                        #bpy.ops.object.mode_set(mode='EDIT', toggle=False)
                         bpy.ops.mesh.select_all(action='DESELECT')
-                        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
                     for loop in hitResult[4].data.polygons[hitResult[3]].loop_indices:
                         wCo = hitResult[4].matrix_world @ hitResult[4].data.vertices[hitResult[4].data.loops[loop].vertex_index].co
                         l1 = numpy.array(wCo)
@@ -132,6 +132,7 @@ class ASelection_Linked(bpy.types.Operator):
                     if distances[lowest]<= getValue('vLinkTolerance'):
                         index  = hitResult[4].data.polygons[hitResult[3]].loop_indices[0] + lowest
                         if self.deselect:
+                            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
                             bpy.context.scene.tool_settings.mesh_select_mode = [False,False,True]
                             hitResult[4].data.polygons[hitResult[3]].select = False
                             bpy.ops.object.mode_set(mode='EDIT', toggle=False)
