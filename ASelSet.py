@@ -204,36 +204,26 @@ class ASel_Get(bpy.types.Operator):
         for item in sets:
             if item[0]==self.objSets:
                 name = item[1]
-        
         for obj in bpy.context.selected_objects:
-            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+            #bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
             data = obj.data
             vGroup = None
             for vgroup in obj.vertex_groups:
                 if vgroup.name == name:
                     vGroup = vgroup
             if vGroup != None:
+                bpy.context.view_layer.objects.active = obj
                 obj.vertex_groups.active_index = vGroup.index
-            if self.bGet and vGroup!=None:
-                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-                bpy.ops.mesh.select_all(action='DESELECT')
-                bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-                for vert in data.vertices:
-                    for group in vert.groups:
-                        if group.group == vGroup.index:
-                            vert.select = True
-                        else:
-                            vert.select = False
-                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-            if self.bAdd and vGroup!=None:
-                for vert in data.vertices:
-                    for group in vert.groups:
-                        if group.group == vGroup.index:
-                            vert.select = True
-                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-            if self.bSub and vGroup!=None:
-                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-                bpy.ops.object.vertex_group_deselect()
+                if self.bGet:
+                    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                    bpy.ops.mesh.select_all(action='DESELECT')
+                    bpy.ops.object.vertex_group_select()
+                if self.bAdd:
+                    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                    bpy.ops.object.vertex_group_select()
+                if self.bSub:
+                    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                    bpy.ops.object.vertex_group_deselect()
         return {'FINISHED'}
 
 def contMenu(self,context):
