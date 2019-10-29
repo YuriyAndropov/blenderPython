@@ -237,14 +237,21 @@ class ASelection_Ray(bpy.types.Operator):
                                 bm.verts.ensure_lookup_table()
                                 bm.faces.ensure_lookup_table()
                                 bm.edges.ensure_lookup_table()
-                                bm.verts[index].select_set(False)
-                                for loop in bm.verts[index].link_loops:
-                                    loop.edge.select_set(False)
-                                    if loop.face.select:
-                                        loop.face.select_set(False)
-                                        for vert in loop.face.verts:
-                                            if vert != bm.verts[index]:
-                                                vert.select_set(True)
+                                if bm.verts[index].select:
+                                    bm.verts[index].select_set(False)
+                                    for loop in bm.verts[index].link_loops:
+                                        if loop.edge.select:
+                                            loop.edge.select_set(False)
+                                            #selecting back verts of the edge that are not raycasted
+                                            for vert in loop.edge.verts:
+                                                if bm.verts[index]!=bm.verts[vert.index]:
+                                                    bm.verts[vert.index].select_set(True)
+                                            #selecting back verts of the face that are not raycasted
+                                            if loop.face.select:
+                                                loop.face.select_set(False)
+                                                for vert in loop.face.verts:
+                                                    if bm.verts[index]!=bm.verts[vert.index]:
+                                                        bm.verts[vert.index].select_set(True)
                                 bm.to_mesh(hitResult[4].data)
                                 bm.free()
                             else:
