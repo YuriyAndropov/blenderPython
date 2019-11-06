@@ -214,7 +214,7 @@ class ASelection_Linked(bpy.types.Operator):
             self.extend = True
         elif not event.shift:
             self.extend = False
-        if not event.ctrl and not event.shift:
+        if not event.ctrl and not event.shift and not event.alt:
             self.toggle = True
         else:
             self.toggle = False
