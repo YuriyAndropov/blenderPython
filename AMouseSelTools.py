@@ -36,13 +36,14 @@ import bmesh
 
 addon_keymaps = []
 
-class AddonPreferences(bpy.types.AddonPreferences):
+class AddonPreferences(bpy.types.AddonPreferences): 
     bl_idname = __name__
 
     vRayTolerance:bpy.props.FloatProperty(name='Vertex Raycast Tolerance',default=0.1)
     eRayTolerance:bpy.props.FloatProperty(name='Edge Raycat Tolerance',default=0.1)
     vLinkTolerance:bpy.props.FloatProperty(name='Vertex Linked Tolerance',default=0.2)
     eLinkTolerance:bpy.props.FloatProperty(name='Edge Linked Tolerance',default=0.2)
+    deselectSelected:bpy.props.BoolProperty(name='Deselect Selected Linked Only',default=True)
 
     def draw(self, context):
         layout = self.layout
@@ -50,12 +51,13 @@ class AddonPreferences(bpy.types.AddonPreferences):
         eRayRow = layout.row()
         vLinkRow = layout.row()
         eLinkRow = layout.row()
+        dSelRow = layout.row()
 
         vRayRow.prop(self,'vRayTolerance')
         eRayRow.prop(self,'eRayTolerance')
         vLinkRow.prop(self,'vLinkTolerance')
         eLinkRow.prop(self,'eLinkTolerance')
-
+        dSelRow.prop(self,'deselectSelected')
 def getValue(name):
     return getattr(bpy.context.preferences.addons[__name__].preferences,name)
 
@@ -74,13 +76,11 @@ def t(l1,l2,p):
 def distToLine(l1,l2,p):
     return numpy.linalg.norm(t(l1,l2,p)*(l1-l2)+l2-p)
 
-
-
 class ASelection_Linked(bpy.types.Operator):
     bl_idname = "object.aselection_link"
     bl_label = "A*Selection Connected"
     bl_options = {'REGISTER', 'UNDO'}
-
+    #############There is an operator in 3dView called select. It is mapped in Ctrl LClick and it is breaking the script.Should be disabled
     coords = [0,0]
     extend = False
     deselect = False
@@ -95,111 +95,110 @@ class ASelection_Linked(bpy.types.Operator):
                     if obj.type == hitResult[4].type :
                         obj.select_set(True)
         if bpy.context.mode == 'EDIT_MESH':
-            if hitResult[0] and hitResult[4].select_get():
+            if hitResult[0] and hitResult[4] in bpy.context.selected_objects:
                 for obj in bpy.context.selected_objects:
-                    obj.update_from_editmode()
-                    bm = bmesh.new()
-                    bm.from_mesh(obj.data)
-                    bm.faces.index_update()
-                    if self.toggle:
-                        for face in bm.faces:
-                            face.select = False
-                        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-                        bm.to_mesh(obj.data)
-                        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-                        
-                    distances = {}
-                    linked = []
-                    select = []
-                #face link
-                    if bpy.context.scene.tool_settings.mesh_select_mode[2] :
-                        for face in bm.faces:
-                            if face.index == hitResult[3]:
-                                linked.append(face)
+                    if obj.type == 'MESH':
+                        obj.update_from_editmode()
+                        bm = bmesh.new()
+                        bm.from_mesh(obj.data)
+                        if self.toggle:
+                            bm.select_flush(False)
+                        if hitResult[4] == obj:
+                            distances = {}
+                            linked = []
+                            select = []
+                        #face link
+                            if bpy.context.scene.tool_settings.mesh_select_mode[2]:
+                                bm.faces.ensure_lookup_table()
+                                linked.append(bm.faces[hitResult[3]])
                                 while len(linked) != 0:
                                     select.append(linked.pop())
                                     for edge in select[len(select)-1].edges:
                                         for face in edge.link_faces:
-                                            if face not in select:
+                                            if face not in select :
                                                 linked.append(face)
-                                break
-                        if self.deselect:
-                            if self.alt:
-                                print('loop_deselect')
-                            else:
-                                for face in select:
-                                    face.select = False
-                        else:
-                            for face in select:
-                                face.select = True
+                                if self.deselect:
+                                    if getValue('deselectSelected'):
+                                        del select[:]
+                                        linked.append(bm.faces[hitResult[3]])
+                                        while len(linked) != 0:
+                                            select.append(linked.pop())
+                                            for edge in select[len(select)-1].edges:
+                                                for face in edge.link_faces:
+                                                    if face not in select and select[len(select)-1].select and face.select:
+                                                        linked.append(face)
+                                    for face in select:
+                                        face.select = False
+                                else:
+                                    for face in select:
+                                        face.select = True
+                            #vert link
+                            elif bpy.context.scene.tool_settings.mesh_select_mode[0]:
+                                for face in bm.faces:
+                                    if face.index == hitResult[3]:
+                                        for vert in face.verts:
+                                            wCo = hitResult[4].matrix_world @ vert.co
+                                            l1 = numpy.array(wCo)
+                                            l2 = numpy.array(hitResult[1])
+                                            distances[numpy.linalg.norm(l1 - l2)] = vert
+                                        break
+                                if min(distances) <= getValue('vLinkTolerance'):
+                                    closest = distances.get(min(distances))
+                                    linked.append(closest)
+                                    while len(linked) != 0:
+                                        select.append(linked.pop())
+                                        for edge in select[len(select)-1].link_edges:
+                                            for vert in edge.verts:
+                                                if vert not in select:
+                                                    linked.append(vert)
+                                    if self.deselect:
+                                        if getValue('deselectSelected'):
+                                            linked.append(closest)
+                                            del select[:]
+                                            while len(linked) != 0:
+                                                select.append(linked.pop())
+                                                for edge in select[len(select)-1].link_edges:
+                                                    for vert in edge.verts:
+                                                        if select[len(select)-1].select and vert.select and vert not in select:
+                                                            linked.append(vert)
+                                        for vert in select:
+                                            for face in vert.link_faces:
+                                                face.select = False
+                                    else:
+                                        for vert in select:
+                                            vert.select = True
+                            #edge link
+                            elif bpy.context.scene.tool_settings.mesh_select_mode[1]:
+                                for face in bm.faces:
+                                    if face.index == hitResult[3]:
+                                        for edge in face.edges:
+                                            l1 = numpy.array(hitResult[4].matrix_world @ edge.verts[0].co)
+                                            l2 = numpy.array(hitResult[4].matrix_world @ edge.verts[1].co)
+                                            p = numpy.array(hitResult[1])
+                                            distances[distToLine(l1,l2,p)] = edge
+                                if min(distances)<= getValue('eRayTolerance'):
+                                    closest = distances.get(min(distances))
+                                    linked.append(closest)
+                                    while len(linked) != 0:
+                                        select.append(linked.pop())
+                                        for loop in select[len(select)-1].link_loops:
+                                            if len(loop.face.verts)==4:
+                                                if not self.alt:
+                                                    if loop.link_loop_prev.link_loop_radial_next.link_loop_prev.edge not in select:
+                                                        linked.append(loop.link_loop_prev.link_loop_radial_next.link_loop_prev.edge)
+                                                else:
+                                                    if loop.link_loop_radial_next.link_loop_next.link_loop_next.edge not in select:
+                                                        linked.append(loop.link_loop_radial_next.link_loop_next.link_loop_next.edge)
+                                    if self.deselect:
+                                            for edge in select:
+                                                edge.select = False    
+                                    else:
+                                        for edge in select:
+                                                edge.select = True    
                         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
                         bm.to_mesh(obj.data)
                         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
                         bm.free()
-                    #vert link
-                    elif bpy.context.scene.tool_settings.mesh_select_mode[0]:
-                        for face in bm.faces:
-                            if face.index == hitResult[3]:
-                                for vert in face.verts:
-                                    wCo = hitResult[4].matrix_world @ vert.co
-                                    l1 = numpy.array(wCo)
-                                    l2 = numpy.array(hitResult[1])
-                                    distances[numpy.linalg.norm(l1 - l2)] = vert
-                                break
-                        if min(distances) <= getValue('vLinkTolerance'):
-                            closest = distances.get(min(distances))
-                            linked.append(closest)
-                            while len(linked) != 0:
-                                select.append(linked.pop())
-                                for edge in select[len(select)-1].link_edges:
-                                    for vert in edge.verts:
-                                        if vert not in select:
-                                            linked.append(vert)
-                            if self.deselect:
-                                for vert in select:
-                                    for face in vert.link_faces:
-                                        face.select = False
-                            else:
-                                for vert in select:
-                                    vert.select = True
-                            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-                            bm.to_mesh(obj.data)
-                            bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-                            bm.free()
-                            
-                    #edge link
-                    elif bpy.context.scene.tool_settings.mesh_select_mode[1]:
-                        for face in bm.faces:
-                            if face.index == hitResult[3]:
-                                for edge in face.edges:
-                                    l1 = numpy.array(hitResult[4].matrix_world @ edge.verts[0].co)
-                                    l2 = numpy.array(hitResult[4].matrix_world @ edge.verts[1].co)
-                                    p = numpy.array(hitResult[1])
-                                    distances[distToLine(l1,l2,p)] = edge
-                        if min(distances)<= getValue('eRayTolerance'):
-                            closest = distances.get(min(distances))
-                            linked.append(closest)
-                            while len(linked) != 0:
-                                select.append(linked.pop())
-                                for loop in select[len(select)-1].link_loops:
-                                    if len(loop.face.verts)==4:
-                                        if not self.alt:
-                                            if loop.link_loop_prev.link_loop_radial_next.link_loop_prev.edge not in select:
-                                                linked.append(loop.link_loop_prev.link_loop_radial_next.link_loop_prev.edge)
-                                        else:
-                                            if loop.link_loop_radial_next.link_loop_next.link_loop_next.edge not in select:
-                                                linked.append(loop.link_loop_radial_next.link_loop_next.link_loop_next.edge)
-                            if self.deselect:
-                                    for edge in select:
-                                        edge.select = False    
-                            else:
-                                for edge in select:
-                                        edge.select = True    
-                            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-                            bm.to_mesh(obj.data)
-                            bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-                            bm.free()
-                            
         return {'FINISHED'}
     def invoke(self,context,event):
         self.coords = [event.mouse_region_x,event.mouse_region_y]
@@ -312,7 +311,6 @@ class ASelection_Ray(bpy.types.Operator):
                         if self.deselect:
                             bm = bmesh.new()
                             bm.from_mesh(hitResult[4].data)
-                            #bm.verts.ensure_lookup_table()
                             bm.faces.ensure_lookup_table()
                             bm.edges.ensure_lookup_table()
                             for face in bm.edges[index].link_faces:
@@ -329,7 +327,6 @@ class ASelection_Ray(bpy.types.Operator):
                     bpy.ops.object.mode_set(mode='EDIT', toggle=False)
         if event.value == 'RELEASE': 
             return {'FINISHED'}
-
         return {'RUNNING_MODAL'}
     def execute(self, context):
         return {'FINISHED'}
