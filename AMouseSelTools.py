@@ -35,8 +35,85 @@ import numpy
 import bmesh
 
 addon_keymaps = []
+raycast_keys = []
+linked_keys = []
 class AddonPreferences(bpy.types.AddonPreferences): 
     bl_idname = __name__
+
+    def updateLinkedKeys(self,context):
+        if getValue('enableSelectLinked'):
+            for km, kmi in linked_keys:
+                km.keymap_items.remove(kmi)
+            linked_keys.clear()
+            wm = bpy.context.window_manager
+            #mesh keys
+            km = wm.keyconfigs.addon.keymaps.new(name='Mesh', space_type='EMPTY')
+            #click
+            kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=False,ctrl=False,shift=False,head=True)
+            linked_keys.append((km, kmi))
+            #alt click
+            kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=True,ctrl=False,shift=False,head=True)
+            linked_keys.append((km, kmi))
+            #ctrl click
+            kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=False,ctrl=True,shift=False,head=True)
+            linked_keys.append((km, kmi))
+            #shift click
+            kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=False,ctrl=False,shift=True,head=True)
+            linked_keys.append((km, kmi))
+            #ctrl shift click
+            kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=False,ctrl=True,shift=True,head=True)
+            linked_keys.append((km, kmi))
+            #alt shift click
+            kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=True,ctrl=False,shift=True,head=True)
+            linked_keys.append((km, kmi))
+            #alt ctrl click
+            kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=True,ctrl=True,shift=False,head=True)
+            linked_keys.append((km, kmi))
+            #obj keys
+            km = wm.keyconfigs.addon.keymaps.new(name='Object Mode', space_type='EMPTY')
+            #click
+            kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=False,ctrl=False,shift=False,head=True)
+            linked_keys.append((km, kmi)) 
+        else:
+            for km, kmi in linked_keys:
+                km.keymap_items.remove(kmi)
+            linked_keys.clear()
+        return None
+        
+    def updateRaycastKeys(self,context):
+        if getValue('enableRaycast'):
+            for km, kmi in raycast_keys:
+                km.keymap_items.remove(kmi)
+            raycast_keys.clear()
+            wm = bpy.context.window_manager
+            #mesh keys
+            km = wm.keyconfigs.addon.keymaps.new(name='Mesh', space_type='EMPTY')
+            #press
+            kmi = km.keymap_items.new("object.aselection_ray",'RIGHTMOUSE',value='PRESS',any=False,alt=False,ctrl=False,shift=False,head=True)
+            raycast_keys.append((km, kmi))
+            #ctrl press
+            kmi = km.keymap_items.new("object.aselection_ray",'RIGHTMOUSE',value='PRESS',any=False,alt=False,ctrl=True,shift=False,head=True)
+            raycast_keys.append((km, kmi))
+            #shift press
+            kmi = km.keymap_items.new("object.aselection_ray",'RIGHTMOUSE',value='PRESS',any=False,alt=False,ctrl=False,shift=True,head=True)
+            raycast_keys.append((km, kmi)) 
+            #obj keys
+            km = wm.keyconfigs.addon.keymaps.new(name='Object Mode', space_type='EMPTY')
+            #click
+            #press
+            kmi = km.keymap_items.new("object.aselection_ray",'RIGHTMOUSE',value='PRESS',any=False,alt=False,ctrl=False,shift=False,head=True)
+            raycast_keys.append((km, kmi))
+            #shift press
+            kmi = km.keymap_items.new("object.aselection_ray",'RIGHTMOUSE',value='PRESS',any=False,alt=False,ctrl=False,shift=True,head=True)
+            raycast_keys.append((km, kmi))
+            #ctrl press
+            kmi = km.keymap_items.new("object.aselection_ray",'RIGHTMOUSE',value='PRESS',any=False,alt=False,ctrl=True,shift=False,head=True)
+            raycast_keys.append((km, kmi))
+        else:
+            for km, kmi in raycast_keys:
+                km.keymap_items.remove(kmi)
+            raycast_keys.clear()
+        return None
 
     vRayTolerance:bpy.props.FloatProperty(name='Vertex Raycast Tolerance',default=0.1)
     eRayTolerance:bpy.props.FloatProperty(name='Edge Raycat Tolerance',default=0.1)
@@ -44,24 +121,25 @@ class AddonPreferences(bpy.types.AddonPreferences):
     eLinkTolerance:bpy.props.FloatProperty(name='Edge Linked Tolerance',default=0.2)
     deselectSelected:bpy.props.BoolProperty(name='Deselect Selected Linked Only',default=True)
     bringMenuOnFail:bpy.props.BoolProperty(name='Bring Menu On Raycast Fail',default=False)
-    enableRaycast:bpy.props.BoolProperty(name='Right Click Raycast Tool',default=True)
-    enableSelectLinked:bpy.props.BoolProperty(name='Double Click Select Linked Tool',default=True)
-
-    #TODO make interactive keys change
-        
-
-
+    enableRaycast:bpy.props.BoolProperty(name='Right Click Raycast Tool',default=True,update=updateRaycastKeys)
+    enableSelectLinked:bpy.props.BoolProperty(name='Double Click Select Linked Tool',default=True,update=updateLinkedKeys)
 
     def draw(self, context):
         layout = self.layout
-        enableRaycast = layout.row()
-        enableLinked = layout.row()
-        vRayRow = layout.row()
-        eRayRow = layout.row()
-        vLinkRow = layout.row()
-        eLinkRow = layout.row()
-        dSelRow = layout.row()
-        mFailRow = layout.row()
+        mainBox = layout.box()
+        mainBox.label(text='Selection Tools')
+        mainOp = layout.box()
+        mainOp.label(text='Additional Options')
+        tolOp = layout.box()
+        tolOp.label(text='Tolerance Distances')
+        enableRaycast = mainBox.row()
+        enableLinked = mainBox.row()
+        vRayRow = tolOp.row()
+        eRayRow = tolOp.row()
+        vLinkRow = tolOp.row()
+        eLinkRow = tolOp.row()
+        dSelRow = mainOp.row()
+        mFailRow = mainOp.row()
 
         enableRaycast.prop(self,'enableRaycast')
         enableLinked.prop(self,'enableSelectLinked')
@@ -71,6 +149,7 @@ class AddonPreferences(bpy.types.AddonPreferences):
         eLinkRow.prop(self,'eLinkTolerance')
         dSelRow.prop(self,'deselectSelected')
         mFailRow.prop(self,'bringMenuOnFail')
+
 def getValue(name):
     return getattr(bpy.context.preferences.addons[__name__].preferences,name)
 
@@ -93,7 +172,6 @@ class ASelection_Linked(bpy.types.Operator):
     bl_idname = "object.aselection_link"
     bl_label = "A*Selection Connected"
     bl_options = {'REGISTER', 'UNDO'}
-    #############There is an operator in 3dView called select. It is mapped in Ctrl LClick and it is breaking the script.Should be disabled
     coords = [0,0]
     extend = False
     deselect = False
@@ -103,26 +181,28 @@ class ASelection_Linked(bpy.types.Operator):
     def execute(self,context):
         hitResult = ray(self.coords)
         if bpy.context.mode == 'OBJECT':
+            print('obj')
             if hitResult[0]:
                 for obj in bpy.context.visible_objects:
                     if obj.type == hitResult[4].type :
                         obj.select_set(True)
         if bpy.context.mode == 'EDIT_MESH':
-            if hitResult[0] and hitResult[4] in bpy.context.selected_objects:
-                for obj in bpy.context.selected_objects:
+            if hitResult[0] and hitResult[4] in bpy.context.objects_in_mode:
+                objects  = bpy.context.objects_in_mode
+                for obj in objects:
                     if obj.type == 'MESH':
                         obj.update_from_editmode()
                         bm = bmesh.new()
                         bm.from_mesh(obj.data)
-                        if self.toggle:
-                            bm.select_flush(False)
+                        bm.faces.ensure_lookup_table()
                         if hitResult[4] == obj:
                             distances = {}
                             linked = []
                             select = []
                         #face link
                             if bpy.context.scene.tool_settings.mesh_select_mode[2]:
-                                bm.faces.ensure_lookup_table()
+                                if self.toggle:
+                                    bm.select_flush_mode()
                                 linked.append(bm.faces[hitResult[3]])
                                 while len(linked) != 0:
                                     select.append(linked.pop())
@@ -147,6 +227,8 @@ class ASelection_Linked(bpy.types.Operator):
                                         face.select = True
                             #vert link
                             elif bpy.context.scene.tool_settings.mesh_select_mode[0]:
+                                if self.toggle:
+                                    bm.select_flush_mode()
                                 for face in bm.faces:
                                     if face.index == hitResult[3]:
                                         for vert in face.verts:
@@ -182,6 +264,8 @@ class ASelection_Linked(bpy.types.Operator):
                                             vert.select = True
                             #edge link
                             elif bpy.context.scene.tool_settings.mesh_select_mode[1]:
+                                if self.toggle:
+                                    bm.select_flush_mode()
                                 for face in bm.faces:
                                     if face.index == hitResult[3]:
                                         for edge in face.edges:
@@ -190,6 +274,7 @@ class ASelection_Linked(bpy.types.Operator):
                                             p = numpy.array(hitResult[1])
                                             distances[distToLine(l1,l2,p)] = edge
                                 if min(distances)<= getValue('eRayTolerance'):
+                                    del select[:]
                                     closest = distances.get(min(distances))
                                     linked.append(closest)
                                     while len(linked) != 0:
@@ -199,25 +284,25 @@ class ASelection_Linked(bpy.types.Operator):
                                                 if not self.alt:
                                                     if loop.link_loop_prev.link_loop_radial_next.link_loop_prev.edge not in select:
                                                         linked.append(loop.link_loop_prev.link_loop_radial_next.link_loop_prev.edge)
-                                                else:
+                                                elif self.alt:
                                                     if loop.link_loop_radial_next.link_loop_next.link_loop_next.edge not in select:
                                                         linked.append(loop.link_loop_radial_next.link_loop_next.link_loop_next.edge)
                                     if self.deselect:
-                                            for edge in select:
-                                                edge.select = False    
+                                        for edge in select:
+                                            edge.select = False    
                                     else:
                                         for edge in select:
-                                                edge.select = True    
-                        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-                        bm.to_mesh(obj.data)
-                        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-                        bm.free()
+                                            edge.select = True    
+                    bpy.ops.object.mode_set(mode='OBJECT', toggle=True)
+                    bm.to_mesh(obj.data)
+                    bpy.ops.object.mode_set(mode='EDIT', toggle=True)
+                    bm.free()
         return {'FINISHED'}
     def invoke(self,context,event):
         self.coords = [event.mouse_region_x,event.mouse_region_y]
         if event.ctrl:
             self.deselect = True
-        elif not event.ctrl:
+        else:
             self.deselect = False
         if event.alt:
             self.alt = True
@@ -227,7 +312,7 @@ class ASelection_Linked(bpy.types.Operator):
             self.extend = True
         elif not event.shift:
             self.extend = False
-        if not event.ctrl and not event.shift and not event.alt:
+        if not event.ctrl and not event.shift :
             self.toggle = True
         else:
             self.toggle = False
@@ -383,56 +468,58 @@ def register():
     #click
     if getValue('enableSelectLinked'):
         kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=False,ctrl=False,shift=False,head=True)
-        addon_keymaps.append((km, kmi))
-    #alt click
+        linked_keys.append((km, kmi))
+        #alt click
         kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=True,ctrl=False,shift=False,head=True)
-        addon_keymaps.append((km, kmi))
-    #ctrl click
+        linked_keys.append((km, kmi))
+        #ctrl click
         kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=False,ctrl=True,shift=False,head=True)
-        addon_keymaps.append((km, kmi))
-    #shift click
+        linked_keys.append((km, kmi))
+        #shift click
         kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=False,ctrl=False,shift=True,head=True)
-        addon_keymaps.append((km, kmi))
-    #ctrl shift click
-        kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=False,ctrl=True,shift=True,head=True)
-        addon_keymaps.append((km, kmi))
-    #alt shift click
+        linked_keys.append((km, kmi))
+        #alt shift click
         kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=True,ctrl=False,shift=True,head=True)
-        addon_keymaps.append((km, kmi))
-    #alt ctrl click
+        linked_keys.append((km, kmi))
+        #alt ctrl click
         kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=True,ctrl=True,shift=False,head=True)
-        addon_keymaps.append((km, kmi))
+        linked_keys.append((km, kmi))
     #press
     if getValue('enableRaycast'):
         kmi = km.keymap_items.new("object.aselection_ray",'RIGHTMOUSE',value='PRESS',any=False,alt=False,ctrl=False,shift=False,head=True)
-        addon_keymaps.append((km, kmi))
-    #ctrl press
+        raycast_keys.append((km, kmi))
+        #ctrl press
         kmi = km.keymap_items.new("object.aselection_ray",'RIGHTMOUSE',value='PRESS',any=False,alt=False,ctrl=True,shift=False,head=True)
-        addon_keymaps.append((km, kmi))
-    #shift press
+        raycast_keys.append((km, kmi))
+        #shift press
         kmi = km.keymap_items.new("object.aselection_ray",'RIGHTMOUSE',value='PRESS',any=False,alt=False,ctrl=False,shift=True,head=True)
-        addon_keymaps.append((km, kmi)) 
+        raycast_keys.append((km, kmi)) 
     #obj keys
     km = wm.keyconfigs.addon.keymaps.new(name='Object Mode', space_type='EMPTY')
     #click
     if getValue('enableSelectLinked'):
         kmi = km.keymap_items.new("object.aselection_link",'LEFTMOUSE',value='DOUBLE_CLICK',any=False,alt=False,ctrl=False,shift=False,head=True)
-        addon_keymaps.append((km, kmi)) 
+        linked_keys.append((km, kmi)) 
     #press
     if getValue('enableRaycast'):
         kmi = km.keymap_items.new("object.aselection_ray",'RIGHTMOUSE',value='PRESS',any=False,alt=False,ctrl=False,shift=False,head=True)
-        addon_keymaps.append((km, kmi))
-    #shift press
+        raycast_keys.append((km, kmi))
+        #shift press
         kmi = km.keymap_items.new("object.aselection_ray",'RIGHTMOUSE',value='PRESS',any=False,alt=False,ctrl=False,shift=True,head=True)
-        addon_keymaps.append((km, kmi))
-    #ctrl press
+        raycast_keys.append((km, kmi))
+        #ctrl press
         kmi = km.keymap_items.new("object.aselection_ray",'RIGHTMOUSE',value='PRESS',any=False,alt=False,ctrl=True,shift=False,head=True)
-        addon_keymaps.append((km, kmi))
+        raycast_keys.append((km, kmi))
 
+    km = wm.keyconfigs.addon.keymaps.new(name='Mesh', space_type='EMPTY')
+    
 def unregister():
-    for km, kmi in addon_keymaps:
+    for km, kmi in linked_keys:
         km.keymap_items.remove(kmi)
-    addon_keymaps.clear()
+    for km, kmi in raycast_keys:
+        km.keymap_items.remove(kmi)
+    linked_keys.clear()
+    raycast_keys.clear()
     bpy.utils.unregister_class(AddonPreferences)
     bpy.utils.unregister_class(ASelection_Linked)
     bpy.utils.unregister_class(ASelection_Ray)
