@@ -8,6 +8,11 @@ bl_info = {
     "category": "3D View"
 }
 import bpy
+import mathutils
+
+from bpy.types import (
+    GizmoGroup,
+)
 
 from bpy.props import (IntProperty, EnumProperty, BoolProperty)
 from bpy.types import (AddonPreferences, GizmoGroup, Operator)
@@ -20,34 +25,28 @@ class GizmoButton2D(GizmoGroup):
     bl_region_type = 'WINDOW'
     bl_options = {'PERSISTENT', 'SCALE'}
     
-    @classmethod
-    def poll(cls, context):
-        return True
+        
     
-    def draw_prepare(self, context):
-        #x
-        self.foo_gizmo.matrix_basis[0][3] = 100
-        #y
-        self.foo_gizmo.matrix_basis[1][3] = 200
-
+    
     def setup(self, context):
-        gizmoGroup = self.gizmos.new("GIZMO_GT_button_2d")
-       
-        gizmoGroup.icon = 'INFO'
-        gizmoGroup.draw_options = {'BACKDROP', 'OUTLINE'}
-        gizmoGroup.alpha = 0.0
-        gizmoGroup.color = 0,0,0
-        gizmoGroup.color_highlight = 1, 0, 0
-        gizmoGroup.alpha_highlight = 0.2
-        gizmoGroup.scale_basis = (80 * 0.35) / 2 
-        gizmoGroup.target_set_operator("object.amaas_menu")
-        gizmoGroup.use_grab_cursor = True
-        self.foo_gizmo = gizmoGroup
+        # Arrow gizmo has one 'offset' property we can assign to the light energy.
+        mpr = self.gizmos.new("GIZMO_GT_arrow_3d")
+        mpr.matrix_basis = mathutils.Matrix.Translation((0,0,0))
+        
+
+        mpr.color = 1.0, 0.5, 0.0
+        #mpr.alpha = 0.5
+
+        #mpr.color_highlight = 1.0, 0.5, 1.0
+        #mpr.alpha_highlight = 0.5
+
+        #self.energy_widget = mpr
     def invoke(context,event):
         if event.type == "RIGHTMOUSE" and event.value == "PRESS":
             print('right mouse')
         if event.ctrl:
             print("ctrl")
+    
 
 def register():
     bpy.utils.register_class(GizmoButton2D)

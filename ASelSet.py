@@ -68,14 +68,18 @@ class ASel_Set(bpy.types.Operator):
                         id+=1
         return sets
 
-    def updateEnum(self,context):
-        self.name = self.objSets
+    def updateName(self,context):
+        if self.objSets != '0':
+            sets = self.updateList(context)
+            for item in sets:
+                if item[0]==self.objSets:
+                    name = item[1]
         return None
 
     bSet: bpy.props.BoolProperty(default=True,name='Set',update=updateSet)
     bAdd: bpy.props.BoolProperty(default=False,name='Add',update=updateAdd)
     bSub: bpy.props.BoolProperty(default=False,name='Sub',update=updateSub)
-    objSets:bpy.props.EnumProperty(name="Objects Sets",items=updateList)
+    objSets:bpy.props.EnumProperty(name="Objects Sets",items=updateList,update=updateName)
     newSet: bpy.props.StringProperty(default='NewSet')
     
 
@@ -87,7 +91,11 @@ class ASel_Set(bpy.types.Operator):
         bRow = setBox.row(align=True)
 
         sRow.prop(self,"objSets")
+        if self.objSets != '0':
+            nRow.enabled = False
         nRow.prop(self,'newSet')
+        if self.bAdd:
+            nRow.enabled = False
         bRow.prop(self,"bSet")
         bRow.prop(self,"bAdd")
         bRow.prop(self,"bSub")
@@ -123,7 +131,7 @@ class ASel_Set(bpy.types.Operator):
                 if vert.select:
                     verts.append(vert.index)
             for group in obj.vertex_groups:
-                if group.name == name:
+                if group.name == self.newSet:
                     vGroup = group
                     break
             if vGroup == None:
