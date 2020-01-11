@@ -25,8 +25,8 @@ bl_info = {
     "author": "A*",
     "version": (0, 0, 1),
     "blender": (2, 80, 0),
-    "location": "View3D",
-    "wiki_url": '',
+    "location": "Mesh",
+    "wiki_url": 'https://youtu.be/w9HJxmjrjaM',
     "category": "Mesh"
 }
 
@@ -85,7 +85,12 @@ class ASel_Set(bpy.types.Operator):
         layout = self.layout
         setBox = layout.box()
         sRow = setBox.row(align=True)
+        print(self.objSets)
         nRow = setBox.row(align=True)
+        if self.objSets == '0':
+            nRow.enabled = True
+        else:
+            nRow.enabled = False
         bRow = setBox.row(align=True)
 
         sRow.prop(self,"objSets")
@@ -239,7 +244,6 @@ def contMenu(self,context):
     layout.operator_context = 'INVOKE_DEFAULT'
     sColumn.operator('object.asel_set',text='Add To Selection Set')
     sColumn.operator('object.asel_get',text='Recall Selection Set')
-
 
 def register():
     bpy.utils.register_class(ASel_Set)
