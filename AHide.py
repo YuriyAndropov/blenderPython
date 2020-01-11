@@ -26,7 +26,7 @@ bl_info = {
     "version": (0, 0, 1),
     "blender": (2, 80, 0),
     "location": "Generic",
-    "wiki_url": '',
+    "wiki_url": 'https://youtu.be/C-QVVQ8_1bE',
     "category": "Genric"
 }
 import bpy
