@@ -23,7 +23,7 @@ bl_info = {
     "name": "A* Material Assignment",
     "description": "Easy Material Assignment",
     "author": "A*",
-    "version": (0, 0, 1),
+    "version": (0, 0, 2),
     "blender": (2, 80, 0),
     "location": "View3D",
     "wiki_url": "https://youtu.be/Q9_KhzhK62A",
@@ -31,9 +31,7 @@ bl_info = {
 }
 
 import bpy
-allMaterials = []
-listItems = [("0","New Material","Add New Material",'NODE_MATERIAL',0)]
-matName = "Material"
+allMaterials = [("0","New Material","Add New Material",'NODE_MATERIAL',0)]
 addon_keymaps = []
 
 class AMaAsPreferences(bpy.types.AddonPreferences):
@@ -51,8 +49,10 @@ class AMaAsPreferences(bpy.types.AddonPreferences):
             km.keymap_items.remove(kmi)
             addon_keymaps.clear()
         wm = bpy.context.window_manager
+        km = wm.keyconfigs.addon.keymaps.new(name = 'Mesh', space_type = 'EMPTY')
         kmi = km.keymap_items.new("object.amaas_menu",getProp("key")[0],value="PRESS",any=False,alt=getProp("alt"),ctrl=getProp("ctrl"),shift=getProp("shift"),head=True)
-        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+        km = wm.keyconfigs.addon.keymaps.new(name = 'Object Mode', space_type = 'EMPTY')
+        kmi = km.keymap_items.new("object.amaas_menu",getProp("key")[0],value="PRESS",any=False,alt=getProp("alt"),ctrl=getProp("ctrl"),shift=getProp("shift"),head=True)
         addon_keymaps.append((km, kmi))
         return None
 
@@ -78,107 +78,120 @@ class AMaAsPreferences(bpy.types.AddonPreferences):
 def getProp(name):
     return getattr(bpy.context.preferences.addons[__name__].preferences,name)
 
-def getMaterials():
-    del allMaterials[:]
-    for o in  bpy.context.scene.objects:
-        if o.type == "MESH":
-            obMaterials = o.data.materials
-            for m in obMaterials:
-                if m not in allMaterials:
-                    allMaterials.append(m)
-
-def updateList(self,context):
-    del listItems[1:]
-    id = 1
-    for m in allMaterials:
-        if m != None:
-            pId = str(id)
-            name = m.name
-            des = m.name
-            icon = bpy.types.UILayout.icon(m)
-            if (str(id),name,des,icon,id) not in listItems:
-                listItems.append((name,name,des,icon,id))
-        id+=1
-    return listItems
-
-def assignNew(self,context):
-    mat = bpy.data.materials.new(name=bpy.types.Scene.AMaAs_matName)
-    mat.diffuse_color = (bpy.types.Scene.AMaAs_matColor[0],bpy.types.Scene.AMaAs_matColor[1],bpy.types.Scene.AMaAs_matColor[2],1)
-    getMaterials()
-    updateList(self,context)
-    for o in bpy.context.selected_objects:
-        if o.type == "MESH":
-            data = o.data
-            data.materials.append(mat)
-            if bpy.context.mode == "OBJECT":
-                for poly in data.polygons:
-                    poly.material_index = len(data.materials)-1
-            else:
-                o.active_material_index = len(data.materials)-1
-                o.update_from_editmode()
-                bpy.ops.object.material_slot_assign()
-
-def assignExisted(context):
-    eMat = None
-    for material in allMaterials:
-        if material != None:
-            if material.name == bpy.types.Scene.AMaAs_matID:
-                eMat = material
-    for o in bpy.context.selected_objects:
-        if o.type == "MESH":
-            index = None
-            data = o.data
-        for m in range(len(data.materials)):
-            if data.materials[m]!=None:
-                if data.materials[m].name == bpy.types.Scene.AMaAs_matID:
-                    index = m
-        if index == None :
-            data.materials.append(eMat)
-            index = len(data.materials)-1
-        if bpy.context.mode == "OBJECT":
-            for poly in data.polygons:
-                poly.material_index = index
-        else:
-            o.active_material_index = index
-            o.update_from_editmode()
-            bpy.ops.object.material_slot_assign()
-
-class AMaAs_assignButton(bpy.types.Operator):
-    bl_idname = "object.amaas_button"
+class AMaAs_Assign(bpy.types.Operator):
+    bl_idname = "object.amaas_assign"
     bl_label = "Assign Material"
     bl_options = {'REGISTER', 'UNDO'}
 
+    newMaterialName = ""
+    newMaterialColor = (0,0,0,0)
+    ExistedMaterialName = ""
+
+    def assignNew(self):
+        mat = bpy.data.materials.new(name=self.newMaterialName)
+        mat.diffuse_color = (self.newMaterialColor[0],self.newMaterialColor[1],self.newMaterialColor[2],1)
+        for obj in bpy.context.selected_objects:
+            if obj.type == 'MESH':
+                obj.data.materials.append(mat)
+                index = len(obj.material_slots)-1
+                if bpy.context.mode == 'OBJECT':
+                    for poly in obj.data.polygons:
+                        poly.material_index = index
+                if bpy.context.mode == 'EDIT_MESH':
+                    bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+                    for poly in obj.data.polygons:
+                        print(poly.select)
+                        if poly.select:
+                            poly.material_index = index
+                    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                    
+    def objMaterialCheck(self,obj):
+        for slot in obj.material_slots:
+            if slot.name ==self.ExistedMaterialName:
+                return True
+        return False
+
+    def getExistedMaterial(self):
+        for mat in bpy.context.blend_data.materials:
+            if mat.name == self.ExistedMaterialName:
+                return mat
+        return None
+    
+    def findExistedIndex(self,obj):
+        for i in range(len(obj.material_slots)):
+            if obj.material_slots[i].name == self.ExistedMaterialName:
+                return i
+        return -1
+        
+    def assignExisted(self):
+        for obj in bpy.context.selected_objects:
+            if obj.type == 'MESH':
+                if self.objMaterialCheck(obj):
+                    index = self.findExistedIndex(obj)
+                    if bpy.context.mode == 'OBJECT':
+                        for poly in obj.data.polygons:
+                            poly.material_index = index
+                    if bpy.context.mode == 'EDIT_MESH':
+                        bpy.ops.object.mode_set(mode='OBJECT', toggle=True)
+                        for poly in obj.data.polygons:
+                            if poly.select:
+                                poly.material_index = index
+                        bpy.ops.object.mode_set(mode='EDIT', toggle=True)
+                else:
+                    mat = self.getExistedMaterial()
+                    obj.data.materials.append(mat)
+                    index = len(obj.data.materials)-1
+                    if bpy.context.mode == 'OBJECT':
+                        for poly in obj.data.polygons:
+                            poly.material_index = index
+                    if bpy.context.mode == 'EDIT_MESH':
+                        bpy.ops.object.mode_set(mode='OBJECT', toggle=True)
+                        for poly in obj.data.polygons:
+                            if poly.select:
+                                poly.material_index = index
+                        bpy.ops.object.mode_set(mode='EDIT', toggle=True)
+
     def execute(self,context):
-        if bpy.types.Scene.AMaAs_matID == "0" :
-            assignNew(self,context)
-            getMaterials()
-            updateList(self,context)
+        if self.ExistedMaterialName == 'New Material':
+            self.assignNew()
         else:
-            assignExisted(context)
+            self.assignExisted()
         return {'FINISHED'}
 
 class AMaAs_Menu(bpy.types.Operator):
     bl_idname = "object.amaas_menu"
-    bl_label = "AMaAs PopUp Menu"
+    bl_label = "A* Material Assignment"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def updateName(self,context):
-        matName = self.mName
-        bpy.types.Scene.AMaAs_matName = self.mName
+    def updateNewName(self,context):
+        
+        AMaAs_Assign.newMaterialName = self.mName
         return None
 
     def updateColor(self,context):
-        bpy.types.Scene.AMaAs_matColor = self.matColor
+        AMaAs_Assign.newMaterialColor = self.matColor
+        return None
+    
+    def updateName(self,context):
+        for elem in allMaterials:
+            if elem[0] == self.sceneMaterials:
+                AMaAs_Assign.ExistedMaterialName = elem[1]
         return None
 
-    def updateID(self,context):
-        bpy.types.Scene.AMaAs_matID = self.sceneMaterials
-        return None
+    def updateList(self,context):
+        del allMaterials[1:]
+        id = 1
+        for mat in bpy.context.blend_data.materials:
+            name = mat.name
+            icon = bpy.types.UILayout.icon(mat)
+            allMaterials.append((str(id),name,name,bpy.types.UILayout.icon(mat),id))
+            id+=1
+        return allMaterials
 
-    mName: bpy.props.StringProperty(name="Name :",default = "Material",update=updateName)
+    mName: bpy.props.StringProperty(name="Name :",default = "Material",update=updateNewName)
     matColor:bpy.props.FloatVectorProperty(name="Color",description="Color", default=(0.5,0.5,0.5),subtype='COLOR',update=updateColor)
-    sceneMaterials:bpy.props.EnumProperty(name="Scene Materials",items=updateList,update=updateID)
-    sceneMaterials = "0"
+    sceneMaterials:bpy.props.EnumProperty(name="Scene Materials",items=updateList,update=updateName)
+    
     def draw(self,context):
         layout = self.layout
         newMatBox = layout.box()
@@ -190,34 +203,36 @@ class AMaAs_Menu(bpy.types.Operator):
         mRow.prop(self,"sceneMaterials")
         nRow.prop(self,"mName")
         cRow.prop(self,"matColor")
-        bRow.operator("object.amaas_button")
+        bRow.operator("object.amaas_assign")
 
+        if self.sceneMaterials != '0':
+            nRow.enabled = False
+            cRow.enabled = False
+    
     def execute(self,context):
         return {'FINISHED'}
 
     def invoke(self, context, event):
-        getMaterials()
-        bpy.types.Scene.AMaAs_matName = "Material"
-        bpy.types.Scene.AMaAs_matColor = (0.5,0.5,0.5)
-        bpy.types.Scene.AMaAs_matID = "0"
-        matName = self.mName
-        updateList(self,context)
+        self.sceneMaterials = '0'
+        AMaAs_Assign.ExistedMaterialName = 'New Material'
+        AMaAs_Assign.newMaterialColor = self.matColor
+        AMaAs_Assign.newMaterialName = 'Material'
         if getProp("perMenu"):
             return context.window_manager.invoke_props_dialog(self, width = getProp("mWidthMenu"))
         else:
             return context.window_manager.invoke_popup(self, width = getProp("mWidthMenu"))
 
 def register():
-    bpy.utils.register_class(AMaAs_assignButton)
+    bpy.utils.register_class(AMaAs_Assign)
     bpy.utils.register_class(AMaAs_Menu)
     bpy.utils.register_class(AMaAsPreferences)
-    bpy.types.Scene.AMaAs_matName = bpy.props.StringProperty(default="Material")
-    bpy.types.Scene.AMaAs_matColor = bpy.props.FloatVectorProperty(default=(0.5,0.5,0.5),subtype='COLOR')
-    bpy.types.Scene.AMaAs_matID = bpy.props.StringProperty(default="0")
     wm = bpy.context.window_manager
     kc = wm.keyconfigs.addon
     if kc:
-        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+        km = wm.keyconfigs.addon.keymaps.new(name = 'Mesh', space_type = 'EMPTY')
+        kmi = km.keymap_items.new("object.amaas_menu",getProp("key")[0],"PRESS",any=False,alt=getProp("alt"), shift=getProp("shift"), ctrl=getProp("ctrl"), head=True)
+        addon_keymaps.append((km, kmi))
+        km = wm.keyconfigs.addon.keymaps.new(name = 'Object Mode', space_type = 'EMPTY')
         kmi = km.keymap_items.new("object.amaas_menu",getProp("key")[0],"PRESS",any=False,alt=getProp("alt"), shift=getProp("shift"), ctrl=getProp("ctrl"), head=True)
         addon_keymaps.append((km, kmi))
 
@@ -226,11 +241,6 @@ def unregister():
         km.keymap_items.remove(kmi)
     addon_keymaps.clear()
     bpy.utils.unregister_class(AMaAsPreferences)
-    bpy.utils.unregister_class(AMaAs_assignButton)
+    bpy.utils.unregister_class(AMaAs_Assign)
     bpy.utils.unregister_class(AMaAs_Menu)
-    del bpy.types.Scene.AMaAs_matName
-    del bpy.types.Scene.AMaAs_matColor
-    del bpy.types.Scene.AMaAs_matID
-
-if __name__ == "__main__":
-    register()
+    
