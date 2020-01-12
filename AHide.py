@@ -42,9 +42,9 @@ class ObjectListProperty(bpy.types.PropertyGroup):
                 else:
                     obj.hide_set(False)
 
-    hidden = bpy.props.BoolProperty(update=updateHide)
-    name = bpy.props.StringProperty()
-    icon = bpy.props.StringProperty()
+    hidden : bpy.props.BoolProperty(update=updateHide)
+    name : bpy.props.StringProperty()
+    icon : bpy.props.StringProperty()
 
 class AUnhideByName(bpy.types.Operator):
     bl_idname = "object.aunhide_name"
