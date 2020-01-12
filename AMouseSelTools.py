@@ -191,7 +191,6 @@ class ASelection_Linked(bpy.types.Operator):
     def execute(self,context):
         hitResult = ray(self.coords)
         if bpy.context.mode == 'OBJECT':
-            print('obj')
             if hitResult[0]:
                 for obj in bpy.context.visible_objects:
                     if obj.type == hitResult[4].type :
@@ -447,10 +446,11 @@ class ASelection_Ray(bpy.types.Operator):
     def invoke(self, context, event):
         self.coords = [event.mouse_region_x,event.mouse_region_y]
         hitResult = ray(self.coords)
-        if hitResult[0] == False:
-            if bpy.context.mode == 'OBJECT':
+        if bpy.context.mode == 'OBJECT':
+            if hitResult[0] == False:
                 return bpy.ops.wm.call_menu(name='VIEW3D_MT_object_context_menu')
-            elif bpy.context.mode == 'EDIT_MESH':
+        elif bpy.context.mode == 'EDIT_MESH':
+            if hitResult[0] == False or (hitResult[0] and hitResult[4] not in bpy.context.selected_objects):
                 return bpy.ops.wm.call_menu(name='VIEW3D_MT_edit_mesh_context_menu')
         if event.ctrl:
             self.deselect = True
