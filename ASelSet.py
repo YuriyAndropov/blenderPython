@@ -61,9 +61,12 @@ class ASel_Set(bpy.types.Operator):
         for obj in bpy.context.selected_objects:
             for group in obj.vertex_groups:
                 if group.name != None:
+                    names = []
                     name = group.name
                     icon = 'GROUP_VERTEX'
-                    if (str(id),name,name,icon,id) not in sets:
+                    for item in sets:
+                        names.append(item[2])
+                    if name not in names:
                         sets.append((str(id),name,name,icon,id))
                         id+=1
         return sets
@@ -77,7 +80,6 @@ class ASel_Set(bpy.types.Operator):
     bSub: bpy.props.BoolProperty(default=False,name='Sub',update=updateSub)
     objSets:bpy.props.EnumProperty(name="Objects Sets",items=updateList)
     newSet: bpy.props.StringProperty(default='NewSet')
-    
 
     def draw(self,context):
         layout = self.layout
@@ -169,9 +171,12 @@ class ASel_Get(bpy.types.Operator):
         for obj in bpy.context.selected_objects:
             for group in obj.vertex_groups:
                 if group.name != None:
+                    names = []
                     name = group.name
                     icon = 'GROUP_VERTEX'
-                    if (str(id),name,name,icon,id) not in sets:
+                    for item in sets:
+                        names.append(item[2])
+                    if name not in names:
                         sets.append((str(id),name,name,icon,id))
                         id+=1
         return sets
@@ -203,37 +208,27 @@ class ASel_Get(bpy.types.Operator):
         sets = self.updateList(context)
         for item in sets:
             if item[0]==self.objSets:
-                name = item[1]
-        
+                name = item[2]
+        if self.bGet:
+            bpy.ops.mesh.select_all(action='DESELECT')
         for obj in bpy.context.selected_objects:
-            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
             data = obj.data
             vGroup = None
-            for vgroup in obj.vertex_groups:
-                if vgroup.name == name:
-                    vGroup = vgroup
+            for v_group in obj.vertex_groups:
+                if v_group.name == name:
+                    vGroup = v_group
             if vGroup != None:
+                bpy.context.view_layer.objects.active = obj
                 obj.vertex_groups.active_index = vGroup.index
-            if self.bGet and vGroup!=None:
-                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-                bpy.ops.mesh.select_all(action='DESELECT')
-                bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-                for vert in data.vertices:
-                    for group in vert.groups:
-                        if group.group == vGroup.index:
-                            vert.select = True
-                        else:
-                            vert.select = False
-                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-            if self.bAdd and vGroup!=None:
-                for vert in data.vertices:
-                    for group in vert.groups:
-                        if group.group == vGroup.index:
-                            vert.select = True
-                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-            if self.bSub and vGroup!=None:
-                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-                bpy.ops.object.vertex_group_deselect()
+                if self.bGet:
+                    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                    bpy.ops.object.vertex_group_select()
+                if self.bAdd:
+                    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                    bpy.ops.object.vertex_group_select()
+                if self.bSub:
+                    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                    bpy.ops.object.vertex_group_deselect()
         return {'FINISHED'}
 
 def contMenu(self,context):
@@ -242,8 +237,8 @@ def contMenu(self,context):
     sColumn = layout.column()
     layout.separator()
     layout.operator_context = 'INVOKE_DEFAULT'
-    sColumn.operator('object.asel_set',icon='GROUP_VERTEX')
-    sColumn.operator('object.asel_get',icon = 'GROUP_VERTEX')
+    sColumn.operator('object.asel_set',text='Add To Selection Set')
+    sColumn.operator('object.asel_get',text='Recall Selection Set')
 
 
 def register():
