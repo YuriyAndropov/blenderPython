@@ -25,8 +25,8 @@ bl_info = {
     "author": "A*",
     "version": (0, 0, 1),
     "blender": (2, 80, 0),
-    "location": "View3D",
-    "wiki_url": '',
+    "location": "Mesh",
+    "wiki_url": 'https://youtu.be/w9HJxmjrjaM',
     "category": "Mesh"
 }
 
@@ -61,9 +61,12 @@ class ASel_Set(bpy.types.Operator):
         for obj in bpy.context.selected_objects:
             for group in obj.vertex_groups:
                 if group.name != None:
+                    names = []
                     name = group.name
                     icon = 'GROUP_VERTEX'
-                    if (str(id),name,name,icon,id) not in sets:
+                    for item in sets:
+                        names.append(item[2])
+                    if name not in names:
                         sets.append((str(id),name,name,icon,id))
                         id+=1
         return sets
@@ -81,13 +84,17 @@ class ASel_Set(bpy.types.Operator):
     bSub: bpy.props.BoolProperty(default=False,name='Sub',update=updateSub)
     objSets:bpy.props.EnumProperty(name="Objects Sets",items=updateList,update=updateName)
     newSet: bpy.props.StringProperty(default='NewSet')
-    
 
     def draw(self,context):
         layout = self.layout
         setBox = layout.box()
         sRow = setBox.row(align=True)
+        print(self.objSets)
         nRow = setBox.row(align=True)
+        if self.objSets == '0':
+            nRow.enabled = True
+        else:
+            nRow.enabled = False
         bRow = setBox.row(align=True)
 
         sRow.prop(self,"objSets")
@@ -177,9 +184,12 @@ class ASel_Get(bpy.types.Operator):
         for obj in bpy.context.selected_objects:
             for group in obj.vertex_groups:
                 if group.name != None:
+                    names = []
                     name = group.name
                     icon = 'GROUP_VERTEX'
-                    if (str(id),name,name,icon,id) not in sets:
+                    for item in sets:
+                        names.append(item[2])
+                    if name not in names:
                         sets.append((str(id),name,name,icon,id))
                         id+=1
         return sets
@@ -211,20 +221,20 @@ class ASel_Get(bpy.types.Operator):
         sets = self.updateList(context)
         for item in sets:
             if item[0]==self.objSets:
-                name = item[1]
+                name = item[2]
+        if self.bGet:
+            bpy.ops.mesh.select_all(action='DESELECT')
         for obj in bpy.context.selected_objects:
-            #bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
             data = obj.data
             vGroup = None
-            for vgroup in obj.vertex_groups:
-                if vgroup.name == name:
-                    vGroup = vgroup
+            for v_group in obj.vertex_groups:
+                if v_group.name == name:
+                    vGroup = v_group
             if vGroup != None:
                 bpy.context.view_layer.objects.active = obj
                 obj.vertex_groups.active_index = vGroup.index
                 if self.bGet:
                     bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-                    bpy.ops.mesh.select_all(action='DESELECT')
                     bpy.ops.object.vertex_group_select()
                 if self.bAdd:
                     bpy.ops.object.mode_set(mode='EDIT', toggle=False)
@@ -242,7 +252,6 @@ def contMenu(self,context):
     layout.operator_context = 'INVOKE_DEFAULT'
     sColumn.operator('object.asel_set',text='Add To Selection Set')
     sColumn.operator('object.asel_get',text='Recall Selection Set')
-
 
 def register():
     bpy.utils.register_class(ASel_Set)

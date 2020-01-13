@@ -24,9 +24,9 @@ bl_info = {
     "author": "A*",
     "version": (0, 0, 1),
     "blender": (2, 80, 0),
-    "location": "Mesh",
-    "wiki_url": "",
-    "category": "Mesh"
+    "location": "Generic",
+    "wiki_url": "https://youtu.be/r9TZU51CHXc",
+    "category": "Generic"
 }
 
 import bpy
@@ -126,6 +126,8 @@ class AddonPreferences(bpy.types.AddonPreferences):
 
     def draw(self, context):
         layout = self.layout
+        warningBox = layout.box()
+        warningBox.label(text='To work properly, disable the hotkey for 3dView->Select(The one that is mapped on Ctrl-Left Click)',icon='ERROR')
         mainBox = layout.box()
         mainBox.label(text='Selection Tools')
         mainOp = layout.box()
@@ -177,11 +179,18 @@ class ASelection_Linked(bpy.types.Operator):
     deselect = False
     toggle = True
     alt = False
+    #custom flush. Built-in function not working properly all the time
+    def flushSelection(self,bm):
+        for face in bm.faces:
+            face.select_set(False)
+        for edge in bm.edges:
+            edge.select_set(False)
+        for vert in bm.verts:
+            vert.select_set(False)
 
     def execute(self,context):
         hitResult = ray(self.coords)
         if bpy.context.mode == 'OBJECT':
-            print('obj')
             if hitResult[0]:
                 for obj in bpy.context.visible_objects:
                     if obj.type == hitResult[4].type :
@@ -199,10 +208,10 @@ class ASelection_Linked(bpy.types.Operator):
                             distances = {}
                             linked = []
                             select = []
+                            if self.toggle:
+                                self.flushSelection(bm)
                         #face link
                             if bpy.context.scene.tool_settings.mesh_select_mode[2]:
-                                if self.toggle:
-                                    bm.select_flush_mode()
                                 linked.append(bm.faces[hitResult[3]])
                                 while len(linked) != 0:
                                     select.append(linked.pop())
@@ -221,14 +230,12 @@ class ASelection_Linked(bpy.types.Operator):
                                                     if face not in select and select[len(select)-1].select and face.select:
                                                         linked.append(face)
                                     for face in select:
-                                        face.select = False
+                                        face.select_set(False)
                                 else:
                                     for face in select:
-                                        face.select = True
+                                        face.select_set(True)
                             #vert link
                             elif bpy.context.scene.tool_settings.mesh_select_mode[0]:
-                                if self.toggle:
-                                    bm.select_flush_mode()
                                 for face in bm.faces:
                                     if face.index == hitResult[3]:
                                         for vert in face.verts:
@@ -258,14 +265,12 @@ class ASelection_Linked(bpy.types.Operator):
                                                             linked.append(vert)
                                         for vert in select:
                                             for face in vert.link_faces:
-                                                face.select = False
+                                                face.select_set(False)
                                     else:
                                         for vert in select:
-                                            vert.select = True
+                                            vert.select_set(True)
                             #edge link
                             elif bpy.context.scene.tool_settings.mesh_select_mode[1]:
-                                if self.toggle:
-                                    bm.select_flush_mode()
                                 for face in bm.faces:
                                     if face.index == hitResult[3]:
                                         for edge in face.edges:
@@ -280,19 +285,23 @@ class ASelection_Linked(bpy.types.Operator):
                                     while len(linked) != 0:
                                         select.append(linked.pop())
                                         for loop in select[len(select)-1].link_loops:
-                                            if len(loop.face.verts)==4:
-                                                if not self.alt:
-                                                    if loop.link_loop_prev.link_loop_radial_next.link_loop_prev.edge not in select:
-                                                        linked.append(loop.link_loop_prev.link_loop_radial_next.link_loop_prev.edge)
-                                                elif self.alt:
-                                                    if loop.link_loop_radial_next.link_loop_next.link_loop_next.edge not in select:
+                                            if self.alt:
+                                                if len(loop.face.verts)==4:
+                                                    ring = loop.link_loop_radial_next.link_loop_next.link_loop_next.edge
+                                                    rLoop = loop.link_loop_radial_next.link_loop_next.link_loop_next
+                                                    if ring not in select and len(rLoop.face.verts)==4 :
                                                         linked.append(loop.link_loop_radial_next.link_loop_next.link_loop_next.edge)
+                                            else:
+                                                if len(loop.vert.link_edges)==4:
+                                                    if not self.alt:
+                                                        if loop.link_loop_prev.link_loop_radial_next.link_loop_prev.edge not in select:
+                                                            linked.append(loop.link_loop_prev.link_loop_radial_next.link_loop_prev.edge)
                                     if self.deselect:
                                         for edge in select:
-                                            edge.select = False    
+                                            edge.select_set(False)    
                                     else:
                                         for edge in select:
-                                            edge.select = True    
+                                            edge.select_set(True)    
                     bpy.ops.object.mode_set(mode='OBJECT', toggle=True)
                     bm.to_mesh(obj.data)
                     bpy.ops.object.mode_set(mode='EDIT', toggle=True)
@@ -437,10 +446,11 @@ class ASelection_Ray(bpy.types.Operator):
     def invoke(self, context, event):
         self.coords = [event.mouse_region_x,event.mouse_region_y]
         hitResult = ray(self.coords)
-        if hitResult[0] == False:
-            if bpy.context.mode == 'OBJECT':
+        if bpy.context.mode == 'OBJECT':
+            if hitResult[0] == False:
                 return bpy.ops.wm.call_menu(name='VIEW3D_MT_object_context_menu')
-            elif bpy.context.mode == 'EDIT_MESH':
+        elif bpy.context.mode == 'EDIT_MESH':
+            if hitResult[0] == False or (hitResult[0] and hitResult[4] not in bpy.context.selected_objects):
                 return bpy.ops.wm.call_menu(name='VIEW3D_MT_edit_mesh_context_menu')
         if event.ctrl:
             self.deselect = True
