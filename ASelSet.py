@@ -25,8 +25,8 @@ bl_info = {
     "author": "A*",
     "version": (0, 0, 1),
     "blender": (2, 80, 0),
-    "location": "Mesh",
-    "wiki_url": 'https://youtu.be/w9HJxmjrjaM',
+    "location": "View3D",
+    "wiki_url": '',
     "category": "Mesh"
 }
 
@@ -61,48 +61,33 @@ class ASel_Set(bpy.types.Operator):
         for obj in bpy.context.selected_objects:
             for group in obj.vertex_groups:
                 if group.name != None:
-                    names = []
                     name = group.name
                     icon = 'GROUP_VERTEX'
-                    for item in sets:
-                        names.append(item[2])
-                    if name not in names:
+                    if (str(id),name,name,icon,id) not in sets:
                         sets.append((str(id),name,name,icon,id))
                         id+=1
         return sets
 
-    def updateName(self,context):
-        if self.objSets != '0':
-            sets = self.updateList(context)
-            for item in sets:
-                if item[0]==self.objSets:
-                    name = item[1]
+    def updateEnum(self,context):
+        self.name = self.objSets
         return None
 
     bSet: bpy.props.BoolProperty(default=True,name='Set',update=updateSet)
     bAdd: bpy.props.BoolProperty(default=False,name='Add',update=updateAdd)
     bSub: bpy.props.BoolProperty(default=False,name='Sub',update=updateSub)
-    objSets:bpy.props.EnumProperty(name="Objects Sets",items=updateList,update=updateName)
+    objSets:bpy.props.EnumProperty(name="Objects Sets",items=updateList)
     newSet: bpy.props.StringProperty(default='NewSet')
+    
 
     def draw(self,context):
         layout = self.layout
         setBox = layout.box()
         sRow = setBox.row(align=True)
-        print(self.objSets)
         nRow = setBox.row(align=True)
-        if self.objSets == '0':
-            nRow.enabled = True
-        else:
-            nRow.enabled = False
         bRow = setBox.row(align=True)
 
         sRow.prop(self,"objSets")
-        if self.objSets != '0':
-            nRow.enabled = False
         nRow.prop(self,'newSet')
-        if self.bAdd:
-            nRow.enabled = False
         bRow.prop(self,"bSet")
         bRow.prop(self,"bAdd")
         bRow.prop(self,"bSub")
@@ -138,7 +123,7 @@ class ASel_Set(bpy.types.Operator):
                 if vert.select:
                     verts.append(vert.index)
             for group in obj.vertex_groups:
-                if group.name == self.newSet:
+                if group.name == name:
                     vGroup = group
                     break
             if vGroup == None:
@@ -184,12 +169,9 @@ class ASel_Get(bpy.types.Operator):
         for obj in bpy.context.selected_objects:
             for group in obj.vertex_groups:
                 if group.name != None:
-                    names = []
                     name = group.name
                     icon = 'GROUP_VERTEX'
-                    for item in sets:
-                        names.append(item[2])
-                    if name not in names:
+                    if (str(id),name,name,icon,id) not in sets:
                         sets.append((str(id),name,name,icon,id))
                         id+=1
         return sets
@@ -221,27 +203,37 @@ class ASel_Get(bpy.types.Operator):
         sets = self.updateList(context)
         for item in sets:
             if item[0]==self.objSets:
-                name = item[2]
-        if self.bGet:
-            bpy.ops.mesh.select_all(action='DESELECT')
+                name = item[1]
+        
         for obj in bpy.context.selected_objects:
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
             data = obj.data
             vGroup = None
-            for v_group in obj.vertex_groups:
-                if v_group.name == name:
-                    vGroup = v_group
+            for vgroup in obj.vertex_groups:
+                if vgroup.name == name:
+                    vGroup = vgroup
             if vGroup != None:
-                bpy.context.view_layer.objects.active = obj
                 obj.vertex_groups.active_index = vGroup.index
-                if self.bGet:
-                    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-                    bpy.ops.object.vertex_group_select()
-                if self.bAdd:
-                    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-                    bpy.ops.object.vertex_group_select()
-                if self.bSub:
-                    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-                    bpy.ops.object.vertex_group_deselect()
+            if self.bGet and vGroup!=None:
+                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                bpy.ops.mesh.select_all(action='DESELECT')
+                bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+                for vert in data.vertices:
+                    for group in vert.groups:
+                        if group.group == vGroup.index:
+                            vert.select = True
+                        else:
+                            vert.select = False
+                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+            if self.bAdd and vGroup!=None:
+                for vert in data.vertices:
+                    for group in vert.groups:
+                        if group.group == vGroup.index:
+                            vert.select = True
+                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+            if self.bSub and vGroup!=None:
+                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                bpy.ops.object.vertex_group_deselect()
         return {'FINISHED'}
 
 def contMenu(self,context):
@@ -250,8 +242,9 @@ def contMenu(self,context):
     sColumn = layout.column()
     layout.separator()
     layout.operator_context = 'INVOKE_DEFAULT'
-    sColumn.operator('object.asel_set',text='Add To Selection Set')
-    sColumn.operator('object.asel_get',text='Recall Selection Set')
+    sColumn.operator('object.asel_set',icon='GROUP_VERTEX')
+    sColumn.operator('object.asel_get',icon = 'GROUP_VERTEX')
+
 
 def register():
     bpy.utils.register_class(ASel_Set)
