@@ -43,7 +43,11 @@ bl_info = {
     "name": "Fluent",
     "description": "hard surface modeling addon",
     "author": "Rudy MICHAU",
+<<<<<<< HEAD
     "version": (1, 1, 2),
+=======
+    "version": (1, 1, 5),
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     "blender": (2, 80, 0),
     "location": "View3D",
     "wiki_url": "",
@@ -51,6 +55,10 @@ bl_info = {
 
 tool_called = 'CUT'
 init_pref = True
+<<<<<<< HEAD
+=======
+polydraw_run = False
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 
 translate = {
     "ENGLISH" : {
@@ -107,7 +115,25 @@ translate = {
         'synchBool':'Synchronize boolean objects',
         'makePreset':'Make/Clear preset',
         'cutAgain':'Cut again',
+<<<<<<< HEAD
         'cleanBooleanApplication':'Boolean supports'
+=======
+        'cleanBooleanApplication':'Boolean supports',
+        'editCall':'Edit',
+        'technicalDisplay':'Technical Display',
+        'displayGrid' : 'Display grid : Right Click on a face',
+        'drawOutside':'Draw outside : Shift + Left Click on face before to draw',
+        'snap':'Snap : Hold Ctrl',
+        'drawFromCenter':'Draw from center : Hold Shift',
+        'drawSquare':'Draw square : Hold Ctrl',
+        'drawOrtho':'Draw in ortho direction',
+        'undo':'Undo',
+        'gridResolution' : 'Grid resolution',
+        'gridRotation' : 'Grid rotation',
+        'alignmentHelper':'Alignment helper',
+        'revolveMode':'Revolver Mode',
+        'revolve':'Revolve'
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     },
     "CHINESE" : {
         "cutCall":"切割/添加",
@@ -163,7 +189,95 @@ translate = {
         'synchBool':'Synchronize boolean objects',
         'makePreset':'Make/Clear preset',
         'cutAgain':'Cut again',
+<<<<<<< HEAD
         'cleanBooleanApplication':'Boolean supports'
+=======
+        'cleanBooleanApplication':'Boolean supports',
+        'editCall':'Edit',
+        'technicalDisplay':'Technical Display',
+        'displayGrid' : 'Display grid : Right Click on a face',
+        'drawOutside':'Draw outside : Shift + Left Click on face before to draw',
+        'snap':'Snap : Hold Ctrl',
+        'drawFromCenter':'Draw from center : Hold Shift',
+        'drawSquare':'Draw square : Hold Ctrl',
+        'drawOrtho':'Draw in ortho direction',
+        'undo':'Undo',
+        'gridResolution' : 'Grid resolution',
+        'gridRotation' : 'Grid rotation',
+        'alignmentHelper':'Alignment helper',
+        'revolveMode':'Revolver Mode',
+        'revolve':'Revolve'
+    },
+    "TRAD_CHINESE" : {
+        "cutCall":"切/增加",
+        "sliceCall":"切片",
+        "createCall":"創造",
+        "addLatestBevel": "新增最後斜角",
+        "symetrizePlan":"對稱平面",
+        "autoComplete" : "自動完成",
+        "booleanDisplay":"顯示/隱藏布林物件",
+        "wireframe":"顯示/隱藏線架構",
+        "latestBevelWidth" : "最後斜角寬度",
+        "angleLimit" : "角度極限",
+        "defaultDepth" : "預設深度",
+        "corner" : "預設斜角寬度",
+        "bevelResolution" : "斜角解析度",
+        "circleResolution" : "預設圓解析度",
+        "autoMirror" : "自動鏡射",
+        "otherAdjustment" : "其他調整",
+        "moveObj" : "沿平面移動物件 : G, Shift+Z+Z",
+        "moveObjZ" : "沿平面法向移動物件 : G, Z, Z",
+        "finish" : "完成 : 右鍵",
+        "showBoolObj" : "顯示/隱藏布林物件 : H",
+        "cancel" : "取消 : Esc",
+        "finishCurrentAdjustement" : "完成目前調整 : 左鍵",
+        "horizontalMouseMove": "滑鼠水平移動",
+        "fastSlow":"快/慢",
+        "thicknessOffset" : "厚度/偏移切換",
+        "crossModel" : "模型剖面",
+        "useFlyMenu" : "使用懸空面板 : 按住左鍵, 游標移到欲選工具, 放開左鍵",
+        "roundStraight" : "圓/直",
+        "remove" : "移除",
+        "steps" : "階數",
+        "smoothCircle" : "高解析度",
+        "pressAxis" : "在軸上按一次顯示, 再按一次隱藏",
+        "axisSelection" : "啟動軸",
+        "offset" : "偏移",
+        "count" : "數量",
+        'radius' : '半徑',
+        'number' : "元素數量",
+        'rotation90' : '90度旋轉',
+        'solidify' : '實體化',
+        'firstBevel' : '第一斜角',
+        'secondbevel' : '第二斜角',
+        'mirror' : '鏡射',
+        'array' : '陣列',
+        'circularArray' : '圓形陣列',
+        'adjustment' : '調整',
+        'latestBevelSegments' : '最後斜角段數',
+        'validateDrawing' : '驗證多邊形',
+        'validatePath' : '驗證路徑',
+        'fakeSlice':'假切片',
+        'duplicate':'複製',
+        'synchBool':'同步布林物件',
+        'makePreset':'建立/清空預設',
+        'cutAgain':'再切',
+        'cleanBooleanApplication':'布林優化',
+        'editCall':'編輯',
+        'technicalDisplay':'技術顯示',
+        'displayGrid' : '顯示格線：在面上按右鍵',
+        'drawOutside':'從外面畫：畫之前在面上按Shift +左鍵',
+        'snap':'Snap : 鎖點：按住Ctrl鍵',
+        'drawFromCenter':'從中心畫：按住Shift鍵',
+        'drawSquare':'畫方形：按住Ctrl鍵',
+        'drawOrtho':'沿平行向畫',
+        'undo':'復原',
+        'gridResolution' : '格線解析度',
+        'gridRotation' : '格線角度',
+        'alignmentHelper':'對齊輔助器',
+        'revolveMode':'輪盤模式',
+        'revolve':'迴轉'
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     },
     "JAPANESE":{
         "cutCall":"カット/追加",
@@ -212,6 +326,7 @@ translate = {
         'circularArray' : '円形配列',
         'adjustment' : '調整',
         'latestBevelSegments' : '最新ベベルのセグメント',
+<<<<<<< HEAD
         'validateDrawing' : 'Validate polygon',
         'validatePath' : 'Validate path',
         'fakeSlice':'Fake slice',
@@ -220,6 +335,30 @@ translate = {
         'makePreset':'Make/Clear preset',
         'cutAgain':'Cut again',
         'cleanBooleanApplication':'Boolean supports'
+=======
+        'validateDrawing' : 'ポリゴンをアクセプト',
+        'validatePath' : 'パスをアクセプト',
+        'fakeSlice':'偽のスライス',
+        'duplicate':'複製',
+        'synchBool':'ブーリアンオブジェクトの同期',
+        'makePreset':'プリセットを作成/空にする',
+        'cutAgain':'もう一度切る',
+        'cleanBooleanApplication':'ブーリアン最適化',
+        'editCall':'編集',
+        'technicalDisplay':'テクニカルディスプレイ',
+        'displayGrid' : 'グリッド線を表示：面を右クリック',
+        'drawOutside':'外側から描く：ペイントする前に顔の上でShift +左ボタンを描く',
+        'snap':'Snap : スナップ：Ctrlキーを押しながら',
+        'drawFromCenter':'中心から描く：Shiftキーを押しながら',
+        'drawSquare':'正方形を描く：Ctrlキーを押しながら',
+        'drawOrtho':'正射影',
+        'undo':'元に戻す',
+        'gridResolution' : 'グリッドの解像度',
+        'gridRotation' : 'グリッド回転',
+        'alignmentHelper':'アライメント補助',
+        'revolveMode':'回るモード',
+        'revolve':'回る'
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     },
     "FRANCAIS" : {
         "cutCall":"Creuser/Ajouter",
@@ -275,7 +414,25 @@ translate = {
         'synchBool':'Synchroniser les booléens',
         'makePreset':'Créer/Supprimer préconfiguration',
         'cutAgain':'Nouvelle coupe',
+<<<<<<< HEAD
         'cleanBooleanApplication':'Création de support'
+=======
+        'cleanBooleanApplication':'Création de support',
+        'editCall':'Éditer',
+        'technicalDisplay':'Vue Technique',
+        'displayGrid' : 'Afficher la grille : Click droit sur une face',
+        'drawOutside':'Dessin à l\'extérieur : Shift + clique gauche sur une face avant de dessiner',
+        'snap':'Snap : Maintenir Ctrl',
+        'drawFromCenter':'Dessin à partir du centre : Maintenir Shift',
+        'drawSquare':'Dessiner un carré : Maintenir Ctrl',
+        'drawOrtho':'Dessiner dans les directions X/Y/Z',
+        'undo':'Retour',
+        'gridResolution' : 'Résolution de la grille',
+        'gridRotation' : 'Rotation de la grille',
+        'alignmentHelper':'Aide à l\'alignement',
+        'revolveMode':'Tracer un profil de révolution',
+        'revolve':'Révolution'
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     }
 }
 
@@ -327,6 +484,10 @@ def load_icons():
     custom_icons.load("bm", join(icons_dir, "bm.png"), 'IMAGE')
     custom_icons.load("warning", join(icons_dir, "warning.png"), 'IMAGE')
     custom_icons.load("preset", join(icons_dir, "preset.png"), 'IMAGE')
+<<<<<<< HEAD
+=======
+    custom_icons.load("edit", join(icons_dir, "edit.png"), 'IMAGE')
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 
     fluent_icons_collection["main"] = custom_icons
     fluent_icons_loaded = True
@@ -341,12 +502,21 @@ def clear_icons():
     fluent_icons_loaded = False
 
 # dessin à l'écran ***************************************************************************************************
+<<<<<<< HEAD
 HIGHTLIGHT = (0.0, 0.643, 1, 1)
+=======
+# HIGHTLIGHT = (0.0, 0.643, 1, 1)
+# HIGHTLIGHT = get_addon_preferences().hightlight
+HIGHTLIGHT = (0, 0.8, 1, 1)
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 WHITE = (1, 1, 1, 1)
 CR = "Carriage Return"
 menu_offset = [16, 0]
 ico_size = 24
+<<<<<<< HEAD
 ico_size_factor = 1
+=======
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 ico_marge = 8
 
 def draw_line(coords):
@@ -354,7 +524,11 @@ def draw_line(coords):
     shader = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
     batch = batch_for_shader(shader, 'LINES', {"pos": coords})
     shader.bind()
+<<<<<<< HEAD
     shader.uniform_float("color", (1, 0.349, 0, 1))
+=======
+    shader.uniform_float("color", (1, 1, 1, 1))
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     bgl.glEnable(bgl.GL_BLEND)
     bgl.glLineWidth(2)
     batch.draw(shader)
@@ -401,6 +575,31 @@ def draw_square(x, y, color, delta = 0):
     shader.uniform_float("color", color)
     batch.draw(shader)
 
+<<<<<<< HEAD
+=======
+def draw_all_square(coord_list, color):
+    vertices = []
+    indices = []
+    i = 0
+    for c in coord_list:
+        vertices.append([0+c[0], 0+c[1]])
+        vertices.append([0+c[0], 4+c[1]])
+        vertices.append([4+c[0], 4+c[1]])
+        vertices.append([4+c[0], 0+c[1]])
+        indices.append([0 + 4 *i, 1 + 4 *i, 2 + 4 *i])
+        indices.append([0 + 4 *i, 2 + 4 *i, 3 + 4 *i])
+        i+=1
+
+    vertices = tuple(vertices)
+    indices = tuple(indices)
+
+    shader = gpu.shader.from_builtin('2D_UNIFORM_COLOR')
+    batch = batch_for_shader(shader, 'TRIS', {"pos": vertices}, indices=indices)
+    shader.bind()
+    shader.uniform_float("color", color)
+    batch.draw(shader)
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 def draw_cross(x, y, color, delta = 0):
     # vertices = (
     #     (0, 13), (0, 11), (24, 11),(24, 13),
@@ -498,6 +697,17 @@ def draw_snap_grid(self, context):
                     y_min = -2
                     z_min = 0
 
+<<<<<<< HEAD
+=======
+                if 'x_max' not in vars():
+                    x_max = 2
+                    y_max = 2
+                    z_max = 0
+                    x_min = -2
+                    y_min = -2
+                    z_min = 0
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                 # grille
                 delta_x = (x_max - x_min)
                 delta_y = (y_max - y_min)
@@ -540,6 +750,11 @@ def draw_snap_grid(self, context):
 
             vertices_WHITE = []
             indices_WHITE = []
+<<<<<<< HEAD
+=======
+            black_dots = []
+            blue_dot_list = []
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             for s in self.snap_calculated_coord_list:
                 if self.snap_support == 'OBJECT':
                     co_3d = self.bool_target.matrix_world @ s
@@ -547,6 +762,7 @@ def draw_snap_grid(self, context):
                     co_3d = self.drawing_tool_plan_obj.matrix_world @ s
                 co_2d = view3d_utils.location_3d_to_region_2d(region, rv3d, co_3d)
                 try:
+<<<<<<< HEAD
                     if math.fabs(self.mouse_x - co_2d.x) < 16 and math.fabs(self.mouse_y - co_2d.y) < 16:
                         draw_square_large(co_2d.x-4, co_2d.y-4, HIGHTLIGHT)
                         self.mouse_x = co_2d.x
@@ -556,6 +772,31 @@ def draw_snap_grid(self, context):
                 except:
                     pass
 
+=======
+                    black_dots.append([co_2d.x-2, co_2d.y-2])
+                except:pass
+
+                try:
+                    if math.fabs(self.mouse_x - co_2d.x) < 16 and math.fabs(self.mouse_y - co_2d.y) < 16:
+                        blue_dot_list.append([co_2d.x, co_2d.y])
+                except:
+                    pass
+
+            draw_all_square(black_dots, (0, 0, 0, 1))
+            try:
+                limit = 32
+                for d in blue_dot_list:
+                    distance = math.sqrt(math.pow(d[0]-self.mouse_x, 2) + math.pow(d[1]-self.mouse_y, 2))
+                    if distance <= limit:
+                        limit = distance
+                        blue_dot = [d[0], d[1]]
+
+                draw_square_large(blue_dot[0]-4, blue_dot[1]-4, HIGHTLIGHT)
+                self.mouse_x = blue_dot[0]
+                self.mouse_y = blue_dot[1]
+            except:pass
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             if self.bool_target:
                 try:
                     mwi = self.drawing_tool_plan_obj.matrix_world.inverted()
@@ -750,7 +991,11 @@ def draw_array_icon(x, y, color):
     vertices = repositionning(vertices, x, y)
     drawing_tris(vertices, indices, color)
 
+<<<<<<< HEAD
 def draw_circular_array_icon(x, y, color):
+=======
+def draw_Circular_Array_icon(x, y, color):
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     vertices = (
         (3, 14), (3, 10), (5, 10), (5, 14), (2, 13), (2, 11), (6, 11), (6, 13),
         (5, 8), (5, 4), (7, 4), (7, 8), (4, 7), (4, 5), (8, 5), (8, 7),
@@ -835,7 +1080,12 @@ def draw_item_hover(x, y, width, height):
     h = y - height
     vertices = ((x, y), (l, y), (l, h), (x, h))
     indices = ((0, 1, 2),(0, 2, 3))
+<<<<<<< HEAD
     color = ((1, 1, 1, 0.25), (1, 1, 1, 0) , (1, 1, 1,0 ), (1, 1, 1, 0.25))
+=======
+    color = ((0.4, 0.4, 0.4, 1), (0.4, 0.4, 0.4, 1) , (0.4, 0.4, 0.4, 1), (0.4, 0.4, 0.4, 1))
+    # color = ((1, 1, 1, 0.25), (1, 1, 1, 0) , (1, 1, 1,0 ), (1, 1, 1, 0.25))
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     shader = gpu.shader.from_builtin('2D_SMOOTH_COLOR')
     batch = batch_for_shader(shader, 'TRIS', {"pos": vertices, "color": color}, indices=indices)
     bgl.glEnable(bgl.GL_BLEND)
@@ -872,14 +1122,27 @@ def drawing_tris(vertices, indices, color):
     bgl.glDisable(bgl.GL_BLEND)
 
 def draw_callback_px(self, context):
+<<<<<<< HEAD
     text_x_origin = 5
     text_y_origin = 500
+=======
+    global HIGHTLIGHT
+    HIGHTLIGHT = get_addon_preferences().hightlight
+    text_x_origin = get_addon_preferences().text_x_origin
+    text_y_origin = get_addon_preferences().text_y_origin
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     try:
         packed_strings = self.screen_text
     except:
         packed_strings = ''
+<<<<<<< HEAD
     font_id = 0
     blf.size(font_id, 18, 72)
+=======
+
+    font_id = 0
+    blf.size(font_id, get_addon_preferences().text_size, 72)
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     x_offset = 0
     y_offset = 0
     line_height = (blf.dimensions(font_id, "M")[1] * 1.45)
@@ -891,6 +1154,31 @@ def draw_callback_px(self, context):
         return{"width":text_width, "height": text_height}
 
     # Ecrire le texte ****************************************
+<<<<<<< HEAD
+=======
+    # blf.enable(font_id, 4)
+    # blf.shadow(font_id, 0, 0, 0, 0, 1)
+    # blf.shadow_offset(font_id, 1, -1)
+    max_width = 0
+    if packed_strings:
+        for command in packed_strings:
+            if len(command) == 2:
+                pstr, pcol = command
+                color = list(pcol)
+                blf.color(font_id, color[0], color[1], color[2], color[3])
+                text_width, text_height = blf.dimensions(font_id, pstr)
+                blf.position(font_id, (text_x_origin + x_offset), (text_y_origin + y_offset), 0)
+                # blf.draw(font_id, pstr)
+                x_offset += text_width
+            else:
+                if x_offset > max_width:
+                    max_width = x_offset
+                x_offset = 0
+                y_offset -= line_height
+    draw_block(text_x_origin-5, text_y_origin + line_height + 3, max_width +10, (y_offset - line_height) * (-1) + 10, (0, 0, 0, 0.25))
+    x_offset = 0
+    y_offset = 0
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     if packed_strings:
         for command in packed_strings:
             if len(command) == 2:
@@ -904,6 +1192,33 @@ def draw_callback_px(self, context):
             else:
                 x_offset = 0
                 y_offset -= line_height
+<<<<<<< HEAD
+=======
+
+    draw_snap_grid(self, context)
+
+    try:
+        if self.build_step in {0, 0.5, 1, 2}:
+            matrix = self.bool_obj.matrix_world.copy()
+            # vertices = get_verts(self.bool_obj)
+            depth = bpy.context.evaluated_depsgraph_get()
+            eobj = self.bool_obj.evaluated_get(depth)
+            mesh = bpy.data.meshes.new_from_object(eobj)
+            self.meshes_names_to_clean.append(mesh.name)
+            vertices = [v.co for v in mesh.vertices]
+            edges = mesh.edges
+            coords = []
+            for e in edges:
+                v = vertices[e.vertices[0]]
+                vv = vertices[e.vertices[1]]
+                global_coord = matrix @ v
+                global_coord_ = matrix @ vv
+                coords.append((global_coord.x, global_coord.y, global_coord.z))
+                coords.append((global_coord_.x, global_coord_.y, global_coord_.z))
+            draw_line(coords)
+    except:pass
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     # MENU ******************************
     try:
         nb_blocks = len(self.display_menu.get_blocks())
@@ -920,7 +1235,11 @@ def draw_callback_px(self, context):
             block_height = padding + len(self.display_menu.get_blocks()[b]['items']) * (item_height + padding)
             block_position_x = self.display_menu.get_position()['x']+math.cos(angle_between_blocks*block_count)*pie_radius - block_width/2
             block_position_y = self.display_menu.get_position()['y']+math.sin(angle_between_blocks*block_count)*pie_radius + block_height/2
+<<<<<<< HEAD
             draw_block(block_position_x, block_position_y, block_width, block_height, (0, 0, 0, .5))
+=======
+            draw_block(block_position_x, block_position_y, block_width, block_height, (0, 0, 0, 0))
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             item_count = 0
             for i in self.display_menu.get_blocks()[b]['items']:
                 item_position_x = block_position_x + padding
@@ -932,7 +1251,13 @@ def draw_callback_px(self, context):
 
                 if self.display_menu.get_blocks()[b]['items'][item_count]['hover']:
                     self.display_menu.set_menu_hover(True)
+<<<<<<< HEAD
                     draw_item_hover(item_position_x , item_position_y, item_width, item_height)
+=======
+                    draw_item_hover(item_position_x-5, item_position_y+5, item_width+10, item_height+10)
+                else:
+                    draw_block(item_position_x-5, item_position_y+5, item_width+10, item_height+10, (0.35, 0.35, 0.35, 1))
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 
                 if self.display_menu.get_blocks()[b]['items'][item_count]['icon'] == 'FIRST_BEVEL':
                     if self.bool_obj.modifiers['First_Bevel'].show_render:
@@ -971,6 +1296,7 @@ def draw_callback_px(self, context):
                         draw_array_icon(round(item_position_x), round(item_position_y), WHITE)
 
                 elif self.display_menu.get_blocks()[b]['items'][item_count]['icon'] == 'CIRCULAR_ARRAY':
+<<<<<<< HEAD
                     has_circular_array = False
                     for m in self.bool_obj.modifiers:
                         if m.name == 'circular_displace' and m.show_render:
@@ -979,6 +1305,16 @@ def draw_callback_px(self, context):
                         draw_circular_array_icon(round(item_position_x), round(item_position_y), HIGHTLIGHT)
                     else:
                         draw_circular_array_icon(round(item_position_x), round(item_position_y), WHITE)
+=======
+                    has_Circular_Array = False
+                    for m in self.bool_obj.modifiers:
+                        if m.name == 'Circular_Displace' and m.show_render:
+                            has_Circular_Array = True
+                    if has_Circular_Array:
+                        draw_Circular_Array_icon(round(item_position_x), round(item_position_y), HIGHTLIGHT)
+                    else:
+                        draw_Circular_Array_icon(round(item_position_x), round(item_position_y), WHITE)
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 
                 elif self.display_menu.get_blocks()[b]['items'][item_count]['icon'] == 'SYMETRIZE':
                     draw_symetrize_icon(round(item_position_x), round(item_position_y), WHITE)
@@ -1004,8 +1340,11 @@ def draw_callback_px(self, context):
             block_count+=1
     except:pass
 
+<<<<<<< HEAD
     draw_snap_grid(self, context)
 
+=======
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     context.area.tag_redraw()
 
 def make_oops(msg):
@@ -1151,7 +1490,11 @@ def latest_bevel_manager(obj, action):
         modif = obj.modifiers.new(name='latestBevel', type='BEVEL')
         modif.limit_method = 'ANGLE'
         modif.angle_limit = 0.523599
+<<<<<<< HEAD
         modif.segments = 6
+=======
+        modif.segments = bpy.context.scene.fluentProp.latest_bevel_segments
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
         modif.width = bpy.context.scene.fluentProp.width
         modif.miter_outer = 'MITER_ARC'
         modif.use_clamp_overlap = False
@@ -1515,6 +1858,15 @@ def preset_manager(action = 'GET', obj = None):
         bpy.context.scene.fluentProp.straight_bevel = False
         bpy.context.scene.fluentProp.second_bevel_straight = False
 
+<<<<<<< HEAD
+=======
+def enter_value_validation(value, event):
+    if event.value == 'PRESS' and event.type in {'NUMPAD_ENTER', 'RET'}:
+        return [True, float(value)]
+    else:
+        return [False]
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 class F_Menu():
 
     def __init__(self, mouse_x, mouse_y):
@@ -1552,7 +1904,11 @@ class F_Menu():
         for b in self.blocks:
             bb = self.blocks[b]
             for i in bb['items']:
+<<<<<<< HEAD
                 if i['type'] in {'BUTTON', 'SLIDER'}:
+=======
+                if i['type'] in {'BUTTON', 'SLIDER', 'LABEL'}:
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                     if i['position_x'] < mouse_x < i['position_x']+i['width'] and i['position_y'] - i['height']< mouse_y < i['position_y']  :
                         i['hover'] = True
                     else:
@@ -1630,7 +1986,17 @@ class PolyDraw(bpy.types.Operator):
 
     def update_display(self):
 
+<<<<<<< HEAD
         self.screen_text = [("Fluent Making Tool", WHITE)]
+=======
+        def adjustment_value(modifier):
+            if self.enter_value == 'None':
+                return str(round(modifier, 3))
+            else:
+                return self.enter_value
+
+        self.screen_text = [("FLUENT TOOLS", WHITE)]
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 
         if self.build_step in {1, 2, 0.5}:
             self.screen_text.extend([CR, CR, ('SHAPE', WHITE)])
@@ -1664,14 +2030,26 @@ class PolyDraw(bpy.types.Operator):
 
         if self.adjustment:
             if self.adjustment in {'FIRST_BEVEL','SECOND_BEVEL'}:
+<<<<<<< HEAD
                 self.screen_text.extend([CR, CR, ('BEVEL ADJUSTEMENT', HIGHTLIGHT)])
+=======
+                if self.adjustment == 'FIRST_BEVEL':
+                    self.screen_text.extend([CR, CR, ('BEVEL ADJUSTMENT ' + adjustment_value(self.bool_obj.modifiers['First_Bevel'].width), HIGHTLIGHT)])
+                else:
+                    self.screen_text.extend([CR, CR, ('BEVEL ADJUSTMENT ' + str(round(self.bool_obj.modifiers['Second_Bevel'].width, 3)), HIGHTLIGHT)])
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                 self.screen_text.extend([CR, ('    '+str(translate.get(get_addon_preferences().language).get('horizontalMouseMove')), WHITE)])
                 self.screen_text.extend([CR, ('    '+str(translate.get(get_addon_preferences().language).get('roundStraight'))+' : C', WHITE)])
                 self.screen_text.extend([CR, ('    '+str(translate.get(get_addon_preferences().language).get('fastSlow')+' : Ctrl / Shift'), WHITE)])
                 self.screen_text.extend([CR, ('    '+str(translate.get(get_addon_preferences().language).get('remove') + ' : Del'), WHITE)])
             elif self.adjustment == 'FIRST_SOLIDIFY':
+<<<<<<< HEAD
                 self.screen_text.extend([CR, CR, ('SOLIDIFY ADJUSTEMENT', HIGHTLIGHT)])
                 if self.draw_type != 'path':
+=======
+                if self.draw_type != 'path':
+                    self.screen_text.extend([CR, CR, ('SOLIDIFY ADJUSTMENT ' + adjustment_value(self.bool_obj.modifiers['First_Solidify'].thickness), HIGHTLIGHT)])
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                     self.screen_text.extend([CR, ('    '+str(translate.get(get_addon_preferences().language).get('horizontalMouseMove')), WHITE)])
                     self.screen_text.extend([CR, ('    '+str(translate.get(get_addon_preferences().language).get('fastSlow')+' : Ctrl / Shift'), WHITE)])
                     self.screen_text.extend([CR, ('    '+str(translate.get(get_addon_preferences().language).get('thicknessOffset')+' : C'), WHITE)])
@@ -1682,16 +2060,30 @@ class PolyDraw(bpy.types.Operator):
                     self.screen_text.extend([CR, ('    '+str(translate.get(get_addon_preferences().language).get('fakeSlice')+' : C'), WHITE)])
                     self.screen_text.extend([CR, ('    '+str(translate.get(get_addon_preferences().language).get('crossModel')+' : V'), WHITE)])
             elif self.adjustment == 'SECOND_SOLIDIFY':
+<<<<<<< HEAD
                 self.screen_text.extend([CR, CR, ('SECOND SOLIDIFY ADJUSTEMENT', HIGHTLIGHT)])
+=======
+                self.screen_text.extend([CR, CR, ('SECOND SOLIDIFY ADJUSTMENT ' + adjustment_value(self.bool_obj.modifiers['Second_Solidify'].thickness), HIGHTLIGHT)])
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                 self.screen_text.extend([CR, ('    '+str(translate.get(get_addon_preferences().language).get('horizontalMouseMove')), WHITE)])
                 self.screen_text.extend([CR, ('    '+str(translate.get(get_addon_preferences().language).get('fastSlow')+' : Ctrl / Shift'), WHITE)])
                 self.screen_text.extend([CR, ('    '+str(translate.get(get_addon_preferences().language).get('fakeSlice')+' : C'), WHITE)])
                 self.screen_text.extend([CR, ('    '+str(translate.get(get_addon_preferences().language).get('remove') + ' : Del'), WHITE)])
             elif self.adjustment == 'RESOLUTION':
+<<<<<<< HEAD
                 self.screen_text.extend([CR, CR, ('RESOLUTION ADJUSTEMENT', HIGHTLIGHT)])
                 self.screen_text.extend([CR, ('    '+str(translate.get(get_addon_preferences().language).get('horizontalMouseMove')), WHITE)])
                 self.screen_text.extend([CR, ('    '+str(translate.get(get_addon_preferences().language).get('steps'))+' : ', WHITE), (str(self.bool_obj.modifiers['Screw'].steps), HIGHTLIGHT)])
                 self.screen_text.extend([CR, ('    Smooth cercle : C', WHITE)])
+=======
+                self.screen_text.extend([CR, CR, ('RESOLUTION ADJUSTMENT', HIGHTLIGHT)])
+                self.screen_text.extend([CR, ('    '+str(translate.get(get_addon_preferences().language).get('horizontalMouseMove')), WHITE)])
+                self.screen_text.extend([CR, ('    '+str(translate.get(get_addon_preferences().language).get('steps'))+' : ', WHITE), (str(self.bool_obj.modifiers['Screw'].steps), HIGHTLIGHT)])
+                self.screen_text.extend([CR, ('    Smooth cercle : C', WHITE)])
+            elif self.adjustment == 'RADIUS':
+                self.screen_text.extend([CR, CR, ('RADIUS ADJUSTMENT ' + adjustment_value(self.bool_obj.modifiers['Radius'].strength), HIGHTLIGHT)])
+                self.screen_text.extend([CR, ('    '+str(translate.get(get_addon_preferences().language).get('horizontalMouseMove')), WHITE)])
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             elif self.adjustment == 'MIRROR':
                 self.screen_text.extend([CR, CR, ('Mirror', HIGHTLIGHT)])
                 self.screen_text.extend([CR, ('    Mirror 1 : ', WHITE)])
@@ -1765,9 +2157,15 @@ class PolyDraw(bpy.types.Operator):
                     self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('radius')), HIGHTLIGHT),(' / '+str(translate.get(get_addon_preferences().language).get('number')) + ' : C', WHITE)])
                 else:
                     self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('radius')) + ' / ', WHITE),(str(translate.get(get_addon_preferences().language).get('number')), HIGHTLIGHT), (' : C', WHITE)])
+<<<<<<< HEAD
                 if any([m for m in self.bool_obj.modifiers if m.name == "circular_array"]):
                     self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('number')) + ' : ', WHITE)])
                     self.screen_text.extend([(str(self.bool_obj.modifiers['circular_array'].count), HIGHTLIGHT)])
+=======
+                if any([m for m in self.bool_obj.modifiers if m.name == "Circular_Array"]):
+                    self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('number')) + ' : ', WHITE)])
+                    self.screen_text.extend([(str(self.bool_obj.modifiers['Circular_Array'].count), HIGHTLIGHT)])
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                 self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('axisSelection')) + ' : V / B', WHITE)])
                 self.screen_text.extend([CR, ('    '+str(translate.get(get_addon_preferences().language).get('remove') + ' : Del'), WHITE)])
 
@@ -1781,6 +2179,7 @@ class PolyDraw(bpy.types.Operator):
 
         self.screen_text.extend([CR, CR, ('KEYS', WHITE)])
         if self.draw_type == 'poly' and self.build_step == 0.5 and not self.screw_drawing:
+<<<<<<< HEAD
             self.screen_text.extend([CR,('    Revolver Mode : A', WHITE)])
         if self.screw_drawing:
             self.screen_text.extend([CR,('    Revolve : Space', WHITE)])
@@ -1796,6 +2195,23 @@ class PolyDraw(bpy.types.Operator):
             self.screen_text.extend([CR,('    Draw in ortho plane : Shift + (X / Y / Z)', WHITE)])
         if self.build_step == 2 and self.draw_type == 'poly' :
             self.screen_text.extend([CR,('    Undo : ', WHITE),('Back space', WHITE)])
+=======
+            self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('revolveMode'))+' : A', WHITE)])
+        if self.screw_drawing:
+            self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('revolve'))+' : Right Click', WHITE)])
+        if self.build_step == 1:
+            self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('displayGrid')), WHITE)])
+            self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('drawOutside')), WHITE)])
+        if self.build_step == 2 and self.draw_type == 'poly':
+            self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('snap')), WHITE)])
+        if self.build_step == 2 and self.draw_type == 'box':
+            self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('drawFromCenter')), WHITE)])
+            self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('drawSquare')), WHITE)])
+        if self.build_step == 2:
+            self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('drawOrtho'))+' : Shift + (X / Y / Z)', WHITE)])
+        if self.build_step == 2 and self.draw_type == 'poly' :
+            self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('undo')), WHITE),('Back space', WHITE)])
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('validateDrawing')), WHITE),(' : Right click', WHITE)])
             self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('validatePath')), WHITE),(' : Space', WHITE)])
         if self.build_step == 3:
@@ -1803,7 +2219,11 @@ class PolyDraw(bpy.types.Operator):
             self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('cutAgain')), WHITE),(' : Shift + W', WHITE)])
             # self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('moveObj')), WHITE)])
             # self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('moveObjZ')), WHITE)])
+<<<<<<< HEAD
             self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('useFlyMenu')), WHITE)])
+=======
+            # self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('useFlyMenu')), WHITE)])
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('finish')), WHITE)])
         if self.build_step == 4:
             self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('finishCurrentAdjustement')), WHITE)])
@@ -1814,15 +2234,24 @@ class PolyDraw(bpy.types.Operator):
 
         if self.snap_display == 'SPECIAL_POINTS':
             self.screen_text.extend([CR,CR,('GRID', WHITE)])
+<<<<<<< HEAD
             self.screen_text.extend([CR,('    Grid resolution : ', WHITE), (str(self.snap_resolution - 1), HIGHTLIGHT)])
             self.screen_text.extend([CR,('    Grid rotation : X (', WHITE)])
+=======
+            self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('gridResolution')) + ' : ', WHITE), (str(self.snap_resolution - 1), HIGHTLIGHT)])
+            self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('gridRotation'))+' : X', WHITE)])
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             self.screen_text.extend([(str(self.drawing_tool_plan_obj['local_X_rotation']), HIGHTLIGHT)])
             self.screen_text.extend([(') Y (', WHITE)])
             self.screen_text.extend([(str(self.drawing_tool_plan_obj['local_Y_rotation']), HIGHTLIGHT)])
             self.screen_text.extend([(') Z (', WHITE)])
             self.screen_text.extend([(str(self.drawing_tool_plan_obj['local_Z_rotation']), HIGHTLIGHT)])
             self.screen_text.extend([(')', WHITE)])
+<<<<<<< HEAD
             self.screen_text.extend([CR,('    Alignment helper', WHITE)])
+=======
+            self.screen_text.extend([CR,('    '+str(translate.get(get_addon_preferences().language).get('alignmentHelper')), WHITE)])
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             if self.snap_align:
                 self.screen_text.extend([(' : ', WHITE), ('D', HIGHTLIGHT)])
             else:
@@ -1916,6 +2345,10 @@ class PolyDraw(bpy.types.Operator):
             bool_obj.update_from_editmode()
 
             bpy.ops.object.mode_set(mode='OBJECT')
+<<<<<<< HEAD
+=======
+            bool_obj['fluent_type'] = 'box'
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 
             if self.bool_target:
 
@@ -2095,6 +2528,7 @@ class PolyDraw(bpy.types.Operator):
 
             bpy.ops.object.mode_set(mode = 'OBJECT')
             modif = bool_obj.modifiers.new(name='Screw', type='SCREW')
+<<<<<<< HEAD
             modif.steps = bpy.context.scene.fluentProp.prism_segments
             modif.render_steps = bpy.context.scene.fluentProp.prism_segments
             if modif.steps >= 8:
@@ -2105,6 +2539,22 @@ class PolyDraw(bpy.types.Operator):
 
             modif = bool_obj.modifiers.new(name='First_Solidify', type='SOLIDIFY')
             modif.thickness = bpy.context.scene.fluentProp.depth
+=======
+            modif.merge_threshold = 0.0001
+            modif.steps = bpy.context.scene.fluentProp.prism_segments
+            modif.render_steps = bpy.context.scene.fluentProp.prism_segments
+            if modif.steps >= 8:
+                bool_obj['fluent_type'] = 'prism'
+            else:
+                bool_obj['fluent_type'] = 'semi-prism'
+            modif.use_merge_vertices = True
+
+            modif = bool_obj.modifiers.new(name='First_Solidify', type='SOLIDIFY')
+            if self.get_view_orientation_from_matrix(bpy.context.space_data.region_3d.view_matrix) == 'UNDEFINED':
+                modif.thickness = bpy.context.scene.fluentProp.depth
+            else:
+                modif.thickness = max(self.bool_target.dimensions[0] * 1.414, self.bool_target.dimensions[1] * 1.414, self.bool_target.dimensions[2] * 1.414)
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             modif_decim = bool_obj.modifiers.new(name='Decimate', type='DECIMATE')
             modif_decim.decimate_type = 'DISSOLVE'
             modif_decim.angle_limit = 0.00174533
@@ -2194,7 +2644,10 @@ class PolyDraw(bpy.types.Operator):
                 self.build_step = 2
 
         elif self.build_step == 2:
+<<<<<<< HEAD
 
+=======
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             if event.type == 'MOUSEMOVE':
                 if self.delta_click :
                     if not event.ctrl:
@@ -2297,6 +2750,10 @@ class PolyDraw(bpy.types.Operator):
         self.bool_target.select_set(False)
         obj = active_object(obj, 'SET')
         self.bool_obj = obj
+<<<<<<< HEAD
+=======
+        self.bool_obj['fluent_type'] = 'box'
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
         obj.display_type = 'WIRE'
         self.draw_type = 'inset'
 
@@ -2331,6 +2788,17 @@ class PolyDraw(bpy.types.Operator):
             bpy.ops.object.vertex_group_assign()
             v_groups = bpy.context.active_object.vertex_groups
             v_groups[0].name = 'bevel'
+<<<<<<< HEAD
+=======
+
+            if self.mesh_maker_call and self.draw_type == 'box':
+                bpy.ops.mesh.subdivide()
+                bpy.ops.object.mode_set(mode='OBJECT')
+                obj.vertex_groups["bevel"].remove([4, 5, 6, 7, 8])
+                bpy.ops.object.mode_set(mode='EDIT')
+
+            bpy.ops.mesh.select_mode(type='FACE')
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             bpy.ops.object.mode_set(mode='OBJECT')
             obj.modifiers.new(name='First_Bevel', type='BEVEL')
             obj.modifiers['First_Bevel'].limit_method = 'VGROUP'
@@ -2349,6 +2817,10 @@ class PolyDraw(bpy.types.Operator):
                 obj.modifiers['First_Bevel'].show_render = True
             # Solidify
             obj.modifiers.new(name='First_Solidify', type='SOLIDIFY')
+<<<<<<< HEAD
+=======
+            obj.modifiers['First_Solidify'].show_in_editmode = False
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             if self.mesh_maker_call:
                 if self.bool_target:
                     obj.modifiers['First_Solidify'].offset = -1
@@ -2362,7 +2834,17 @@ class PolyDraw(bpy.types.Operator):
                         obj.modifiers['First_Solidify'].offset = -0.99
                 else:
                     obj.modifiers['First_Solidify'].offset = 0
+<<<<<<< HEAD
             obj.modifiers['First_Solidify'].thickness = bpy.context.scene.fluentProp.depth
+=======
+            if self.get_view_orientation_from_matrix(bpy.context.space_data.region_3d.view_matrix) == 'UNDEFINED':
+                obj.modifiers['First_Solidify'].thickness = bpy.context.scene.fluentProp.depth
+            else:
+                if tool_called == 'CREATION':
+                    obj.modifiers['First_Solidify'].thickness = 0
+                else:
+                    obj.modifiers['First_Solidify'].thickness = max(self.bool_target.dimensions[0] * 1.414, self.bool_target.dimensions[1] * 1.414, self.bool_target.dimensions[2] * 1.414)
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
         elif self.draw_type == 'prism':
             # flip normal si pas dans le bon sens
             if self.bool_target:
@@ -2407,7 +2889,15 @@ class PolyDraw(bpy.types.Operator):
                 modif.axis = 'Z'
                 modif.steps = 2
                 modif.render_steps = 2
+<<<<<<< HEAD
                 modif.screw_offset = bpy.context.scene.fluentProp.depth * (-1)
+=======
+                if self.get_view_orientation_from_matrix(bpy.context.space_data.region_3d.view_matrix) == 'UNDEFINED':
+                    modif.screw_offset = bpy.context.scene.fluentProp.depth * (-1)
+                else:
+                    modif.screw_offset = max(self.bool_target.dimensions[0] * 1.414, self.bool_target.dimensions[1] * 1.414, self.bool_target.dimensions[2] * 1.414) * (-1)
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                 #Decimate
                 modif = obj.modifiers.new(name='Decimate', type='DECIMATE')
                 modif.decimate_type = 'DISSOLVE'
@@ -2435,9 +2925,15 @@ class PolyDraw(bpy.types.Operator):
                 modif.steps = bpy.context.scene.fluentProp.prism_segments
                 modif.render_steps = bpy.context.scene.fluentProp.prism_segments
                 if modif.steps >= 8:
+<<<<<<< HEAD
                     obj['fluent_cylinder'] = True
                 else:
                     obj['fluent_cylinder'] = False
+=======
+                    obj['fluent_type'] = 'prism'
+                else:
+                    obj['fluent_type'] = 'semi-prism'
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                 modif.screw_offset = 0
                 bpy.context.object.modifiers["Screw"].use_merge_vertices = True
                 #Decimate
@@ -2619,6 +3115,39 @@ class PolyDraw(bpy.types.Operator):
         obj = self.bool_obj
         self.bool_obj.select_set(True)
         bpy.context.view_layer.objects.active = obj
+<<<<<<< HEAD
+=======
+
+        # saisie des valeurs
+        if event.value == 'PRESS' and event.type in {'NUMPAD_0', 'NUMPAD_1', 'NUMPAD_2', 'NUMPAD_3', 'NUMPAD_4', 'NUMPAD_5', 'NUMPAD_6', 'NUMPAD_7', 'NUMPAD_8', 'NUMPAD_9', 'NUMPAD_PERIOD', 'PERIOD', 'COMMA'}:
+            if self.enter_value == 'None':
+                self.enter_value = ''
+            if event.type == 'NUMPAD_0':
+                self.enter_value += '0'
+            elif event.type == 'NUMPAD_1':
+                self.enter_value += '1'
+            elif event.type == 'NUMPAD_2':
+                self.enter_value += '2'
+            elif event.type == 'NUMPAD_2':
+                self.enter_value += '2'
+            elif event.type == 'NUMPAD_3':
+                self.enter_value += '3'
+            elif event.type == 'NUMPAD_4':
+                self.enter_value += '4'
+            elif event.type == 'NUMPAD_5':
+                self.enter_value += '5'
+            elif event.type == 'NUMPAD_6':
+                self.enter_value += '6'
+            elif event.type == 'NUMPAD_7':
+                self.enter_value += '7'
+            elif event.type == 'NUMPAD_8':
+                self.enter_value += '8'
+            elif event.type == 'NUMPAD_9':
+                self.enter_value += '9'
+            elif event.type in {'NUMPAD_PERIOD', 'PERIOD', 'COMMA'}:
+                self.enter_value += '.'
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
         if self.adjustment == 'FIRST_SOLIDIFY':
             modif_name = 'First_Solidify'
             if event.value == 'PRESS' and event.type == 'C':
@@ -2626,15 +3155,22 @@ class PolyDraw(bpy.types.Operator):
                     if self.other_adjustement:
                         self.other_adjustement = False
                         self.modifier_previous_value = obj.modifiers[modif_name].thickness
+<<<<<<< HEAD
+=======
+                        self.x_mouse_slider_origin = event.mouse_region_x
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                     else:
                         self.other_adjustement = True
                         self.modifier_previous_value = obj.modifiers[modif_name].offset
                         self.x_mouse_slider_origin = event.mouse_region_x
                 elif self.draw_type == 'path':
                     obj.modifiers[modif_name].thickness = 0.001
+<<<<<<< HEAD
             if event.value == 'PRESS' and event.type == 'V':
                 if self.draw_type in {'box', 'poly', 'prism'}:
                     obj.modifiers[modif_name].thickness = max(self.bool_target.dimensions[0] * 1.414, self.bool_target.dimensions[1] * 1.414, self.bool_target.dimensions[2] * 1.414)
+=======
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 
             if self.shift_work:
                 increment = 3000
@@ -2642,26 +3178,59 @@ class PolyDraw(bpy.types.Operator):
                 increment = 30
             else:
                 increment = 300
+<<<<<<< HEAD
+=======
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             if self.shift_press or self.shift_release or self.ctrl_press or self.ctrl_release:
                 self.x_mouse_slider_origin = event.mouse_region_x
                 if not self.other_adjustement:
                     self.modifier_previous_value = obj.modifiers[modif_name].thickness
                 else:
                     self.modifier_previous_value = obj.modifiers[modif_name].offset
+<<<<<<< HEAD
             if not self.other_adjustement:
                 if event.mouse_region_x != self.x_mouse_slider_origin and event.type == 'MOUSEMOVE':
                     obj.modifiers[modif_name].thickness = self.modifier_previous_value - ((event.mouse_region_x - self.x_mouse_slider_origin)/increment)
             else:
                 if event.mouse_region_x != self.x_mouse_slider_origin:
                     obj.modifiers[modif_name].offset = self.modifier_previous_value + ((event.mouse_region_x - self.x_mouse_slider_origin)/increment)
+=======
+
+            if not self.other_adjustement:
+                if event.mouse_region_x != self.x_mouse_slider_origin:
+                    obj.modifiers[modif_name].thickness = self.modifier_previous_value - ((event.mouse_region_x - self.x_mouse_slider_origin)/increment)
+                if enter_value_validation(self.enter_value, event)[0]:
+                    obj.modifiers[modif_name].thickness = enter_value_validation(self.enter_value, event)[1]
+                    self.end_of_adjustment()
+            else:
+                if event.mouse_region_x != self.x_mouse_slider_origin:
+                    obj.modifiers[modif_name].offset = self.modifier_previous_value + ((event.mouse_region_x - self.x_mouse_slider_origin)/increment)
+                if enter_value_validation(self.enter_value, event)[0]:
+                    obj.modifiers[modif_name].offset = enter_value_validation(self.enter_value, event)[1]
+                    self.end_of_adjustment()
+
+            if event.value == 'PRESS' and event.type == 'V':
+                if self.draw_type in {'box', 'poly', 'prism'}:
+                    obj.modifiers[modif_name].thickness = max(self.bool_target.dimensions[0] * 1.414, self.bool_target.dimensions[1] * 1.414, self.bool_target.dimensions[2] * 1.414)
+                    self.end_of_adjustment()
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             if obj.modifiers[modif_name].thickness > 0 and not self.rebool_call and not self.mesh_maker_call and self.bool_operation != 'DIFFERENCE' and self.draw_type != 'path':
                 self.bool_operation = 'DIFFERENCE'
                 self.switch_bool_operation()
             elif  obj.modifiers[modif_name].thickness < 0 and not self.rebool_call and not self.mesh_maker_call and self.bool_operation != 'UNION' and self.draw_type != 'path':
                 self.bool_operation = 'UNION'
                 self.switch_bool_operation()
+<<<<<<< HEAD
             if obj.modifiers[modif_name].offset < -1 :
                 obj.modifiers[modif_name].offset = -1
+=======
+
+            if obj.modifiers[modif_name].offset < -1 :
+                obj.modifiers[modif_name].offset = -1
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             if obj.modifiers[modif_name].offset > 1 :
                 obj.modifiers[modif_name].offset = 1
 
@@ -2680,6 +3249,12 @@ class PolyDraw(bpy.types.Operator):
                 self.modifier_previous_value = obj.modifiers[modif_name].screw_offset
             if event.mouse_region_x != self.x_mouse_slider_origin and event.type == 'MOUSEMOVE':
                 obj.modifiers[modif_name].screw_offset = self.modifier_previous_value - ((event.mouse_region_x - self.x_mouse_slider_origin)/increment)
+<<<<<<< HEAD
+=======
+            if enter_value_validation(self.enter_value, event)[0]:
+                    obj.modifiers[modif_name].screw_offset = enter_value_validation(self.enter_value, event)[1]
+                    self.end_of_adjustment()
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             if obj.modifiers[modif_name].screw_offset < 0 and not self.rebool_call and not self.mesh_maker_call and self.bool_operation == 'UNION':
                 self.bool_operation = 'DIFFERENCE'
                 self.switch_bool_operation()
@@ -2715,8 +3290,16 @@ class PolyDraw(bpy.types.Operator):
                 self.modifier_previous_value = obj.modifiers['Second_Solidify'].thickness
             if event.mouse_region_x != self.x_mouse_slider_origin:
                 obj.modifiers['Second_Solidify'].thickness = self.modifier_previous_value - ((event.mouse_region_x - self.x_mouse_slider_origin)/increment)
+<<<<<<< HEAD
             if event.value == 'PRESS' and event.type == 'C':
                 obj.modifiers['Second_Solidify'].thickness = .001
+=======
+            if enter_value_validation(self.enter_value, event)[0]:
+                obj.modifiers[modif_name].thickness = enter_value_validation(self.enter_value, event)[1]
+                self.end_of_adjustment()
+            if event.value == 'PRESS' and event.type == 'C':
+                obj.modifiers['Second_Solidify'].thickness = .0001
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                 self.end_of_adjustment()
 
             if event.value == 'PRESS' and event.type == 'DEL':
@@ -2734,7 +3317,13 @@ class PolyDraw(bpy.types.Operator):
                 self.modifier_previous_value = obj.modifiers['First_Bevel'].width
             if event.mouse_region_x != self.x_mouse_slider_origin:
                 obj.modifiers['First_Bevel'].width = self.modifier_previous_value + ((event.mouse_region_x - self.x_mouse_slider_origin)/increment)
+<<<<<<< HEAD
 
+=======
+            if enter_value_validation(self.enter_value, event)[0]:
+                obj.modifiers['First_Bevel'].width = enter_value_validation(self.enter_value, event)[1]
+                self.end_of_adjustment()
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             if obj.modifiers['First_Bevel'].segments != 1:
                 obj.modifiers['First_Bevel'].segments = self.auto_bevel_segments(context,obj,'First_Bevel')
             if obj.modifiers['First_Bevel'].width == 0:
@@ -2764,6 +3353,12 @@ class PolyDraw(bpy.types.Operator):
                 self.modifier_previous_value = obj.modifiers['Second_Bevel'].width
             if event.mouse_region_x != self.x_mouse_slider_origin:
                 obj.modifiers['Second_Bevel'].width = self.modifier_previous_value + ((event.mouse_region_x - self.x_mouse_slider_origin)/increment)
+<<<<<<< HEAD
+=======
+            if enter_value_validation(self.enter_value, event)[0]:
+                obj.modifiers['Second_Bevel'].width = enter_value_validation(self.enter_value, event)[1]
+                self.end_of_adjustment()
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             if obj.modifiers['Second_Bevel'].segments != 1:
                 obj.modifiers['Second_Bevel'].segments = self.auto_bevel_segments(context,obj,'Second_Bevel')
             if obj.modifiers['Second_Bevel'].width == 0:
@@ -2920,12 +3515,22 @@ class PolyDraw(bpy.types.Operator):
                     else:
                         obj.modifiers['ArrayZ'].count = self.modifier_previous_value + (event.mouse_region_x - self.x_mouse_slider_origin)/40
 
+<<<<<<< HEAD
         if self.draw_type == 'prism' and event.type == 'MOUSEMOVE' and self.adjustment == 'RADIUS':
+=======
+        if self.draw_type == 'prism' and self.adjustment == 'RADIUS':
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             obj = bpy.context.active_object
             if event.mouse_region_x != self.x_mouse_slider_origin and not event.shift:
                 obj.modifiers['Radius'].strength = self.modifier_previous_value + ((self.mouse_x - self.x_mouse_slider_origin)/100)
             else:
                 obj.modifiers['Radius'].strength = self.modifier_previous_value + ((self.mouse_x - self.x_mouse_slider_origin)/1000)
+<<<<<<< HEAD
+=======
+            if enter_value_validation(self.enter_value, event)[0]:
+                obj.modifiers['Radius'].strength = enter_value_validation(self.enter_value, event)[1]
+                self.end_of_adjustment()
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 
         if self.draw_type in {'prism', 'screw'} and self.adjustment == 'RESOLUTION':
             obj = bpy.context.active_object
@@ -2936,6 +3541,7 @@ class PolyDraw(bpy.types.Operator):
             if self.shift_press or self.shift_release:
                 self.modifier_previous_value = obj.modifiers['Screw'].steps
                 self.x_mouse_slider_origin = event.mouse_region_x
+<<<<<<< HEAD
             if event.type == 'MOUSEMOVE':
                 if event.mouse_region_x != self.x_mouse_slider_origin:
                         obj.modifiers['Screw'].steps = self.modifier_previous_value + ((event.mouse_region_x - self.x_mouse_slider_origin)/increment)
@@ -2947,6 +3553,19 @@ class PolyDraw(bpy.types.Operator):
                     obj['fluent_cylinder'] = True
                 else:
                     obj['fluent_cylinder'] = False
+=======
+            if event.mouse_region_x != self.x_mouse_slider_origin:
+                obj.modifiers['Screw'].steps = self.modifier_previous_value + ((event.mouse_region_x - self.x_mouse_slider_origin)/increment)
+                obj.modifiers['Screw'].render_steps = obj.modifiers['Screw'].steps
+            if enter_value_validation(self.enter_value, event)[0]:
+                obj.modifiers['Screw'].steps = enter_value_validation(self.enter_value, event)[1]
+                obj.modifiers['Screw'].render_steps = enter_value_validation(self.enter_value, event)[1]
+                self.end_of_adjustment()
+            if obj.modifiers['Screw'].steps >= 8:
+                obj['fluent_type'] = 'prism'
+            else:
+                obj['fluent_type'] = 'semi-prism'
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 
         if self.draw_type == 'prism' and event.value == 'PRESS' and event.type == 'C' and self.adjustment == 'RESOLUTION':
             obj = bpy.context.active_object
@@ -2958,6 +3577,7 @@ class PolyDraw(bpy.types.Operator):
                 obj.modifiers['Screw'].render_steps = obj.modifiers['Screw'].steps
 
         if self.adjustment == 'CIRCULAR_ARRAY':
+<<<<<<< HEAD
             has_circular_array = False
             for m in self.bool_obj.modifiers:
                 if m.name == 'circular_displace':
@@ -2970,6 +3590,20 @@ class PolyDraw(bpy.types.Operator):
                         m.show_render = True
                         m.show_viewport = True
             if not has_circular_array:
+=======
+            has_Circular_Array = False
+            for m in self.bool_obj.modifiers:
+                if m.name == 'Circular_Displace':
+                    has_Circular_Array = True
+                    if not m.show_render:
+                        m.show_render = True
+                        m.show_viewport = True
+                if m.name == 'Circular_Array':
+                    if not m.show_render:
+                        m.show_render = True
+                        m.show_viewport = True
+            if not has_Circular_Array:
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                 # bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY')
                 bpy.ops.view3d.snap_cursor_to_selected()
                 bpy.ops.object.add(type='EMPTY')
@@ -2977,15 +3611,25 @@ class PolyDraw(bpy.types.Operator):
 
                 self.empty_obj.matrix_world = self.bool_obj.matrix_world
 
+<<<<<<< HEAD
                 self.empty_matrix_save = self.bool_obj.matrix_world
 
                 displace_modif = self.bool_obj.modifiers.new(name='circular_displace', type='DISPLACE')
+=======
+                self.empty_matrix_save = self.bool_obj.matrix_world.copy()
+
+                displace_modif = self.bool_obj.modifiers.new(name='Circular_Displace', type='DISPLACE')
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                 displace_modif.direction = 'X'
                 displace_modif.show_in_editmode = True
                 displace_modif.show_on_cage = True
                 displace_modif.strength = 0
 
+<<<<<<< HEAD
                 array_modif = self.bool_obj.modifiers.new(name='circular_array', type='ARRAY')
+=======
+                array_modif = self.bool_obj.modifiers.new(name='Circular_Array', type='ARRAY')
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                 array_modif.use_relative_offset = False
                 array_modif.use_object_offset = True
                 array_modif.count = 4
@@ -2994,6 +3638,7 @@ class PolyDraw(bpy.types.Operator):
 
                 # place les modifiers au dessus des array et du mirror
                 context.view_layer.objects.active = self.bool_obj
+<<<<<<< HEAD
                 bpy.ops.object.modifier_move_up(modifier="circular_displace")
                 bpy.ops.object.modifier_move_up(modifier="circular_displace")
                 bpy.ops.object.modifier_move_up(modifier="circular_displace")
@@ -3003,6 +3648,17 @@ class PolyDraw(bpy.types.Operator):
                 bpy.ops.object.modifier_move_up(modifier="circular_array")
                 bpy.ops.object.modifier_move_up(modifier="circular_array")
                 bpy.ops.object.modifier_move_up(modifier="circular_array")
+=======
+                bpy.ops.object.modifier_move_up(modifier="Circular_Displace")
+                bpy.ops.object.modifier_move_up(modifier="Circular_Displace")
+                bpy.ops.object.modifier_move_up(modifier="Circular_Displace")
+                bpy.ops.object.modifier_move_up(modifier="Circular_Displace")
+
+                bpy.ops.object.modifier_move_up(modifier="Circular_Array")
+                bpy.ops.object.modifier_move_up(modifier="Circular_Array")
+                bpy.ops.object.modifier_move_up(modifier="Circular_Array")
+                bpy.ops.object.modifier_move_up(modifier="Circular_Array")
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 
                 self.bool_obj.select_set(True)
                 self.empty_obj.select_set(True)
@@ -3015,21 +3671,37 @@ class PolyDraw(bpy.types.Operator):
                 if event.value == 'PRESS' and event.type == 'C':
                     if self.other_adjustement:
                         self.other_adjustement = False
+<<<<<<< HEAD
                         self.modifier_previous_value = self.bool_obj.modifiers['circular_displace'].strength
                         self.x_mouse_slider_origin = event.mouse_region_x
                     else:
                         self.other_adjustement = True
                         self.modifier_previous_value = self.bool_obj.modifiers['circular_array'].count
+=======
+                        self.modifier_previous_value = self.bool_obj.modifiers['Circular_Displace'].strength
+                        self.x_mouse_slider_origin = event.mouse_region_x
+                    else:
+                        self.other_adjustement = True
+                        self.modifier_previous_value = self.bool_obj.modifiers['Circular_Array'].count
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                         self.x_mouse_slider_origin = event.mouse_region_x
 
                 if self.shift_press or self.shift_release or self.ctrl_press or self.ctrl_release:
                     self.x_mouse_slider_origin = event.mouse_region_x
                     if self.other_adjustement:
+<<<<<<< HEAD
                         self.modifier_previous_value = self.bool_obj.modifiers['circular_array'].count
                     else:
                         self.modifier_previous_value = self.bool_obj.modifiers['circular_displace'].strength
 
                 if event.type == 'MOUSEMOVE':
+=======
+                        self.modifier_previous_value = self.bool_obj.modifiers['Circular_Array'].count
+                    else:
+                        self.modifier_previous_value = self.bool_obj.modifiers['Circular_Displace'].strength
+
+                if event.type == 'MOUSEMOVE' or enter_value_validation(self.enter_value, event):
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                     if not self.other_adjustement:
                         if self.shift_work:
                             increment = 2000
@@ -3039,8 +3711,16 @@ class PolyDraw(bpy.types.Operator):
                             increment = 200
                         if self.shift_press or self.shift_release or self.ctrl_press or self.ctrl_release:
                             self.x_mouse_slider_origin = event.mouse_region_x
+<<<<<<< HEAD
                             self.modifier_previous_value = self.bool_obj.modifiers['circular_displace'].strength
                         self.bool_obj.modifiers['circular_displace'].strength = self.modifier_previous_value + ((event.mouse_region_x - self.x_mouse_slider_origin)/increment)
+=======
+                            self.modifier_previous_value = self.bool_obj.modifiers['Circular_Displace'].strength
+                        self.bool_obj.modifiers['Circular_Displace'].strength = self.modifier_previous_value + ((event.mouse_region_x - self.x_mouse_slider_origin)/increment)
+                        if enter_value_validation(self.enter_value, event)[0]:
+                            obj.modifiers['Circular_Displace'].strength = enter_value_validation(self.enter_value, event)[1]
+                            self.end_of_adjustment()
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                     else:
                         if self.shift_work:
                             increment = 300
@@ -3048,6 +3728,7 @@ class PolyDraw(bpy.types.Operator):
                             increment = 20
                         else:
                             increment = 100
+<<<<<<< HEAD
                         a = self.bool_obj.modifiers['circular_array'].count
                         self.bool_obj.modifiers['circular_array'].count = int(self.modifier_previous_value + ((event.mouse_region_x - self.x_mouse_slider_origin)/increment))
                         b = self.bool_obj.modifiers['circular_array'].count
@@ -3058,6 +3739,19 @@ class PolyDraw(bpy.types.Operator):
                 if event.value == 'PRESS' and event.type == 'DEL':
                     self.hideModifier(obj, 'circular_displace')
                     self.hideModifier(obj, 'circular_array')
+=======
+                        a = self.bool_obj.modifiers['Circular_Array'].count
+                        self.bool_obj.modifiers['Circular_Array'].count = int(self.modifier_previous_value + ((event.mouse_region_x - self.x_mouse_slider_origin)/increment))
+                        b = self.bool_obj.modifiers['Circular_Array'].count
+                        if a != b:
+                            self.empty_obj.matrix_world = self.empty_matrix_save
+                            angle = 360 / self.bool_obj.modifiers['Circular_Array'].count
+                            self.empty_obj.matrix_world @= Matrix.Rotation(math.radians(angle), 4, 'Z')
+
+                if event.value == 'PRESS' and event.type == 'DEL':
+                    self.hideModifier(obj, 'Circular_Displace')
+                    self.hideModifier(obj, 'Circular_Array')
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                 if event.value == 'PRESS' and event.type == 'V' and not self.draw_type in {'prism', 'screw'} :
                     for v in self.bool_obj.data.vertices:
                         rotated_point = rotation_cartesian(v.co.x, v.co.y)
@@ -3113,6 +3807,16 @@ class PolyDraw(bpy.types.Operator):
             else:
                 obj.modifiers['Decimate'].show_viewport = True
 
+<<<<<<< HEAD
+=======
+        if self.adjustment == 'FLIP':
+            if obj.modifiers["Screw"].use_normal_flip:
+                obj.modifiers["Screw"].use_normal_flip = False
+            else:
+                obj.modifiers["Screw"].use_normal_flip = True
+            self.end_of_adjustment()
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     def modal(self, context, event):
         self.mouse_x = event.mouse_region_x
         self.mouse_y = event.mouse_region_y
@@ -3127,6 +3831,11 @@ class PolyDraw(bpy.types.Operator):
             self.shift_work = False
         elif not event.shift and self.shift_release:
             self.shift_release = False
+<<<<<<< HEAD
+=======
+        else:
+            self.shift_press = False
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
         # gestion des evenements du ctrl
         if event.ctrl and not self.ctrl_press and not self.ctrl_work:
             self.ctrl_press = True
@@ -3138,13 +3847,21 @@ class PolyDraw(bpy.types.Operator):
             self.ctrl_work = False
         elif not event.ctrl and self.ctrl_release:
             self.ctrl_release = False
+<<<<<<< HEAD
+=======
+        else:
+            self.ctrl_press = False
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 
         self.update_display()
         draw_callback_px(self, context)
 
+<<<<<<< HEAD
         if event.type in {'MIDDLEMOUSE', 'WHEELUPMOUSE', 'WHEELDOWNMOUSE', 'NUMPAD_1', 'NUMPAD_2', 'NUMPAD_3', 'NUMPAD_5', 'NUMPAD_7', 'G', 'TAB'} and self.build_step in {0.5,1, 2, 3, 4} or event.type == 'R' and  self.build_step in {3, 4} or event.alt:
             return {'PASS_THROUGH'}
 
+=======
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
         if bpy.context.active_object:
             if bpy.context.active_object.mode == 'EDIT' and event.value == 'PRESS' and event.type == 'I' and event.shift and not self.bool_obj:
                 self.make_inset()
@@ -3156,6 +3873,19 @@ class PolyDraw(bpy.types.Operator):
             elif bpy.context.active_object.mode == 'EDIT':
                 return {'PASS_THROUGH'}
 
+<<<<<<< HEAD
+=======
+        if event.type in {'NUMPAD_1', 'NUMPAD_2', 'NUMPAD_3', 'NUMPAD_5', 'NUMPAD_7'} and self.build_step in {0.5,1, 2, 3, 4} and not event.shift or event.type == 'R' and  self.build_step in {3, 4} or event.alt:
+            return {'PASS_THROUGH'}
+
+        # if event.type == get_addon_preferences().fluent_menu_shortcut_key and event:
+        #     return {'RUNNING_MODAL'}
+
+        if event.type in {'MIDDLEMOUSE', 'WHEELUPMOUSE', 'WHEELDOWNMOUSE', 'G', 'TAB'}:
+            return {'PASS_THROUGH'}
+
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
         if event.value == 'PRESS' and event.type == 'LEFTMOUSE':
             self.mouse_click = True
         if event.value == 'RELEASE' and event.type == 'LEFTMOUSE':
@@ -3213,7 +3943,10 @@ class PolyDraw(bpy.types.Operator):
             preset_manager('GET', self.bool_obj)
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
         # reset de la sauvegarde des ajustements
         if self.build_step == 3 and event.value == 'PRESS' and event.type == 'E' and event.shift:
             preset_manager('RESET')
@@ -3237,6 +3970,10 @@ class PolyDraw(bpy.types.Operator):
                 self.display_menu = self.screw_menu
         try:
             if not self.mouse_click and self.build_step == 4:
+<<<<<<< HEAD
+=======
+                self.enter_value = 'None'
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                 self.adjustment = self.display_menu.action()
                 self.x_mouse_slider_origin = event.mouse_region_x
                 if self.adjustment == 'ARRAY':
@@ -3245,11 +3982,19 @@ class PolyDraw(bpy.types.Operator):
                 if self.adjustment == 'CIRCULAR_ARRAY':
                     self.x_mouse_slider_origin = event.mouse_region_x
                     for m in self.bool_obj.modifiers:
+<<<<<<< HEAD
                         if m.name == 'circular_displace':
                             if self.other_adjustement:
                                 self.modifier_previous_value = self.bool_obj.modifiers['circular_array'].count
                             else:
                                 self.modifier_previous_value = self.bool_obj.modifiers['circular_displace'].strength
+=======
+                        if m.name == 'Circular_Displace':
+                            if self.other_adjustement:
+                                self.modifier_previous_value = self.bool_obj.modifiers['Circular_Array'].count
+                            else:
+                                self.modifier_previous_value = self.bool_obj.modifiers['Circular_Displace'].strength
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                 if self.adjustment == 'SYMETRIZE':
                     bpy.ops.transform.select_orientation(orientation='GLOBAL')
                     bpy.ops.wm.tool_set_by_id(name="builtin.move", cycle=False, space_type='VIEW_3D')
@@ -3356,8 +4101,13 @@ class PolyDraw(bpy.types.Operator):
 
             if self.action == 'RESOLUTION_UP':
                 self.snap_resolution = self.snap_resolution + 1
+<<<<<<< HEAD
                 if self.snap_resolution >= 22:
                     self.snap_resolution = 21
+=======
+                if self.snap_resolution >= 42:
+                    self.snap_resolution = 41
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                 get_addon_preferences().grid_resolution = self.snap_resolution
                 self.snap_refresh = True
                 self.action = None
@@ -3443,6 +4193,10 @@ class PolyDraw(bpy.types.Operator):
                 self.action = None
         except:pass
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
         # rotation du plan de dessin en vue d'un screw *************************************************************************
         if event.value == 'PRESS' and event.type =='A' and self.draw_type == 'poly':
             if self.screw_drawing :
@@ -3474,11 +4228,24 @@ class PolyDraw(bpy.types.Operator):
             bpy.types.SpaceView3D.draw_handler_remove(self._handle_two, 'WINDOW')
             context.area.tag_redraw()
             self.end_of_drawing('END')
+<<<<<<< HEAD
 
+=======
+            global polydraw_run
+            polydraw_run = False
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             return {'FINISHED'}
 
         # Cancel *****************************************************************************
         if event.type == 'ESC':
+<<<<<<< HEAD
+=======
+            bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
+            bpy.types.SpaceView3D.draw_handler_remove(self._handle_two, 'WINDOW')
+            if tool_called == 'EDIT':
+                bpy.context.object.display_type = self.old_display_style
+                return {'CANCELLED'}
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             if bpy.data.objects.get("drawing_tool_plan_obj"):
                 obj = bpy.data.objects.get("drawing_tool_plan_obj")
                 bpy.ops.object.hide_view_set()
@@ -3501,6 +4268,7 @@ class PolyDraw(bpy.types.Operator):
                 self.original_bool_target.select_set(True)
                 bpy.context.view_layer.objects.active = self.original_bool_target
 
+<<<<<<< HEAD
             bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
             bpy.types.SpaceView3D.draw_handler_remove(self._handle_two, 'WINDOW')
             return {'CANCELLED'}
@@ -3509,6 +4277,17 @@ class PolyDraw(bpy.types.Operator):
 
         if event.value == 'PRESS' and event.type == 'SPACE' and self.draw_type == 'poly' and self.build_step == 2:
             self.draw_type = 'path'
+=======
+            # global polydraw_run
+            polydraw_run = False
+            return {'CANCELLED'}
+
+        # Dessin ****************************************************************************************************
+        if event.value == 'PRESS' and event.type == 'RIGHTMOUSE' and self.screw_drawing and self.build_step == 2:
+            self.draw_type = 'path'
+
+            for m in self.meshes_names_to_clean:
+                bpy.data.meshes.remove(bpy.data.meshes[m])
 
             bpy.ops.object.mode_set(mode='EDIT')
             bpy.ops.mesh.delete(type='ONLY_FACE')
@@ -3530,14 +4309,58 @@ class PolyDraw(bpy.types.Operator):
             self.bool_obj.select_set(True)
 
             self.add_modifiers(context, event, self.bool_obj)
+
+            local_rotate(self.bool_obj, 'X', 90)
+            bpy.ops.view3d.snap_cursor_to_selected()
+            bpy.context.scene.tool_settings.transform_pivot_point = 'CURSOR'
+            bpy.ops.object.editmode_toggle()
+            bpy.ops.transform.rotate(value=1.5708, orient_axis='X', orient_type='LOCAL', orient_matrix_type='LOCAL', constraint_axis=(True, False, False))
+            bpy.ops.object.editmode_toggle()
+            bpy.context.scene.tool_settings.transform_pivot_point = 'BOUNDING_BOX_CENTER'
+            self.bool_obj.modifiers['Screw'].axis ='Z'
+            self.draw_type = 'screw'
+            self.bool_obj['fluent_type'] = 'screw'
+            self.build_step = 3
+
+        if event.value == 'PRESS' and event.type == 'SPACE' and self.draw_type == 'poly' and not self.screw_drawing and self.build_step == 2:
+            self.draw_type = 'path'
+            self.bool_obj['fluent_type'] = 'path'
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
+
+            bpy.ops.object.mode_set(mode='EDIT')
+            bpy.ops.mesh.delete(type='ONLY_FACE')
+            bpy.ops.mesh.select_all(action='DESELECT')
+            bpy.ops.object.mode_set(mode='OBJECT')
+            self.bool_obj.data.vertices[self.poly_count-1].select = True
+            bpy.ops.object.mode_set(mode='EDIT')
+            bpy.ops.mesh.delete(type='VERT')
+
+            bpy.ops.mesh.select_all(action='SELECT')
+            bpy.ops.mesh.remove_doubles()
+            bpy.ops.object.mode_set(mode='OBJECT')
+            self.drawing_tool_plan_obj.hide_viewport = False
+            bpy.ops.object.select_all(action='DESELECT')
+            self.drawing_tool_plan_obj.select_set(True)
+            bpy.ops.object.delete()
+
+            bpy.context.view_layer.objects.active = self.bool_obj
+            self.bool_obj.select_set(True)
+
+            self.add_modifiers(context, event, self.bool_obj)
+<<<<<<< HEAD
             if not self.screw_drawing :
                 self.item_hover = 1
+=======
+            self.item_hover = 1
+            if self.get_view_orientation_from_matrix(bpy.context.space_data.region_3d.view_matrix) == 'UNDEFINED':
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                 self.build_step = 5
                 self.x_mouse_slider_origin = event.mouse_region_x
                 self.adjustment = 'SCREW'
                 obj = bpy.context.active_object
                 self.modifier_previous_value = self.bool_obj.modifiers['Screw'].screw_offset
             else:
+<<<<<<< HEAD
                 local_rotate(self.bool_obj, 'X', -90)
                 bpy.ops.view3d.snap_cursor_to_selected()
                 bpy.context.scene.tool_settings.transform_pivot_point = 'CURSOR'
@@ -3550,6 +4373,16 @@ class PolyDraw(bpy.types.Operator):
                 self.build_step = 3
 
         if event.value == 'PRESS' and event.type == 'RIGHTMOUSE' and self.draw_type == 'poly' and self.build_step == 2:
+=======
+                self.build_step = 3
+
+        if event.value == 'PRESS' and event.type == 'RIGHTMOUSE' and self.draw_type == 'poly' and not self.screw_drawing and self.build_step == 2:
+            self.bool_obj['fluent_type'] = 'poly'
+
+            for m in self.meshes_names_to_clean:
+                bpy.data.meshes.remove(bpy.data.meshes[m])
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             # replace le dernier vertice sur le precedent
             self.bool_obj.data.vertices[self.poly_count-1].co.x = self.bool_obj.data.vertices[self.poly_count].co.x
             self.bool_obj.data.vertices[self.poly_count-1].co.y = self.bool_obj.data.vertices[self.poly_count].co.y
@@ -3573,12 +4406,24 @@ class PolyDraw(bpy.types.Operator):
             self.add_modifiers(context, event, self.bool_obj)
             if bpy.context.scene.fluentProp.depth == 0:
                 self.item_hover = 1
+<<<<<<< HEAD
                 self.build_step = 5
 
                 self.x_mouse_slider_origin = event.mouse_region_x
                 self.adjustment = 'FIRST_SOLIDIFY'
                 obj = bpy.context.active_object
                 self.modifier_previous_value = self.bool_obj.modifiers['First_Solidify'].thickness
+=======
+                if self.get_view_orientation_from_matrix(bpy.context.space_data.region_3d.view_matrix) == 'UNDEFINED':
+                    self.build_step = 5
+                    self.x_mouse_slider_origin = event.mouse_region_x
+                    self.adjustment = 'FIRST_SOLIDIFY'
+                    obj = bpy.context.active_object
+                    self.modifier_previous_value = self.bool_obj.modifiers['First_Solidify'].thickness
+                else:
+                    self.build_step = 3
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             else:
                 self.build_step = 3
 
@@ -3622,6 +4467,13 @@ class PolyDraw(bpy.types.Operator):
 
         if event.type == 'LEFTMOUSE' and event.value == 'PRESS' and self.draw_type == 'box' and self.build_step == 2 and not self.menu_hover:
             self.build_step = 3
+<<<<<<< HEAD
+=======
+
+            for m in self.meshes_names_to_clean:
+                bpy.data.meshes.remove(bpy.data.meshes[m])
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             self.drawing_tool_plan_obj.hide_viewport = False
             bpy.ops.object.select_all(action='DESELECT')
             self.drawing_tool_plan_obj.select_set(True)
@@ -3637,11 +4489,22 @@ class PolyDraw(bpy.types.Operator):
 
             self.add_modifiers(context, event, self.bool_obj)
             if bpy.context.scene.fluentProp.depth == 0:
+<<<<<<< HEAD
                 self.adjustment = 'FIRST_SOLIDIFY'
                 self.build_step = 5
                 self.x_mouse_slider_origin = event.mouse_region_x
                 obj = bpy.context.active_object
                 self.modifier_previous_value = self.bool_obj.modifiers['First_Solidify'].thickness
+=======
+                if self.get_view_orientation_from_matrix(bpy.context.space_data.region_3d.view_matrix) == 'UNDEFINED':
+                    self.adjustment = 'FIRST_SOLIDIFY'
+                    self.build_step = 5
+                    self.x_mouse_slider_origin = event.mouse_region_x
+                    obj = bpy.context.active_object
+                    self.modifier_previous_value = self.bool_obj.modifiers['First_Solidify'].thickness
+                else:
+                    self.build_step = 3
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             else:
                 self.build_step = 3
 
@@ -3686,17 +4549,35 @@ class PolyDraw(bpy.types.Operator):
 
         if event.type == 'LEFTMOUSE' and event.value == 'PRESS' and self.draw_type == 'prism' and self.build_step == 2 and not self.menu_hover:
             self.build_step = 3
+<<<<<<< HEAD
+=======
+
+            for m in self.meshes_names_to_clean:
+                bpy.data.meshes.remove(bpy.data.meshes[m])
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             self.drawing_tool_plan_obj.hide_viewport = False
             bpy.ops.object.select_all(action='DESELECT')
             self.drawing_tool_plan_obj.select_set(True)
             bpy.ops.object.delete()
             self.add_modifiers(context, event, self.bool_obj)
             if bpy.context.scene.fluentProp.depth == 0:
+<<<<<<< HEAD
                 self.build_step = 5
                 self.x_mouse_slider_origin = event.mouse_region_x
                 self.adjustment = 'FIRST_SOLIDIFY'
                 obj = bpy.context.active_object
                 self.modifier_previous_value = self.bool_obj.modifiers['First_Solidify'].thickness
+=======
+                if self.get_view_orientation_from_matrix(bpy.context.space_data.region_3d.view_matrix) == 'UNDEFINED':
+                    self.build_step = 5
+                    self.x_mouse_slider_origin = event.mouse_region_x
+                    self.adjustment = 'FIRST_SOLIDIFY'
+                    obj = bpy.context.active_object
+                    self.modifier_previous_value = self.bool_obj.modifiers['First_Solidify'].thickness
+                else:
+                    self.build_step = 3
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             else:
                 self.build_step = 3
 
@@ -3761,6 +4642,15 @@ class PolyDraw(bpy.types.Operator):
         return {'RUNNING_MODAL'}
 
     def end_of_drawing(self, action = 'END'):
+<<<<<<< HEAD
+=======
+        if tool_called == 'EDIT':
+            bpy.context.object.display_type = self.old_display_style
+            global polydraw_run
+            polydraw_run = False
+            return {'FINISHED'}
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
         if bpy.data.objects.get("drawing_tool_plan_obj"):
             self.bool_obj['local_X_rotation'] = self.drawing_tool_plan_obj['local_X_rotation']
             self.bool_obj['local_Y_rotation'] = self.drawing_tool_plan_obj['local_Y_rotation']
@@ -3830,12 +4720,26 @@ class PolyDraw(bpy.types.Operator):
             self.original_bool_target.select_set(True)
             bpy.context.view_layer.objects.active = self.original_bool_target
             if get_addon_preferences().auto_parent:
+<<<<<<< HEAD
                 bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)
                 self.bool_obj.select_set(False)
                 the_copy.select_set(False)
                 bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)
 
         if not self.mesh_maker_call:
+=======
+                the_copy.select_set(True)
+                bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)
+                the_copy.select_set(False)
+
+        if not self.mesh_maker_call:
+            if self.original_bool_target.data.use_auto_smooth:
+                self.bool_obj.data.use_auto_smooth = True
+            if self.original_bool_target.data.polygons[0].use_smooth:
+                for p in self.bool_obj.data.polygons:
+                    p.use_smooth = True
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             self.bool_obj.hide_render = True
             if get_addon_preferences().auto_hide_bool:
                 self.bool_obj.hide_viewport = True
@@ -3864,18 +4768,35 @@ class PolyDraw(bpy.types.Operator):
                     latest_bevel_manager(the_copy, 'ADD')
                     weighted_normals_manager(the_copy, 'ADD')
             bpy.data.collections['Bool_Objects'].objects.link(self.bool_obj)
+<<<<<<< HEAD
             bpy.context.scene.collection.objects.unlink(self.bool_obj)
+=======
+            try:
+                bpy.context.scene.collection.objects.unlink(self.bool_obj)
+            except:pass
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             self.bool_obj['fluent_bool_object'] = True
         else:
             self.bool_obj.show_wire = False
             self.bool_obj.select_set(True)
             bpy.context.view_layer.objects.active = self.bool_obj
+<<<<<<< HEAD
             bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
             self.bool_obj['fluent_object'] = True
             # creer la collection si non existante
             # if not bpy.data.collections.get('Fluent_Creation'):
             #     coll = bpy.data.collections.new("Fluent_Creation")
             #     bpy.context.scene.collection.children.link(coll)
+=======
+            # bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
+            self.bool_obj['fluent_object'] = True
+            for m in self.bool_obj.modifiers:
+                m.show_expanded = False
+            # creer la collection si non existante
+            if not bpy.data.collections.get('Fluent_Creations'):
+                coll = bpy.data.collections.new("Fluent_Creations")
+                bpy.context.scene.collection.children.link(coll)
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             bpy.data.collections['Fluent_Creations'].objects.link(self.bool_obj)
             bpy.context.scene.collection.objects.unlink(self.bool_obj)
             if self.bool_target:
@@ -4016,6 +4937,10 @@ class PolyDraw(bpy.types.Operator):
             self.out_of_grid = 8
             # 1 : pas commencé; 2 : dessin en cours; 3 : ajustement; 4 : ajustement en cours
             self.build_step = 1
+<<<<<<< HEAD
+=======
+            self.enter_value = 'None'
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 
             self.bool_operation = 'DIFFERENCE'
             self.draw_type = 'box'
@@ -4050,6 +4975,11 @@ class PolyDraw(bpy.types.Operator):
             self.empty_matrix_save = None
             self.empty_origin = None
 
+<<<<<<< HEAD
+=======
+            self.meshes_names_to_clean = []
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             self.save = None
 
             self.display_menu = None
@@ -4108,6 +5038,10 @@ class PolyDraw(bpy.types.Operator):
             self.screw_menu.add_item('modifiers', 'ARRAY', 'Array', 'BUTTON','ARRAY')
             self.screw_menu.add_item('modifiers', 'SECOND_SOLIDIFY', 'Second Solidify', 'BUTTON','SECOND_SOLIDIFY')
             self.screw_menu.add_item('modifiers', 'CIRCULAR_ARRAY', 'Circular Array', 'BUTTON','CIRCULAR_ARRAY')
+<<<<<<< HEAD
+=======
+            self.screw_menu.add_item('modifiers', 'FLIP', 'Flip normal', 'BUTTON')
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 
             self.grid_menu = F_Menu(event.mouse_region_x, event.mouse_region_y)
             self.grid_menu.add_block('grid')
@@ -4126,6 +5060,7 @@ class PolyDraw(bpy.types.Operator):
                 coll = bpy.data.collections.new("Bool_Objects")
                 bpy.context.scene.collection.children.link(coll)
 
+<<<<<<< HEAD
             if bpy.context.selected_objects:
                 self.original_bool_target = bpy.context.active_object
                 self.original_bool_target['fluent_object'] = True
@@ -4153,13 +5088,26 @@ class PolyDraw(bpy.types.Operator):
                 #         bpy.ops.object.modifier_apply(apply_as='DATA', modifier=m.name)
                 #     else:
                 #         self.bool_target.modifiers.remove(m)
+=======
+            if active_object('GET') and tool_called != 'EDIT':
+                self.original_bool_target = bpy.context.active_object
+                self.original_bool_target['fluent_object'] = True
+                self.bool_target, self.had_latest_bevel, had_weighted_normals = duplicate_obj(self.original_bool_target)
+                for p in self.bool_target.data.polygons:
+                    p.use_smooth = False
+                bpy.ops.wm.booleancleaner('INVOKE_DEFAULT')
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                 # cache l'original
                 self.original_bool_target.select_set(False)
                 self.original_bool_target.hide_viewport = True
                 self.bool_target.select_set(True)
                 bpy.context.view_layer.objects.active = self.bool_target
 
+<<<<<<< HEAD
                 # bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+=======
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                 if self.bool_target.get('fluent_sliced'):
                     bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_VOLUME', center='MEDIAN')
                     bpy.ops.view3d.snap_cursor_to_selected()
@@ -4173,7 +5121,11 @@ class PolyDraw(bpy.types.Operator):
                     self.mesh_maker_call = True
                 else:
                     self.mesh_maker_call = False
+<<<<<<< HEAD
             else:
+=======
+            elif not active_object('GET') and tool_called != 'EDIT':
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                 # rien n'est selectionné
                 if tool_called == 'CREATION':
                     if not bpy.data.collections.get('Fluent_Creations'):
@@ -4187,6 +5139,42 @@ class PolyDraw(bpy.types.Operator):
                 else:
                     bpy.context.window_manager.popup_menu(make_oops(['Select an object before to call a cut function.']), title="How to use ?", icon='ERROR')
                     return{'CANCELLED'}
+<<<<<<< HEAD
+=======
+            elif active_object('GET') and tool_called == 'EDIT':
+                if len(bpy.context.selected_objects) > 1:
+                    bpy.context.window_manager.popup_menu(make_oops(['Select one boolean object.']), title="How to use ?", icon='ERROR')
+                    return {'CANCELLED'}
+                elif not active_object('GET').get('fluent_type'):
+                    bpy.context.window_manager.popup_menu(make_oops(['Select a Fluent object.']), title="How to use ?", icon='ERROR')
+                    return {'CANCELLED'}
+                else:
+                    self.bool_obj = active_object('GET')
+                    for m in self.bool_obj.modifiers:
+                        if m.name == 'Circular_Array':
+                            self.empty_obj = m.offset_object
+                            angle = 360 / self.bool_obj.modifiers['Circular_Array'].count
+                            local_rotate(self.empty_obj, 'Z', angle * -1)
+                            self.empty_matrix_save = self.empty_obj.matrix_world.copy()
+                            local_rotate(self.empty_obj, 'Z', angle)
+                    if bpy.context.object.display_type != 'TEXTURED':
+                        bpy.context.object.display_type = 'WIRE'
+                    self.old_display_style = bpy.context.object.display_type
+                    self.build_step = 3
+                    if self.bool_obj.get('fluent_type') == 'prism' or self.bool_obj.get('fluent_type') == 'semi-prism':
+                        self.draw_type = 'prism'
+                    elif self.bool_obj.get('fluent_type') == 'box':
+                        self.draw_type = 'box'
+                    elif self.bool_obj.get('fluent_type') == 'screw':
+                        self.draw_type = 'screw'
+                    elif self.bool_obj.get('fluent_type') == 'path':
+                        self.draw_type = 'path'
+                    elif self.bool_obj.get('fluent_type') == 'poly':
+                        self.draw_type = 'poly'
+            elif not active_object('GET') and tool_called == 'EDIT':
+                bpy.context.window_manager.popup_menu(make_oops(['Select a Fluent object.']), title="How to use ?", icon='ERROR')
+                return {'CANCELLED'}
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 
             self._handle = bpy.types.SpaceView3D.draw_handler_add(draw_callback_px, args, 'WINDOW', 'POST_VIEW')
             self._handle_two = bpy.types.SpaceView3D.draw_handler_add(draw_callback_px, args, 'WINDOW', 'POST_PIXEL')
@@ -4195,6 +5183,11 @@ class PolyDraw(bpy.types.Operator):
                 context.region_data.view_perspective = 'PERSP'
 
             context.window_manager.modal_handler_add(self)
+<<<<<<< HEAD
+=======
+            global polydraw_run
+            polydraw_run = True
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             return {'RUNNING_MODAL'}
         else:
             self.report({'WARNING'}, "View3D not found, cannot run operator")
@@ -4285,8 +5278,11 @@ class symetrizeAPlan(bpy.types.Operator):
 
         return{'FINISHED'}
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     def modal(self, context, event):
         if event.type in {'RIGHTMOUSE', 'ESC'}:
             return {'CANCELLED'}
@@ -4300,9 +5296,12 @@ class symetrizeAPlan(bpy.types.Operator):
         if event.value == 'PRESS' and event.type == 'Z':
             self.axis = 'Z'
 
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
         if event.type == 'LEFTMOUSE' and event.value == 'PRESS' and not event.shift:
             x, y = event.mouse_region_x, event.mouse_region_y
             region = context.region
@@ -4310,12 +5309,19 @@ class symetrizeAPlan(bpy.types.Operator):
             vec = region_2d_to_location_3d(region, rv3d, (x, y), (0, 0, 0))
 
             if self.axis == 'Y' and vec.y >= 0 or self.axis == 'X' and vec.x >= 0 or self.axis == 'Z' and vec.z >= 0 :
+<<<<<<< HEAD
 
+=======
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                 self.direction = 'POSITIVE'
             else:
                 self.direction = 'NEGATIVE'
 
             self.sym(context)
+<<<<<<< HEAD
+=======
+            bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='MEDIAN')
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
             return{'FINISHED'}
 
 
@@ -4377,6 +5383,10 @@ class FLUENT_MT_pie_menu(bpy.types.Menu):
         duplicate_ico = icons.get("duplicate")
         warning_ico = icons.get("warning")
         preset_ico = icons.get("preset")
+<<<<<<< HEAD
+=======
+        edit_ico = icons.get("edit")
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 
         layout = self.layout
         scn = context.scene
@@ -4388,6 +5398,11 @@ class FLUENT_MT_pie_menu(bpy.types.Menu):
         box.operator("class.cutcall", text=translate.get(get_addon_preferences().language).get('cutCall'), icon_value=cut_ico.icon_id)
         box.operator("class.slicecall", text=translate.get(get_addon_preferences().language).get('sliceCall'), icon_value=slice_ico.icon_id)
         box.operator("class.creationcall", text=translate.get(get_addon_preferences().language).get('createCall'), icon_value=creation_ico.icon_id)
+<<<<<<< HEAD
+=======
+        if not get_addon_preferences().remove_unused_modifiers:
+            box.operator("class.editcall", text=translate.get(get_addon_preferences().language).get('editCall'), icon_value=edit_ico.icon_id)
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
         box.operator("wm.boolinstance", text=translate.get(get_addon_preferences().language).get('duplicate'), icon_value=duplicate_ico.icon_id)
 
         # droite
@@ -4412,10 +5427,18 @@ class FLUENT_MT_pie_menu(bpy.types.Menu):
         box.operator("class.clean_boolean", text=translate.get(get_addon_preferences().language).get('cleanBooleanApplication'))
         # haut
         box = pie.split().column()
+<<<<<<< HEAD
         box.operator("class.booleandisplay", text=translate.get(get_addon_preferences().language).get('booleanDisplay'), icon_value=show_bool_ico.icon_id)
         box.operator("class.wireframedisplay", text=translate.get(get_addon_preferences().language).get('wireframe'), icon_value=wireframe_ico.icon_id)
 
 class CutCall(bpy.types.Operator):
+=======
+        box.operator("wm.technicaldisplay", text=translate.get(get_addon_preferences().language).get('technicalDisplay'))
+        box.operator("wm.booleandisplay", text=translate.get(get_addon_preferences().language).get('booleanDisplay'), icon_value=show_bool_ico.icon_id)
+        box.operator("wm.wireframedisplay", text=translate.get(get_addon_preferences().language).get('wireframe'), icon_value=wireframe_ico.icon_id)
+
+class FLUENT_OT_CutCall(bpy.types.Operator):
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     "Substract or add matter"
     bl_idname = "class.cutcall"
     bl_label="Drawing Shape Cut/Add ops"
@@ -4423,11 +5446,21 @@ class CutCall(bpy.types.Operator):
 
     def invoke(self, context, event):
         global tool_called
+<<<<<<< HEAD
         tool_called = 'CUT'
         bpy.ops.wm.polydraw('INVOKE_DEFAULT')
         return {'FINISHED'}
 
 class SliceCall(bpy.types.Operator):
+=======
+        global polydraw_run
+        tool_called = 'CUT'
+        if not polydraw_run:
+            bpy.ops.wm.polydraw('INVOKE_DEFAULT')
+        return {'FINISHED'}
+
+class FLUENT_OT_SliceCall(bpy.types.Operator):
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     "Slice your model"
     bl_idname = "class.slicecall"
     bl_label="Drawing Shape Slice ops"
@@ -4435,8 +5468,29 @@ class SliceCall(bpy.types.Operator):
 
     def invoke(self, context, event):
         global tool_called
+<<<<<<< HEAD
         tool_called = 'SLICE'
         bpy.ops.wm.polydraw('INVOKE_DEFAULT')
+=======
+        global polydraw_run
+        tool_called = 'SLICE'
+        if not polydraw_run:
+            bpy.ops.wm.polydraw('INVOKE_DEFAULT')
+        return {'FINISHED'}
+
+class FLUENT_OT_EditCall(bpy.types.Operator):
+    "Slice your model"
+    bl_idname = "class.editcall"
+    bl_label="editcall"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def invoke(self, context, event):
+        global tool_called
+        global polydraw_run
+        tool_called = 'EDIT'
+        if not polydraw_run:
+            bpy.ops.wm.polydraw('INVOKE_DEFAULT')
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
         return {'FINISHED'}
 
 class CreationCall(bpy.types.Operator):
@@ -4459,6 +5513,12 @@ Shift + Click : Remove"""
     bl_options={'REGISTER','UNDO'}
 
     def invoke(self, context, event):
+<<<<<<< HEAD
+=======
+        if bpy.context.active_object.mode == 'EDIT':
+            bpy.context.window_manager.popup_menu(make_oops(['This function work only in object mode.']), title="Info", icon='ERROR')
+            return {'CANCELLED'}
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
         if not event.shift:
             for obj in bpy.context.selected_objects:
                 if not obj.type == 'MESH':
@@ -4585,13 +5645,22 @@ class fluentProp(bpy.types.PropertyGroup):
                             if mod.segments > 1:
                                 angle = math.sqrt(math.asin(min(mod.width, 1)))
                                 segments = int(context.scene.fluentProp.bevel_resolution * (angle + (1 - math.cos(angle))))
+<<<<<<< HEAD
                                 if segments < 2 :
                                     segments = 2
+=======
+                                if segments < 4 :
+                                    segments = 4
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                                 mod.segments = segments
 
     def prismResolutionUpdate(self, context):
         for obj in bpy.context.scene.objects:
+<<<<<<< HEAD
             if obj.type == 'MESH' and obj.get('fluent_cylinder'):
+=======
+            if obj.type == 'MESH' and obj.get('fluent_type') == 'prism':
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                 if len(obj.modifiers):
                     for mod in obj.modifiers:
                         if mod.type =='SCREW':
@@ -4602,7 +5671,11 @@ class fluentProp(bpy.types.PropertyGroup):
     width : bpy.props.FloatProperty(
 		description = "Latest Bevel Width",
 		name        = "Latest bevel width",
+<<<<<<< HEAD
 		default     = 0.005,
+=======
+		default     = 0.002,
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 		min         = 0,
 		max         = 0.02,
 		step        = 0.01,
@@ -4640,7 +5713,11 @@ class fluentProp(bpy.types.PropertyGroup):
     latest_bevel_segments : bpy.props.IntProperty(
 		description = "Latest Bevel Segments",
 		name        = "Latest Bevel Segments",
+<<<<<<< HEAD
 		default     = 6,
+=======
+		default     = 4,
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 		min         = 0,
 		max         = 64,
 		step        = 1,
@@ -4730,7 +5807,11 @@ Shift + Click : clear"""
 
 class booleanDisplay(bpy.types.Operator):
     """Show/Hide boolean objects"""
+<<<<<<< HEAD
     bl_idname = "class.booleandisplay"
+=======
+    bl_idname = "wm.booleandisplay"
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     bl_label="Show/Hide boolean objects"
     bl_options={'REGISTER','UNDO'}
 
@@ -4752,12 +5833,18 @@ class booleanDisplay(bpy.types.Operator):
                     for bool_obj in bool_list:
                         bool_obj.select_set(True)
                         bool_obj.hide_viewport = False
+<<<<<<< HEAD
                         # bpy.ops.object.hide_view_set()
+=======
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                         bool_obj.select_set(False)
                 else:
                     for bool_obj in bool_list:
                         bool_obj.select_set(True)
+<<<<<<< HEAD
                         # bpy.ops.object.hide_view_clear()
+=======
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                         bool_obj.hide_viewport = True
                         bool_obj.select_set(False)
 
@@ -5004,6 +6091,10 @@ Shift + Click to extract"""
                             break
             if self.bool_operation:
                 parent = bpy.context.selected_objects[1]
+<<<<<<< HEAD
+=======
+                if parent == obj: parent = bpy.context.selected_objects[0]
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
                 self.parent = parent
                 active_object(parent, 'SET')
                 bpy.ops.wm.booleancleaner('INVOKE_DEFAULT')
@@ -5105,7 +6196,10 @@ Shift + Click : each loose parts supports"""
             if m.type == 'BEVEL' and m.limit_method == 'ANGLE':
                 margin = m.width * 2 + 0.01
 
+<<<<<<< HEAD
         print('margin : ' + str(margin))
+=======
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
         bpy.ops.object.mode_set(mode='EDIT')
         bpy.ops.mesh.select_all(action='DESELECT')
         bpy.ops.object.mode_set(mode='OBJECT')
@@ -5215,7 +6309,11 @@ Shift + Click : each loose parts supports"""
 
 class wireframeDisplay(bpy.types.Operator):
     """Show/Hide wireframe"""
+<<<<<<< HEAD
     bl_idname = "class.wireframedisplay"
+=======
+    bl_idname = "wm.wireframedisplay"
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     bl_label="Show/Hide wireframe"
     bl_options={'REGISTER','UNDO'}
 
@@ -5229,6 +6327,19 @@ class wireframeDisplay(bpy.types.Operator):
                 bpy.context.object.show_all_edges = True
         return{'FINISHED'}
 
+<<<<<<< HEAD
+=======
+class FLUENT_OT_TechnicalDisplay(bpy.types.Operator):
+    """Show/Hide wireframe + boolean objects"""
+    bl_idname = "wm.technicaldisplay"
+    bl_label="Show/Hide wireframe + boolean objects"
+    bl_options={'REGISTER','UNDO'}
+    def execute(self, context):
+        bpy.ops.wm.wireframedisplay('INVOKE_DEFAULT')
+        bpy.ops.wm.booleandisplay('INVOKE_DEFAULT')
+        return {'FINISHED'}
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 class gumroadUpdate(bpy.types.Operator):
     """Link to Gumroad"""
     bl_idname = "class.gumroadupdate"
@@ -5300,7 +6411,11 @@ class AddonPreferences(bpy.types.AddonPreferences):
 		step        = 1
 	)
 
+<<<<<<< HEAD
     shortcut_key : bpy.props.EnumProperty(
+=======
+    fluent_menu_shortcut_key : bpy.props.EnumProperty(
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
         items=(("A", "A", "A"),
         ("B", "B", "B"),
         ("C", "C", "C"),
@@ -5328,6 +6443,7 @@ class AddonPreferences(bpy.types.AddonPreferences):
         ("Y", "Y", "Y"),
         ("Z", "Z", "Z"),
         ),
+<<<<<<< HEAD
         default='X'
     )
 
@@ -5338,20 +6454,190 @@ class AddonPreferences(bpy.types.AddonPreferences):
     )
 
     shortcut_ctrl : bpy.props.BoolProperty(
+=======
+        default='F'
+    )
+
+    fluent_menu_shortcut_alt : bpy.props.BoolProperty(
+        description = "Use alt to call Fluent",
+        name = "Use alt to call Fluent",
+        default = False
+    )
+
+    fluent_menu_shortcut_ctrl : bpy.props.BoolProperty(
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
         description = "Use ctrl to call Fluent",
         name = "Use ctrl to call Fluent",
         default = False
     )
 
+<<<<<<< HEAD
     shortcut_shift : bpy.props.BoolProperty(
+=======
+    fluent_menu_shortcut_shift : bpy.props.BoolProperty(
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
         description = "Use shift to call Fluent",
         name = "Use shift to call Fluent",
         default = False
     )
 
+<<<<<<< HEAD
     bool_style : bpy.props.EnumProperty(
         items=(("WIRE", "WIRE", "WIRE"),
         ("TEXTURED", "TEXTURED", "TEXTURED")
+=======
+    fluent_cut_shortcut_key : bpy.props.EnumProperty(
+        items=(("A", "A", "A"),
+        ("B", "B", "B"),
+        ("C", "C", "C"),
+        ("D", "D", "D"),
+        ("E", "E", "E"),
+        ("F", "F", "F"),
+        ("G", "G", "G"),
+        ("H", "H", "H"),
+        ("I", "I", "I"),
+        ("J", "J", "J"),
+        ("K", "K", "K"),
+        ("L", "L", "L"),
+        ("M", "M", "M"),
+        ("N", "N", "N"),
+        ("O", "O", "O"),
+        ("P", "P", "P"),
+        ("Q", "Q", "Q"),
+        ("R", "R", "R"),
+        ("S", "S", "S"),
+        ("T", "T", "T"),
+        ("U", "U", "U"),
+        ("V", "V", "V"),
+        ("W", "W", "W"),
+        ("X", "X", "X"),
+        ("Y", "Y", "Y"),
+        ("Z", "Z", "Z"),
+        ),
+        default='F'
+    )
+
+    fluent_cut_shortcut_alt : bpy.props.BoolProperty(
+        description = "Use alt to call Fluent cut",
+        name = "fluent_cut_shortcut_alt",
+        default = True
+    )
+
+    fluent_cut_shortcut_ctrl : bpy.props.BoolProperty(
+        description = "Use ctrl to call Fluent cut",
+        name = "fluent_cut_shortcut_ctrl",
+        default = False
+    )
+
+    fluent_cut_shortcut_shift : bpy.props.BoolProperty(
+        description = "Use shift to call Fluent cut",
+        name = "fluent_cut_shortcut_shift",
+        default = False
+    )
+
+    fluent_slice_shortcut_key : bpy.props.EnumProperty(
+        items=(("A", "A", "A"),
+        ("B", "B", "B"),
+        ("C", "C", "C"),
+        ("D", "D", "D"),
+        ("E", "E", "E"),
+        ("F", "F", "F"),
+        ("G", "G", "G"),
+        ("H", "H", "H"),
+        ("I", "I", "I"),
+        ("J", "J", "J"),
+        ("K", "K", "K"),
+        ("L", "L", "L"),
+        ("M", "M", "M"),
+        ("N", "N", "N"),
+        ("O", "O", "O"),
+        ("P", "P", "P"),
+        ("Q", "Q", "Q"),
+        ("R", "R", "R"),
+        ("S", "S", "S"),
+        ("T", "T", "T"),
+        ("U", "U", "U"),
+        ("V", "V", "V"),
+        ("W", "W", "W"),
+        ("X", "X", "X"),
+        ("Y", "Y", "Y"),
+        ("Z", "Z", "Z"),
+        ),
+        default='F'
+    )
+
+    fluent_slice_shortcut_alt : bpy.props.BoolProperty(
+        description = "Use alt to call Fluent slice",
+        name = "fluent_slice_shortcut_alt",
+        default = False
+    )
+
+    fluent_slice_shortcut_ctrl : bpy.props.BoolProperty(
+        description = "Use ctrl to call Fluent slice",
+        name = "fluent_slice_shortcut_ctrl",
+        default = True
+    )
+
+    fluent_slice_shortcut_shift : bpy.props.BoolProperty(
+        description = "Use shift to call Fluent slice",
+        name = "fluent_slice_shortcut_shift",
+        default = False
+    )
+
+    fluent_edit_shortcut_key : bpy.props.EnumProperty(
+        items=(("A", "A", "A"),
+        ("B", "B", "B"),
+        ("C", "C", "C"),
+        ("D", "D", "D"),
+        ("E", "E", "E"),
+        ("F", "F", "F"),
+        ("G", "G", "G"),
+        ("H", "H", "H"),
+        ("I", "I", "I"),
+        ("J", "J", "J"),
+        ("K", "K", "K"),
+        ("L", "L", "L"),
+        ("M", "M", "M"),
+        ("N", "N", "N"),
+        ("O", "O", "O"),
+        ("P", "P", "P"),
+        ("Q", "Q", "Q"),
+        ("R", "R", "R"),
+        ("S", "S", "S"),
+        ("T", "T", "T"),
+        ("U", "U", "U"),
+        ("V", "V", "V"),
+        ("W", "W", "W"),
+        ("X", "X", "X"),
+        ("Y", "Y", "Y"),
+        ("Z", "Z", "Z"),
+        ),
+        default='F'
+    )
+
+    fluent_edit_shortcut_alt : bpy.props.BoolProperty(
+        description = "Use alt to call Fluent edit",
+        name = "fluent_edit_shortcut_alt",
+        default = False
+    )
+
+    fluent_edit_shortcut_ctrl : bpy.props.BoolProperty(
+        description = "Use ctrl to call Fluent edit",
+        name = "fluent_edit_shortcut_ctrl",
+        default = False
+    )
+
+    fluent_edit_shortcut_shift : bpy.props.BoolProperty(
+        description = "Use shift to call Fluent edit",
+        name = "fluent_edit_shortcut_shift",
+        default = True
+    )
+
+    bool_style : bpy.props.EnumProperty(
+        items=(("WIRE", "WIRE", "WIRE"),
+        ("TEXTURED", "TEXTURED", "TEXTURED"),
+        ('BOUNDS', 'BOUNDS', 'BOUNDS')
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
         ),
         default='TEXTURED'
     )
@@ -5361,6 +6647,10 @@ class AddonPreferences(bpy.types.AddonPreferences):
     ("ENGLISH", "English", "ENGLISH"),
     ("FRANCAIS", "Français", "FRANCAIS"),
     ("CHINESE", "Chinese", "CHINESE"),
+<<<<<<< HEAD
+=======
+    ("TRAD_CHINESE", "Traditional Chinese", "TRAD_CHINESE"),
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     ("JAPANESE", "Japanese", "JAPANESE"),
     ),
     default='ENGLISH'
@@ -5379,7 +6669,11 @@ class AddonPreferences(bpy.types.AddonPreferences):
     )
 
     remove_unused_modifiers : bpy.props.BoolProperty(
+<<<<<<< HEAD
         name="remove_unused_modifier",
+=======
+        name="remove_unused_modifiers",
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
         default=False,
         description="Delete unused modifier on boolean object"
     )
@@ -5419,6 +6713,36 @@ class AddonPreferences(bpy.types.AddonPreferences):
 		step        = 1
 	)
 
+<<<<<<< HEAD
+=======
+    text_y_origin : bpy.props.IntProperty(
+        description = "text_y_origin",
+        name        = "text_y_origin",
+        default     = 500,
+        step        = 1
+    )
+
+    text_x_origin : bpy.props.IntProperty(
+        description = "text_y_origin",
+        name        = "text_y_origin",
+        default     = 5,
+        step        = 1
+    )
+
+    text_size : bpy.props.IntProperty(
+        description = "text_size",
+        name        = "text_size",
+        default     = 18,
+        step        = 1
+    )
+
+    hightlight : bpy.props.FloatVectorProperty(name="Hightlight color",
+        subtype='COLOR',
+        size=4,
+        default=(0.0,0.8,1,1)
+    )
+
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     def draw(self, context):
         icons = load_icons()
         gumroad_ico = icons.get("gumroad")
@@ -5434,12 +6758,39 @@ class AddonPreferences(bpy.types.AddonPreferences):
 
         box = layout.box()
         row = box.row()
+<<<<<<< HEAD
         row.label(text="Shortcut")
         box.label(text="After change, save your preferences and restart Blender.")
         row.prop(self, "shortcut_key", text="Key ")
         row.prop(self, "shortcut_alt", text="Alt")
         row.prop(self, "shortcut_ctrl", text="Ctrl")
         row.prop(self, "shortcut_shift", text="Shift")
+=======
+        row.label(text="Menu shortcut")
+        row.prop(self, "fluent_menu_shortcut_key", text="Key ")
+        row.prop(self, "fluent_menu_shortcut_alt", text="Alt")
+        row.prop(self, "fluent_menu_shortcut_ctrl", text="Ctrl")
+        row.prop(self, "fluent_menu_shortcut_shift", text="Shift")
+        row_2 = box.row()
+        row_2.label(text='Cut shortcut')
+        row_2.prop(self, "fluent_cut_shortcut_key", text="Key ")
+        row_2.prop(self, "fluent_cut_shortcut_alt", text="Alt")
+        row_2.prop(self, "fluent_cut_shortcut_ctrl", text="Ctrl")
+        row_2.prop(self, "fluent_cut_shortcut_shift", text="Shift")
+        row_3 = box.row()
+        row_3.label(text='Slice shortcut')
+        row_3.prop(self, "fluent_slice_shortcut_key", text="Key ")
+        row_3.prop(self, "fluent_slice_shortcut_alt", text="Alt")
+        row_3.prop(self, "fluent_slice_shortcut_ctrl", text="Ctrl")
+        row_3.prop(self, "fluent_slice_shortcut_shift", text="Shift")
+        row_4 = box.row()
+        row_4.label(text='Edit shortcut')
+        row_4.prop(self, "fluent_edit_shortcut_key", text="Key ")
+        row_4.prop(self, "fluent_edit_shortcut_alt", text="Alt")
+        row_4.prop(self, "fluent_edit_shortcut_ctrl", text="Ctrl")
+        row_4.prop(self, "fluent_edit_shortcut_shift", text="Shift")
+        box.label(text="After change, save your preferences and restart Blender.")
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
         layout.prop(self, "corner_preference", text="Default Bevel Width")
         layout.prop(self, "bevel_resolution_preference", text="Default Bevel Resolution")
         layout.prop(self, "prism_segments_preference", text="Default Prism Resolution")
@@ -5455,6 +6806,14 @@ class AddonPreferences(bpy.types.AddonPreferences):
         layout.prop(self, "auto_parent", text="Auto parent between the boolean object and his target ")
         layout.prop(self, "language", text="Language ")
         layout.label(text="Translation is in progress. Whole text isn't translated.")
+<<<<<<< HEAD
+=======
+        layout.prop(self, "hightlight", text='Hightlight color')
+        layout.prop(self, "text_size", text='Text size')
+        layout.label(text='Text position on the screen')
+        layout.prop(self, "text_x_origin", text='X')
+        layout.prop(self, "text_y_origin", text='Y')
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 
     def invoke(self, context, event):
         adresse = 'http://cgthoughts.com/fluent_current_version/index.html'
@@ -5464,8 +6823,14 @@ class AddonPreferences(bpy.types.AddonPreferences):
 
 classes = (
     PolyDraw,
+<<<<<<< HEAD
     CutCall,
     SliceCall,
+=======
+    FLUENT_OT_CutCall,
+    FLUENT_OT_SliceCall,
+    FLUENT_OT_EditCall,
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     CreationCall,
     symetrizeAPlan,
     addLatestBevel,
@@ -5477,6 +6842,10 @@ classes = (
     booleanCleaner,
     AddonPreferences,
     wireframeDisplay,
+<<<<<<< HEAD
+=======
+    FLUENT_OT_TechnicalDisplay,
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
     FLUENT_OT_booleanInstance,
     booleanSynchronization,
     gumroadUpdate,
@@ -5493,7 +6862,14 @@ def register():
 
     wm = bpy.context.window_manager
     km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+<<<<<<< HEAD
     kmi = km.keymap_items.new("wm.call_menu_pie", get_addon_preferences().shortcut_key, "PRESS", alt=get_addon_preferences().shortcut_alt, shift=get_addon_preferences().shortcut_shift, ctrl=get_addon_preferences().shortcut_ctrl).properties.name="FLUENT_MT_pie_menu"
+=======
+    kmi = km.keymap_items.new("wm.call_menu_pie", get_addon_preferences().fluent_menu_shortcut_key, "PRESS", alt=get_addon_preferences().fluent_menu_shortcut_alt, shift=get_addon_preferences().fluent_menu_shortcut_shift, ctrl=get_addon_preferences().fluent_menu_shortcut_ctrl).properties.name="FLUENT_MT_pie_menu"
+    kmi = km.keymap_items.new(FLUENT_OT_CutCall.bl_idname, get_addon_preferences().fluent_cut_shortcut_key, "PRESS", alt=get_addon_preferences().fluent_cut_shortcut_alt, shift=get_addon_preferences().fluent_cut_shortcut_shift, ctrl=get_addon_preferences().fluent_cut_shortcut_ctrl)
+    kmi = km.keymap_items.new(FLUENT_OT_SliceCall.bl_idname, get_addon_preferences().fluent_slice_shortcut_key, "PRESS", alt=get_addon_preferences().fluent_slice_shortcut_alt, shift=get_addon_preferences().fluent_slice_shortcut_shift, ctrl=get_addon_preferences().fluent_slice_shortcut_ctrl)
+    kmi = km.keymap_items.new(FLUENT_OT_EditCall.bl_idname, get_addon_preferences().fluent_edit_shortcut_key, "PRESS", alt=get_addon_preferences().fluent_edit_shortcut_alt, shift=get_addon_preferences().fluent_edit_shortcut_shift, ctrl=get_addon_preferences().fluent_edit_shortcut_ctrl)
+>>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 
     bpy.types.Scene.fluentProp = bpy.props.PointerProperty( type = fluentProp )
 
