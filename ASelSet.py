@@ -101,7 +101,9 @@ class ASel_Set(bpy.types.Operator):
             nRow.enabled = False
         if self.objSets == '0':
             bRow.enabled = False
-        
+            self.bSet = True
+            self.bAdd = False
+            self.bSub = False
 
     def invoke(self,context,event):
         if bpy.context.mode != "EDIT_MESH":
