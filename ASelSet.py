@@ -85,7 +85,6 @@ class ASel_Set(bpy.types.Operator):
         layout = self.layout
         setBox = layout.box()
         sRow = setBox.row(align=True)
-        print(self.objSets)
         nRow = setBox.row(align=True)
         if self.objSets == '0':
             nRow.enabled = True
@@ -98,6 +97,11 @@ class ASel_Set(bpy.types.Operator):
         bRow.prop(self,"bSet")
         bRow.prop(self,"bAdd")
         bRow.prop(self,"bSub")
+        if self.objSets != '0':
+            nRow.enabled = False
+        if self.objSets == '0':
+            bRow.enabled = False
+        
 
     def invoke(self,context,event):
         if bpy.context.mode != "EDIT_MESH":
