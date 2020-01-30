@@ -142,31 +142,35 @@ class AProfiler_CreateCurve(bpy.types.Operator):
 
             nRow.prop(self,"cName")
 
-        
+    def checkForProfiles(self):
+        for sub in self.profilerCollection.objects:
+            if sub.name == 'Profiles':
+                self.profSub = sub
+                return True
+        return False
 
+    def checkForPaths(self):
+        for sub in self.profilerCollection.objects:
+            if sub.name == 'Paths':
+                self.pathSub = sub
+                return True
+        return False
 
     def checkForCollection(self):
         for collection in bpy.data.collections:
             if collection.name == 'AProfiler':
                 self.profilerCollection = collection
-                for sub in collection.objects:
-                    print(sub)
-                    if sub.name == 'Profiles':
-                        self.profSub = sub
-                    if sub.name == 'Paths':
-                        self.pathSub = sub
-                print('collection there')
                 return True
-        print('no collection')
         return False
 
     def createCollection(self):
-        if self.checkForCollection() == False:
-            print('creating data')
+        if not self.checkForCollection():
             self.profilerCollection = bpy.data.collections.new("AProfiler")
             bpy.context.scene.collection.children.link(self.profilerCollection)
+        if not self.checkForProfiles():
             self.profSub = bpy.data.objects.new("Profiles",None)
             self.profilerCollection.objects.link(self.profSub)
+        if not self.checkForPaths():
             self.pathSub = bpy.data.objects.new("Paths",None)
             self.profilerCollection.objects.link(self.pathSub)
 
@@ -201,42 +205,42 @@ class AProfiler_CreateCurve(bpy.types.Operator):
                     newObj.select_set(True) 
                     bpy.context.view_layer.objects.active = newObj
                     bpy.ops.object.convert('INVOKE_DEFAULT', target='CURVE')
-    def sweepProfile(self):
-
+                    if newObj.type != 'CURVE':
+                        self.report({'WARNING'},'Could not convert to Curve')
     def execute(self,context):
         if not self.bSweepProfile:
-            self.createCollection()
             self.createPath()
-            return {'FINISHED'}
+        return {'FINISHED'}
     def invoke(self,context,event):
+        self.createCollection()
         if not self.bSweepProfile:
             return context.window_manager.invoke_props_dialog(self, width=300, height=20)
         
 
-class AProfiler_SweepProfile(bpy.types.Operator):
-    bl_idname = "object.aprofiler_sweepprofile"
-    bl_label = "A*Profiler Sweep Profile"
-    bl_options = {'REGISTER','UNDO'}
+# class AProfiler_SweepProfile(bpy.types.Operator):
+#     bl_idname = "object.aprofiler_sweepprofile"
+#     bl_label = "A*Profiler Sweep Profile"
+#     bl_options = {'REGISTER','UNDO'}
     
-    profilerCollection = None
-    profSub = None
-    pathSub = None
-    bevelObject = None
+#     profilerCollection = None
+#     profSub = None
+#     pathSub = None
+#     bevelObject = None
 
-    def checkCollection(self):
-        for collection in bpy.data.collections:
-            if collection.name == 'AProfiler':
-                self.profilerCollection = collection
-                for sub in collection.objects:
-                    print(sub)
-                    if sub.name == 'Profiles':
-                        self.profSub = sub
-                    if sub.name == 'Paths':
-                        self.pathSub = sub
-                print('collection there')
-                return True
-        print('no collection')
-        return False
+#     def checkCollection(self):
+#         for collection in bpy.data.collections:
+#             if collection.name == 'AProfiler':
+#                 self.profilerCollection = collection
+#                 for sub in collection.objects:
+#                     print(sub)
+#                     if sub.name == 'Profiles':
+#                         self.profSub = sub
+#                     if sub.name == 'Paths':
+#                         self.pathSub = sub
+#                 print('collection there')
+#                 return True
+#         print('no collection')
+#         return False
     #def setBevelObject(self):
         #for obj in self.pathSub:
             #obj.data.bevel_object = 
