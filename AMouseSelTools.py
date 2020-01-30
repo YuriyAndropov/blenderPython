@@ -33,7 +33,6 @@ import bpy
 from bpy_extras import view3d_utils
 import numpy
 import bmesh
-
 addon_keymaps = []
 raycast_keys = []
 linked_keys = []
@@ -190,16 +189,29 @@ class ASelection_Linked(bpy.types.Operator):
 
     def execute(self,context):
         hitResult = ray(self.coords)
+        subSurfList = {}
         if bpy.context.mode == 'OBJECT':
             if hitResult[0]:
                 for obj in bpy.context.visible_objects:
                     if obj.type == hitResult[4].type :
                         obj.select_set(True)
         if bpy.context.mode == 'EDIT_MESH':
-            if hitResult[0] and hitResult[4] in bpy.context.objects_in_mode:
-                objects  = bpy.context.objects_in_mode
+            if hitResult[0] and hitResult[4] in bpy.context.selected_objects:
+                objects  = bpy.context.selected_objects
                 for obj in objects:
                     if obj.type == 'MESH':
+                        for mod in obj.modifiers:
+                            if mod.type == 'SUBSURF':
+                                subSurfList[mod] = mod.levels
+                        if len(subSurfList)!=0:
+                            for mod,lvl in subSurfList.items():
+                                if mod.levels > 0 :
+                                    mod.levels = 0
+                        #scene update after switching subsurf levels
+                        dg = bpy.context.evaluated_depsgraph_get()
+                        dg.update()
+                        #---------#
+                        hitResult = ray(self.coords)
                         obj.update_from_editmode()
                         bm = bmesh.new()
                         bm.from_mesh(obj.data)
@@ -301,7 +313,9 @@ class ASelection_Linked(bpy.types.Operator):
                                             edge.select_set(False)    
                                     else:
                                         for edge in select:
-                                            edge.select_set(True)    
+                                            edge.select_set(True)
+                    for mod,lvl in subSurfList.items():
+                        mod.levels = lvl
                     bpy.ops.object.mode_set(mode='OBJECT', toggle=True)
                     bm.to_mesh(obj.data)
                     bpy.ops.object.mode_set(mode='EDIT', toggle=True)
@@ -335,8 +349,9 @@ class ASelection_Ray(bpy.types.Operator):
     deselect = False
     toggle = True
     coords = [0,0]
-    
+    subSurfList = {}
     def modal(self, context, event):
+        
         if event.type == 'MOUSEMOVE' and event.value == 'PRESS':
             context.area.tag_redraw()
             self.coords = [event.mouse_region_x,event.mouse_region_y]
@@ -353,7 +368,7 @@ class ASelection_Ray(bpy.types.Operator):
                 distances = []
                 #vert raycast
                 if hitResult[0]:
-                    hitResult[4].update_from_editmode()           
+                    hitResult[4].update_from_editmode()
                 if hitResult[0] and hitResult[4].select_get() and bpy.context.scene.tool_settings.mesh_select_mode[0]:
                     for loop in hitResult[4].data.polygons[hitResult[3]].loop_indices:
                         wCo = hitResult[4].matrix_world @ hitResult[4].data.vertices[hitResult[4].data.loops[loop].vertex_index].co
@@ -438,7 +453,9 @@ class ASelection_Ray(bpy.types.Operator):
                         if getValue('bringMenuOnFail'):
                             return bpy.ops.wm.call_menu(name='VIEW3D_MT_edit_mesh_context_menu')
                     bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-        if event.value == 'RELEASE': 
+        if event.value == 'RELEASE':
+            for mod,lvl in self.subSurfList.items():
+                        mod.levels = lvl 
             return {'FINISHED'}
         return {'RUNNING_MODAL'}
     def execute(self, context):
@@ -446,6 +463,19 @@ class ASelection_Ray(bpy.types.Operator):
     def invoke(self, context, event):
         self.coords = [event.mouse_region_x,event.mouse_region_y]
         hitResult = ray(self.coords)
+        if hitResult[0]:
+            for mod in hitResult[4].modifiers:
+                if mod.type == 'SUBSURF':
+                        self.subSurfList[mod] = mod.levels
+                if len(self.subSurfList)!=0:
+                    for mod,lvl in self.subSurfList.items():
+                        if mod.levels > 0 :
+                            mod.levels = 0
+            #scene update after switching subsurf levels
+            dg = bpy.context.evaluated_depsgraph_get()
+            dg.update()
+            #---------#
+            hitResult = ray(self.coords)           
         if bpy.context.mode == 'OBJECT':
             if hitResult[0] == False:
                 return bpy.ops.wm.call_menu(name='VIEW3D_MT_object_context_menu')
