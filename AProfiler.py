@@ -28,7 +28,7 @@ bl_info = {
     "wiki_url": "",
     "category": "Mesh"
 }
-
+#action = [('PATH','PATH','PATH'),('PROFILE','PROFILE''PROFILE'),('SWEEP','SWEEP''SWEEP')]
 import bpy
 import bmesh
 import mathutils
@@ -121,26 +121,54 @@ class AProfiler_CreateCurve(bpy.types.Operator):
     bl_options = {'REGISTER','UNDO'}
 
     #collectionName = 'AProfiler'
+    action = [('PATH','PATH','PATH'),('PROFILE','PROFILE','PROFILE'),('SWEEP','SWEEP','SWEEP')]
+    
+
     curveName = ''
     profilerCollection = None
     pathSub = None
     profSub = None
-    #def nameUpdate(self,context):
-        #self.curveName = cName
-        #return None
-    bSweepProfile:bpy.props.BoolProperty(default=False)
-    bCreatePath:bpy.props.BoolProperty(default=False)
-    bRemovePaths:bpy.props.BoolProperty(default=False)
-    bRemoveProfiles:bpy.props.BoolProperty(default=False)
-    bRemoveData:bpy.props.BoolProperty(default=False)
+    profileName = ''
+
+    def getProfiles(self,context):
+        profs = []
+        for collection in bpy.data.collections:
+            if collection.name == 'AProfiler':
+                for sub in collection.objects:
+                    if sub.name == 'Profiles':
+                        for obj in sub.children:
+                            profs.append((obj.name,obj.name,obj.name))
+        return profs
+
+    def setProfile(self,context):
+        print('setting names')
+        for collection in bpy.data.collections:
+            if collection.name == 'AProfiler':
+                for sub in collection.objects:
+                    if sub.name == 'Profiles':
+                        for obj in sub.children:
+                            if obj.name == self.eProfiles:
+                                print('SETTING NAME')
+                                print(obj.name)
+                                self.profilePointer = obj.name
+                                #self.profile = obj
+        return None
+
+
+    eProfiles:bpy.props.EnumProperty(items=getProfiles,update=setProfile)
+    eAction:bpy.props.EnumProperty(items=action)
     cName:bpy.props.StringProperty(default='Curve')
+    profilePointer:bpy.props.StringProperty()
+
 
     def draw(self,context):
-        if not self.bSweepProfile:
-            layout = self.layout
+        layout = self.layout
+        if self.eAction != 'SWEEP':
             nRow = layout.row(align=True)
-
             nRow.prop(self,"cName")
+        if self.eAction == "SWEEP":
+            nRow = layout.row(align=True)
+            nRow.prop(self,"eProfiles")
 
     def checkForProfiles(self):
         for sub in self.profilerCollection.objects:
@@ -174,49 +202,91 @@ class AProfiler_CreateCurve(bpy.types.Operator):
             self.pathSub = bpy.data.objects.new("Paths",None)
             self.profilerCollection.objects.link(self.pathSub)
 
+    def checkSweep(self):
+        if bpy.context.mode == 'EDIT_MESH' and self.checkIfSelection() == '0' and len(self.pathSub.children) == 0:
+            return False 
+        if bpy.context.mode == 'OBJECT' and len(self.pathSub.children) == 0:
+            return False
+        return True
+
+    #return how many edges are selected
+    def checkIfSelection(self):
+        return bpy.context.scene.statistics(bpy.context.view_layer).split("|")[2].split(':')[1].split("/")[0]
+
+    def bevelSpline(self,obj):
+        prof = None
+        for profile in self.profSub.children:
+            if profile.name == self.profilePointer:
+                prof = profile
+        if obj.type == 'CURVE' and prof != None:
+            obj.data.bevel_object = prof
+
     def createPath(self):
-        #TODO save selection and revert to it after creating curve
-        for obj in bpy.context.selected_objects:
+        objects = bpy.context.selected_objects
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        bpy.ops.object.select_all(action='DESELECT')
+        for obj in objects:
             if obj.type == "MESH":
                 data = obj.data
-                bm = bmesh.from_edit_mesh(data)
+                bm = bmesh.new()
+                bm.from_mesh(obj.data)
                 nonSelected = []
-                dupe = bm.copy()
-                for edge in dupe.edges:
+                for edge in bm.edges:
                     if edge.select == False:
                         nonSelected.append(edge)
-                bmesh.ops.delete(dupe,geom=nonSelected,context='EDGES')
+                bmesh.ops.delete(bm,geom=nonSelected,context='EDGES')
                 #new mesh
-                newMesh = bpy.data.meshes.new("ProfilerMesh")
-                dupe.to_mesh(newMesh)
-                #new obj
-                if self.createPath:
-                    self.cName = obj.name
-                newObj = bpy.data.objects.new(self.cName, newMesh)
-                self.profilerCollection.objects.link(newObj)
-                newObj.location = obj.location
-                if self.bCreatePath:
-                    newObj.parent = self.pathSub
-                else:
-                    newObj.parent = self.profSub
+                if len(bm.edges)>0:
+                    newMesh = bpy.data.meshes.new("ProfilerMesh")
+                    bm.to_mesh(newMesh)
+                    #TODO do something with names
+                    #self.cName = obj.name
+                    newObj = bpy.data.objects.new(self.cName, newMesh)
+                    self.profilerCollection.objects.link(newObj)
+                    newObj.location = obj.location
+                    if self.eAction == 'PATH' or self.eAction ==  'SWEEP':
+                        newObj.parent = self.pathSub
+                    elif self.eAction == 'PROFILE':
+                        newObj.parent = self.profSub
+                    if newObj.type == "MESH":
+                        newObj.select_set(True) 
+                        bpy.context.view_layer.objects.active = newObj
+                        bpy.ops.object.convert('INVOKE_DEFAULT', target='CURVE')
+                        if newObj.type != 'CURVE':
+                            bpy.ops.object.delete()
+                            self.report({'WARNING'},'Failed to create a spline from selection')
                 bm.free()
-                bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-                if newObj.type == "MESH":
-                    newObj.select_set(True) 
-                    bpy.context.view_layer.objects.active = newObj
-                    bpy.ops.object.convert('INVOKE_DEFAULT', target='CURVE')
-                    if newObj.type != 'CURVE':
-                        self.report({'WARNING'},'Could not convert to Curve')
-    def execute(self,context):
-        if not self.bSweepProfile:
-            self.createPath()
-        return {'FINISHED'}
-    def invoke(self,context,event):
-        self.createCollection()
-        if not self.bSweepProfile:
-            return context.window_manager.invoke_props_dialog(self, width=300, height=20)
+        for obj in objects:
+            bpy.context.view_layer.objects.active = obj
+            obj.select_set(True)
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        return newObj
         
 
+    def execute(self,context):
+        if self.eAction == 'PATH' or self.eAction == 'PROFILE':
+            self.createPath()
+        if self.eAction == 'SWEEP':
+            if bpy.context.mode == 'EDIT_MESH' and self.checkIfSelection() > '0':
+                    path = self.createPath()
+                    self.bevelSpline(path)
+            if (bpy.context.mode == 'EDIT_MESH' and self.checkIfSelection()==0) or bpy.context.mode == 'OBJECT' :
+                for obj in self.pathSub:
+                    self.bevelSpline(obj)
+            
+        return {'FINISHED'}
+    def invoke(self,context,event):
+        print(self.eAction)
+        self.createCollection()
+        if self.eAction == 'PATH' or self.eAction == 'PROFILE':
+            return context.window_manager.invoke_props_dialog(self, width=300, height=20)
+        if self.eAction == 'SWEEP':
+            if self.checkSweep():
+                return context.window_manager.invoke_props_dialog(self, width=300, height=20)
+            else:
+                return {'CANCELLED'}
+        
+#path.data.bevel_object = bevelProfile
 # class AProfiler_SweepProfile(bpy.types.Operator):
 #     bl_idname = "object.aprofiler_sweepprofile"
 #     bl_label = "A*Profiler Sweep Profile"
@@ -981,37 +1051,39 @@ class AProfiler_CreateCurve(bpy.types.Operator):
 #             context.window_manager.modal_handler_add(self) 
 #         return {'RUNNING_MODAL'}
 
-# class AProfiler_Menu(bpy.types.Menu):
-#     bl_label = "Profiler"
-#     bl_idname = "VIEW3D_MT_Profiler"
-#     bl_space_type = 'VIEW_3D'
-#     bl_region_type = 'WINDOW'
+class AProfiler_Menu(bpy.types.Menu):
+    bl_label = "Profiler"
+    bl_idname = "VIEW3D_MT_Profiler"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'WINDOW'
 
-#     def draw(self,context):
-#         layout = self.layout
-#         cColumn = layout.column()
-#         if context.mode == 'EDIT_MESH':
-#             cColumn.operator('object.aprofiler_makeprofile')
-#             cColumn.operator('object.aprofiler_makepath')
-#         cColumn.separator(factor=1.0)
-#         if len(getObjectInCollection('Profiles').children)>0 and len(getObjectInCollection('Paths').children)>0 and context.mode == 'OBJECT':
-#             cColumn.operator('object.aprofiler_sweepprofile')
-#             cColumn.separator(factor=1.0)
-#         elif len(getObjectInCollection('Profiles').children)>0 and (len(getObjectInCollection('Paths').children)>0 or bpy.context.scene.statistics(bpy.context.view_layer).split("|")[2].split(':')[1].split('/')[0] != '0' and context.mode == 'EDIT_MESH' ):
-#             cColumn.operator('object.aprofiler_sweepprofile')
-#             cColumn.separator(factor=1.0)
-#         cColumn.operator('object.aprofiler_addoptions')
+    def draw(self,context):
+        layout = self.layout
+        cColumn = layout.column()
+        if context.mode == 'EDIT_MESH':
+            cColumn.operator('object.aprofiler_createcurve',text='Create Path').eAction = 'PATH'
+            cColumn.operator('object.aprofiler_createcurve',text='Create Profile').eAction = 'PROFILE'
+            cColumn.operator('object.aprofiler_createcurve',text='Sweep Profile').eAction = 'SWEEP'
+        cColumn.separator(factor=1.0)
+        # if len(getObjectInCollection('Profiles').children)>0 and len(getObjectInCollection('Paths').children)>0 and context.mode == 'OBJECT':
+        #     cColumn.operator('object.aprofiler_sweepprofile')
+        #     cColumn.separator(factor=1.0)
+        # elif len(getObjectInCollection('Profiles').children)>0 and (len(getObjectInCollection('Paths').children)>0 or bpy.context.scene.statistics(bpy.context.view_layer).split("|")[2].split(':')[1].split('/')[0] != '0' and context.mode == 'EDIT_MESH' ):
+        #     cColumn.operator('object.aprofiler_sweepprofile')
+        #     cColumn.separator(factor=1.0)
+        # cColumn.operator('object.aprofiler_addoptions')
 
-# def rmbMenu(self,context):
-#     layout = self.layout
-#     sColumn = layout.column()
-#     sColumn.menu('VIEW3D_MT_Profiler',text='A*Profiler',icon='MOD_REMESH')
+def rmbMenu(self,context):
+    layout = self.layout
+    sColumn = layout.column()
+    sColumn.menu('VIEW3D_MT_Profiler',text='A*Profiler',icon='MOD_REMESH')
 
 def register():
     bpy.utils.register_class(AProfiler_CreateCurve)
+    bpy.utils.register_class(AProfiler_Menu)
     #bpy.types.Scene.AQPipe_bevelProfile = bpy.props.StringProperty(default="None")
-    #bpy.types.VIEW3D_MT_edit_mesh_context_menu.append(rmbMenu)
-    #bpy.types.VIEW3D_MT_object_context_menu.append(rmbMenu)
+    bpy.types.VIEW3D_MT_edit_mesh_context_menu.append(rmbMenu)
+    bpy.types.VIEW3D_MT_object_context_menu.append(rmbMenu)
     #bpy.utils.register_class(AProfilerPreferences)
     #bpy.utils.register_class(AProfiler_MakeProfile)
     #bpy.utils.register_class(AProfiler_MakePath)
@@ -1026,8 +1098,9 @@ def register():
 def unregister():
     #del bpy.types.Scene.AQPipe_bevelProfile
     bpy.utils.unregister_class(AProfiler_CreateCurve)
-    #bpy.types.VIEW3D_MT_edit_mesh_context_menu.remove(rmbMenu)
-    #bpy.types.VIEW3D_MT_object_context_menu.remove(rmbMenu)
+    bpy.utils.unregister_class(AProfiler_Menu)
+    bpy.types.VIEW3D_MT_edit_mesh_context_menu.remove(rmbMenu)
+    bpy.types.VIEW3D_MT_object_context_menu.remove(rmbMenu)
     #bpy.utils.unregister_class(AProfilerPreferences)
     #bpy.utils.unregister_class(AProfiler_MakeProfile)
     #bpy.utils.unregister_class(AProfiler_MakePath)
