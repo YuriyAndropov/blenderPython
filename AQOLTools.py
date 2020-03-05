@@ -18,7 +18,6 @@ Created by Yurii Andropov
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-<<<<<<< HEAD
 
 bl_info = {
     "name": "A* QoL Tools ",
@@ -29,24 +28,10 @@ bl_info = {
     "location": "Generic",
     "wiki_url": '',
     "category": "Genric"
-=======
-bl_info = {
-    "name": "A* Quality Of Life Tools",
-    "description": "A* Quality Of Life Tools",
-    "author": "A*",
-    "version": (0, 0, 1),
-    "blender": (2, 80, 0),
-    "location": "Mesh",
-    "wiki_url": "",
-    "category": "Mesh"
->>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
 }
 
 import bpy
 import bmesh
-<<<<<<< HEAD
-
-=======
 import mathutils
 addon_keymaps = []
 bufferMeshName = 'DUPE'
@@ -215,4 +200,3 @@ def unregister():
     bpy.utils.unregister_class(BevelInset)
     bpy.utils.unregister_class(CopyPasteDupe)
     bpy.utils.unregister_class(CopyPasteDPlace)
->>>>>>> babe84b22df7556f667ccb50b9819efd3781d14d
