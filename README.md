@@ -24,3 +24,13 @@ This is a simple script that extends the vertex group feature of the Blender. It
 [Direct Download Link](https://github.com/YuriyAndropov/blenderPython/raw/master/ASelctionSets/ASelSet.zip)
 
 ![ASelSet](https://github.com/YuriyAndropov/blenderPython/blob/master/img/ASelSet.png)
+
+
+# A* Material Assignment
+
+This script adds a menu for quick material assignment. It is called by keystroke that you can remap. Just an easier way to assign new or already existing material to selection
+
+[Video](https://www.youtube.com/watch?v=06zMRZzpbZc&t=3s)
+[Direct Download Link](https://github.com/YuriyAndropov/blenderPython/raw/master/AMaAs/AMaAs.zip)
+
+![AMas](https://github.com/YuriyAndropov/blenderPython/blob/master/img/AMat.png)
