@@ -35,14 +35,14 @@ This script adds a menu for quick material assignment. It is called by keystroke
 ![AMas](https://github.com/YuriyAndropov/blenderPython/blob/master/img/AMat.png)
 
 
-#A* Mouse Selection Tools
+# A* Mouse Selection Tools
 This is a script that emulates mouse selection tools in Modo. On the right click you have rayscat selection , dbl clicks select/deselect geometry based on selection. It could be connected , edge loops, edge rings.
 
 [Video](https://www.youtube.com/watch?v=r9TZU51CHXc&t=1s)
 
 [Direct Download Link](https://github.com/YuriyAndropov/blenderPython/raw/master/AMouseSelectionTools/AMouseSelTools.zip)
 
-#A Hide
+# A* Hide
 This is a simple script that extends the option of hide\unhide in Blender.
 
 [Video](https://www.youtube.com/watch?v=C-QVVQ8_1bE)
