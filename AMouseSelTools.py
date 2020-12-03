@@ -114,8 +114,7 @@ class AddonPreferences(bpy.types.AddonPreferences):
             raycast_keys.clear()
         return None
 
-    vRayTolerance:bpy.props.FloatProperty(name='Vertex Raycast Tolerance',default=0.1)
-    eRayTolerance:bpy.props.FloatProperty(name='Edge Raycat Tolerance',default=0.1)
+    RayTolerance:bpy.props.FloatProperty(name='Vertex Raycast Tolerance',default=25)
     vLinkTolerance:bpy.props.FloatProperty(name='Vertex Linked Tolerance',default=0.2)
     eLinkTolerance:bpy.props.FloatProperty(name='Edge Linked Tolerance',default=0.2)
     deselectSelected:bpy.props.BoolProperty(name='Deselect Selected Linked Only',default=True)
@@ -144,8 +143,7 @@ class AddonPreferences(bpy.types.AddonPreferences):
 
         enableRaycast.prop(self,'enableRaycast')
         enableLinked.prop(self,'enableSelectLinked')
-        vRayRow.prop(self,'vRayTolerance')
-        eRayRow.prop(self,'eRayTolerance')
+        vRayRow.prop(self,'RayTolerance')
         vLinkRow.prop(self,'vLinkTolerance')
         eLinkRow.prop(self,'eLinkTolerance')
         dSelRow.prop(self,'deselectSelected')
@@ -351,7 +349,6 @@ class ASelection_Ray(bpy.types.Operator):
     coords = [0,0]
     subSurfList = {}
     def modal(self, context, event):
-        
         if event.type == 'MOUSEMOVE' and event.value == 'PRESS':
             context.area.tag_redraw()
             self.coords = [event.mouse_region_x,event.mouse_region_y]
@@ -365,94 +362,17 @@ class ASelection_Ray(bpy.types.Operator):
                     else:
                         hitResult[4].select_set(True)
             elif bpy.context.mode == 'EDIT_MESH':
-                distances = []
-                #vert raycast
                 if hitResult[0]:
-                    hitResult[4].update_from_editmode()
-                if hitResult[0] and hitResult[4].select_get() and bpy.context.scene.tool_settings.mesh_select_mode[0]:
-                    for loop in hitResult[4].data.polygons[hitResult[3]].loop_indices:
-                        wCo = hitResult[4].matrix_world @ hitResult[4].data.vertices[hitResult[4].data.loops[loop].vertex_index].co
-                        l1 = numpy.array(wCo)
-                        l2 = numpy.array(hitResult[1])
-                        distances.append(numpy.linalg.norm(l1 - l2))
-                    if distances:
-                        lowest = distances.index(min(distances))
-                        if distances[lowest]<= getValue('vRayTolerance'):
-                            index  = hitResult[4].data.loops[hitResult[4].data.polygons[hitResult[3]].loop_indices[0] + lowest].vertex_index
-                            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-                            if self.deselect:
-                                bm = bmesh.new()
-                                bm.from_mesh(hitResult[4].data)
-                                bm.verts.ensure_lookup_table()
-                                bm.faces.ensure_lookup_table()
-                                bm.edges.ensure_lookup_table()
-                                if bm.verts[index].select:
-                                    bm.verts[index].select_set(False)
-                                    for loop in bm.verts[index].link_loops:
-                                        if loop.edge.select:
-                                            loop.edge.select_set(False)
-                                            #selecting back verts of the edge that are not raycasted
-                                            for vert in loop.edge.verts:
-                                                if bm.verts[index]!=bm.verts[vert.index]:
-                                                    bm.verts[vert.index].select_set(True)
-                                            #selecting back verts of the face that are not raycasted
-                                            if loop.face.select:
-                                                loop.face.select_set(False)
-                                                for vert in loop.face.verts:
-                                                    if bm.verts[index]!=bm.verts[vert.index]:
-                                                        bm.verts[vert.index].select_set(True)
-                                bm.to_mesh(hitResult[4].data)
-                                bm.free()
-                            else:
-                                hitResult[4].data.vertices[index].select = True
-                        else:
-                            if getValue('bringMenuOnFail'):
-                                return bpy.ops.wm.call_menu(name='VIEW3D_MT_edit_mesh_context_menu')
-                    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-                #face raycast
-                elif hitResult[0] and hitResult[4].select_get() and bpy.context.scene.tool_settings.mesh_select_mode[2]:
-                    bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+                    if self.toggle:
+                        bpy.ops.view3d.select_circle(x=event.mouse_region_x, y=event.mouse_region_y, radius=getValue('RayTolerance'), wait_for_input=True, mode='ADD')
                     if self.deselect:
-                        hitResult[4].data.polygons[hitResult[3]].select = False
-                        for loop in hitResult[4].data.polygons[hitResult[3]].loop_indices:
-                            hitResult[4].data.edges[hitResult[4].data.loops[loop].edge_index].select = False
-                            hitResult[4].data.vertices[hitResult[4].data.loops[loop].vertex_index].select = False
+                        bpy.ops.view3d.select_circle(x=event.mouse_region_x, y=event.mouse_region_y, radius=getValue('RayTolerance'), wait_for_input=False, mode='SUB')
                     else:
-                        hitResult[4].data.polygons[hitResult[3]].select = True
-                    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-                #edge raycast
-                elif hitResult[0] and hitResult[4].select_get() and bpy.context.scene.tool_settings.mesh_select_mode[1]:
-                    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-                    for loop in hitResult[4].data.polygons[hitResult[3]].loop_indices:
-                        edge = hitResult[4].data.edges[hitResult[4].data.loops[loop].edge_index]
-                        l1 = numpy.array(hitResult[4].matrix_world @ hitResult[4].data.vertices[edge.vertices[0]].co)
-                        l2 = numpy.array(hitResult[4].matrix_world @ hitResult[4].data.vertices[edge.vertices[1]].co)
-                        p = numpy.array(hitResult[1])
-                        distances.append(distToLine(l1,l2,p))
-                    lowest = distances.index(min(distances))
-                    if distances[lowest]<= getValue('eRayTolerance'):
-                        index = hitResult[4].data.loops[hitResult[4].data.polygons[hitResult[3]].loop_indices[0] + lowest].edge_index
-                        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-                        if self.deselect:
-                            bm = bmesh.new()
-                            bm.from_mesh(hitResult[4].data)
-                            bm.faces.ensure_lookup_table()
-                            bm.edges.ensure_lookup_table()
-                            for face in bm.edges[index].link_faces:
-                                if face.select:
-                                    face.select_set(False)
-                                    for edge in face.edges:
-                                        if edge != bm.edges[index]:
-                                            edge.select_set(True)
-                            bm.edges[index].select_set(False)
-                            bm.to_mesh(hitResult[4].data)
-                            bm.free()
-                        else:
-                                hitResult[4].data.edges[index].select = True
-                    else:
-                        if getValue('bringMenuOnFail'):
-                            return bpy.ops.wm.call_menu(name='VIEW3D_MT_edit_mesh_context_menu')
-                    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                        bpy.ops.view3d.select_circle(x=event.mouse_region_x, y=event.mouse_region_y, radius=getValue('RayTolerance'), wait_for_input=False, mode='ADD')
+                else:
+                    if getValue('bringMenuOnFail'):
+                        return bpy.ops.wm.call_menu(name='VIEW3D_MT_edit_mesh_context_menu')
+                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
         if event.value == 'RELEASE':
             for mod,lvl in self.subSurfList.items():
                         mod.levels = lvl 
@@ -463,19 +383,6 @@ class ASelection_Ray(bpy.types.Operator):
     def invoke(self, context, event):
         self.coords = [event.mouse_region_x,event.mouse_region_y]
         hitResult = ray(self.coords)
-        if hitResult[0]:
-            for mod in hitResult[4].modifiers:
-                if mod.type == 'SUBSURF':
-                        self.subSurfList[mod] = mod.levels
-                if len(self.subSurfList)!=0:
-                    for mod,lvl in self.subSurfList.items():
-                        if mod.levels > 0 :
-                            mod.levels = 0
-            #scene update after switching subsurf levels
-            dg = bpy.context.evaluated_depsgraph_get()
-            dg.update()
-            #---------#
-            hitResult = ray(self.coords)           
         if bpy.context.mode == 'OBJECT':
             if hitResult[0] == False:
                 return bpy.ops.wm.call_menu(name='VIEW3D_MT_object_context_menu')
