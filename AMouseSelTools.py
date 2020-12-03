@@ -23,7 +23,7 @@ bl_info = {
     "description": "A* Mouse Selection Tools ",
     "author": "A*",
     "version": (0, 0, 1),
-    "blender": (2, 80, 0),
+    "blender": (2, 91, 0),
     "location": "Generic",
     "wiki_url": "https://youtu.be/r9TZU51CHXc",
     "category": "Generic"
