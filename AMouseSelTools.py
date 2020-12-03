@@ -155,12 +155,12 @@ def getValue(name):
     return getattr(bpy.context.preferences.addons[__name__].preferences,name)
 
 def ray(coords):
-    view_layer = bpy.context.view_layer
+    depthGraph = bpy.context.evaluated_depsgraph_get()
     region = bpy.context.region
     region3d = bpy.context.space_data.region_3d
     origin = view3d_utils.region_2d_to_origin_3d(region,region3d,coords )
     direction = view3d_utils.region_2d_to_vector_3d(region,region3d,coords)
-    return bpy.context.scene.ray_cast(view_layer,origin,direction)
+    return bpy.context.scene.ray_cast(depthGraph,origin,direction)
 
 def t(l1,l2,p):
         x = l1-l2
