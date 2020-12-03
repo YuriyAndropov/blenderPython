@@ -288,7 +288,7 @@ class ASelection_Linked(bpy.types.Operator):
                                             l2 = numpy.array(hitResult[4].matrix_world @ edge.verts[1].co)
                                             p = numpy.array(hitResult[1])
                                             distances[distToLine(l1,l2,p)] = edge
-                                if min(distances)<= getValue('eRayTolerance'):
+                                if min(distances)<= getValue('RayTolerance'):
                                     del select[:]
                                     closest = distances.get(min(distances))
                                     linked.append(closest)
